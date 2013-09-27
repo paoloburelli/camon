@@ -13,7 +13,7 @@ public abstract class Solver
 	protected double evaluationTime; 
 	protected float bestFit = 0;
 	
-	protected void logTrace(Vector3 position, Vector3 lookAt, float fitness){
+	protected void logTrace(Vector3 position, Vector3 forward, float fitness){
 		if (positionTrace.Count >= TRACE_LENGHT){
 			positionTrace.Dequeue();
 			fitnessTrace.Dequeue();
@@ -22,7 +22,7 @@ public abstract class Solver
 		
 		positionTrace.Enqueue(position);
 		fitnessTrace.Enqueue(fitness);
-		forwardTrace.Enqueue(lookAt);
+		forwardTrace.Enqueue(forward);
 	}
 	
 	public int EvaluationsPerSecond {

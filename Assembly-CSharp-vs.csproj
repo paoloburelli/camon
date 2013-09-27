@@ -44,7 +44,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Cameraman\Controller.cs" />
+     <Compile Include="Assets\Cameraman\Cameraman.cs" />
      <Compile Include="Assets\Cameraman\Properties\PositionOnScreen.cs" />
      <Compile Include="Assets\Cameraman\Properties\ProjectionSize.cs" />
      <Compile Include="Assets\Cameraman\Properties\Property.cs" />

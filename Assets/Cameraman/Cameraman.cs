@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 //[ExecuteInEditMode()]
-[AddComponentMenu("Camera/Controller (CamOn)")]
+[AddComponentMenu("Camera/Cameraman")]
 public class Cameraman : MonoBehaviour
 {
 	public Shot Shot;
@@ -47,7 +47,6 @@ public class Cameraman : MonoBehaviour
 			solver.Update(bestCamera,Subjects,Shot,10);
 		
 		float distance = (transform.position-bestCamera.position).magnitude;
-		
 		transform.position = Vector3.Lerp(transform.position,bestCamera.position,distance/MovementSpeed);
 		transform.rotation = Quaternion.Slerp(transform.rotation,bestCamera.rotation,Time.deltaTime*RotationSpeed);
 	}

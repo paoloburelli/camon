@@ -4,7 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [CustomEditor(typeof(Cameraman))]
-public class ControllerEditor : Editor
+public class CameramanEditor : Editor
 {
 	Cameraman controller;
 
@@ -25,6 +25,10 @@ public class ControllerEditor : Editor
 			if (controller.Shot != null && controller.Shot.Properties != null && controller.Subjects != null)
 				foreach (Property p in controller.Shot.Properties)
 					EditorGUILayout.LabelField(p.Type+" on "+p.Subject+" = "+p.Evaluate(controller.Subjects));
+			
+			if (controller.Shot != null && controller.Shot.Properties != null && controller.Subjects != null)
+				for (int i=0;i<controller.Subjects.Length;i++)
+					EditorGUILayout.LabelField("Visibility on "+i+" = "+controller.Subjects[i].Visibility);
 			
 			EditorGUILayout.Separator();
 			controller.MovementSpeed = EditorGUILayout.Slider("Movement Speed",controller.MovementSpeed,0,100);

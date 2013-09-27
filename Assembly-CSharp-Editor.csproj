@@ -44,7 +44,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Cameraman\Editor\ControllerEditor.cs" />
+     <Compile Include="Assets\Cameraman\Editor\CameramanEditor.cs" />
      <Compile Include="Assets\Cameraman\Editor\ShotEditor.cs" />
  <Reference Include="\Applications\Unity\Unity.app\Contents\Frameworks\Managed\UnityEditor.Graphs">
  <HintPath>\Applications\Unity\Unity.app\Contents\Frameworks\Managed\UnityEditor.Graphs.dll</HintPath>

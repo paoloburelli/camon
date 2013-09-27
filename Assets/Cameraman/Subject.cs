@@ -167,8 +167,8 @@ public class Subject
 			}
 			
 			//If it is too small it is not visible;
-			if (projectionSize < 0.001)
-				onScreenFraction = 0;
+			//if (projectionSize < 0.01)
+			//	onScreenFraction = 0;
 			
 			Vector3 relativeCameraPos = proxy.transform.InverseTransformPoint(camera.transform.position).normalized;
 			vantageAngle.y = Mathf.Asin(relativeCameraPos.y) * Mathf.Rad2Deg;
