@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class ShotEditor : Editor
 {
 	Shot shot;
-	Property.PropertyType propertyToAdd = Property.PropertyType.Visibility;
+	Property.PropertyType propertyToAdd = Property.PropertyType.ProjectionSize;
 	int targetSubject = 0;
 
 	public override void OnInspectorGUI ()
@@ -45,10 +45,6 @@ public class ShotEditor : Editor
 				EditorGUILayout.BeginHorizontal ();
 				EditorGUILayout.LabelField (p.Type.ToString ()+" (Subject "+p.Subject+")	",GUILayout.MinWidth(100));
 				switch (p.Type) {
-				case Property.PropertyType.Visibility:
-					EditorGUILayout.LabelField("Vis.",GUILayout.Width(25));
-					p.DesiredValue = EditorGUILayout.FloatField(p.DesiredValue,GUILayout.MaxWidth(30));
-					break;
 				case Property.PropertyType.ProjectionSize:
 					EditorGUILayout.LabelField("Size",GUILayout.Width(30));
 					p.DesiredValue = EditorGUILayout.FloatField(p.DesiredValue,GUILayout.MaxWidth(30));
@@ -79,9 +75,6 @@ public class ShotEditor : Editor
 			if (GUILayout.Button ("Add")) {
 			
 				switch (propertyToAdd) {
-				case Property.PropertyType.Visibility:
-					shot.Properties.Add (new Visibility (targetSubject, 1, 1));
-					break;
 				case Property.PropertyType.PositionOnScreen:
 					shot.Properties.Add (new PositionOnScreen (targetSubject, 0.5f, 0.5f, 1));
 					break;

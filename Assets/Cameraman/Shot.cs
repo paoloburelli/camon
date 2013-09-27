@@ -22,10 +22,6 @@ public class Shot : ScriptableObject{
 	public void FixPropertyTypes(){
 		for (int i=0;i<Properties.Count;i++)
 			switch(Properties[i].Type){
-			case Property.PropertyType.Visibility:
-				if (!(Properties[i] is Visibility))
-					Properties[i] = new Visibility(Properties[i]);
-				break;
 			case Property.PropertyType.ProjectionSize:
 				if (!(Properties[i] is ProjectionSize))
 					Properties[i] = new ProjectionSize(Properties[i]);
@@ -50,13 +46,14 @@ public class Shot : ScriptableObject{
 				if (s != null)
 					s.Update(camera);
 	}
+	
 	public float Evaluate(){
 		float value = 0;
 		float weight = 0;
 		
 		if (subjects != null)
 			foreach (Property p in Properties){
-					value += p.Evaluate(subjects)*p.Weight;
+					value += subjects[p.Subject].Visibility*p.Evaluate(subjects)*p.Weight;
 					weight+= p.Weight;
 			}
 		
@@ -76,5 +73,14 @@ public class Shot : ScriptableObject{
 					}
 		
 		return float.IsNaN(value/weight) ? 0:value/weight;
+	}
+	
+	public float Visibility {
+		get {
+			float visbility = 0;
+			foreach (Subject s in subjects)
+				visbility += s.Visibility/subjects.Length;
+			return visbility;
+		}
 	}
 }

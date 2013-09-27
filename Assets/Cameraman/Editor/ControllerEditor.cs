@@ -1,16 +1,16 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-[CustomEditor(typeof(Controller))]
+[CustomEditor(typeof(Cameraman))]
 public class ControllerEditor : Editor
 {
-	Controller controller;
+	Cameraman controller;
 
 	public override void OnInspectorGUI ()
 	{
-		controller = (Controller)target;
+		controller = (Cameraman)target;
 		Shot prevShot = controller.Shot;
 		controller.Shot = (Shot)EditorGUILayout.ObjectField ("Shot", controller.Shot, typeof(Shot), false);
 

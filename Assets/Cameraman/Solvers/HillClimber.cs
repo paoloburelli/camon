@@ -2,59 +2,78 @@ using UnityEngine;
 
 public class HillClimber : Solver
 {
-	float posStep;
-	float lookStep;
+	Vector3 bestPosition,bestLookAtPoint;
+	float bestFitness;
 	
 	Property.PropertyType[] positionProps = {Property.PropertyType.ProjectionSize,Property.PropertyType.VantageAngle};
-	Property.PropertyType[] orientationProps = {Property.PropertyType.Visibility,Property.PropertyType.PositionOnScreen};
+	Property.PropertyType[] orientationProps = {Property.PropertyType.PositionOnScreen};
 	
+	public Vector3 SubjectsCenter(Subject[] subjects){
+			Vector3 center = Vector3.zero;
+			foreach (Subject s in subjects)
+				center += s.Position/subjects.Length;
+			return center;
+	}
 	
 	public override float Update (Transform bestCamera, Subject[] subjects, Shot shot, int milliseconds)
 	{
-			float distance = (bestCamera.position-SubjectsCenter(subjects)).magnitude;
-			Vector3 cameraPos = bestCamera.position;
-			Vector3 lookAt = bestCamera.position+bestCamera.forward*distance;
-		
 			shot.UpdateSubjects (subjects, bestCamera.camera);
-			
-			bestFit = shot.Evaluate ();
-			float posFit = shot.Evaluate (positionProps);
-			float orFit = shot.Evaluate(orientationProps);
+		
+			if (shot.Visibility == 0)
+				SnapToSubjects(bestCamera,subjects);
+		
+			bestFitness = shot.Evaluate();
+			float bestPosFit = shot.Evaluate (positionProps);
+			float bestOrFit = shot.Evaluate(orientationProps);
 			
 			double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 			while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < milliseconds) {
 				double evalBegin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-				posStep = (cameraPos-SubjectsCenter(subjects)).magnitude/2;
-				lookStep = (lookAt-SubjectsCenter(subjects)).magnitude/2;
-			
-				Pair<Vector3> random = CameraDistribution.GetRandomDirection(subjects,shot.Properties,bestCamera);
-			
-				bestCamera.position = cameraPos + random.a * posStep*(1-posFit)*Random.value;
-				Vector3 bestLookAt  = lookAt + random.b * lookStep*(1-orFit)*Random.value;
-				bestCamera.LookAt(bestLookAt);
 				
-
+				float posStep = (bestPosition-SubjectsCenter(subjects)).magnitude/2;
+				float lookStep = (bestLookAtPoint-SubjectsCenter(subjects)).magnitude/2;
 			
+				Vector3 tmpPos = bestPosition + Random.insideUnitSphere * posStep*(1-bestPosFit);
+				Vector3 tmpLook  = bestLookAtPoint + Random.insideUnitSphere * lookStep*(1-bestOrFit);
+			
+				bestCamera.position = tmpPos;
+				bestCamera.LookAt(tmpLook);
 				shot.UpdateSubjects (subjects, bestCamera.camera);
-				float newFit = shot.Evaluate ();
+				float tmpFit = shot.Evaluate ();
 			
-				logTrace(bestCamera.position,cameraPos+bestCamera.forward,newFit);
+				logTrace(bestCamera.position,bestCamera.forward,tmpFit);
 								
-				if (newFit >= bestFit) {
-					bestFit = newFit;
-					posFit = shot.Evaluate(positionProps);
-					orFit = shot.Evaluate(orientationProps);
+				if (tmpFit >= bestFitness) {
+					bestFitness = tmpFit;
+					bestPosFit = shot.Evaluate(positionProps);
+					bestOrFit = shot.Evaluate(orientationProps);
 					
-					cameraPos = bestCamera.position;
-					lookAt = bestLookAt;
+					bestPosition = tmpPos;
+					bestLookAtPoint = tmpLook;
 				}
 				evaluationTime=System.DateTime.Now.TimeOfDay.TotalMilliseconds-evalBegin;
 			}
 			
-			bestCamera.position = cameraPos;
-			bestCamera.LookAt(lookAt);
+			bestCamera.position = bestPosition;
+			bestCamera.LookAt(bestLookAtPoint);
 		
-			return bestFit;
+			return bestFitness;
+	}
+
+	public override void Start (Transform camera, Subject[] subjects, Shot shot)
+	{
+		bestLookAtPoint = camera.position;
+		SnapToSubjects(camera, subjects);
+		SetCamera(camera);
+	}
+	
+	protected void SnapToSubjects(Transform camera, Subject[] subjects){
+		bestLookAtPoint = SubjectsCenter(subjects);
+	}
+	
+	protected void SetCamera(Transform camera){
+		camera.position = bestPosition;
+		camera.LookAt(bestLookAtPoint);
 	}
 }
 

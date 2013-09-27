@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
+    <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{519AAFDF-2185-0825-AA73-95E48BDDCC5A}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -44,18 +44,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Cameraman\Controller.cs" />
     <Compile Include="Assets\Cameraman\Properties\PositionOnScreen.cs" />
     <Compile Include="Assets\Cameraman\Properties\ProjectionSize.cs" />
     <Compile Include="Assets\Cameraman\Properties\Property.cs" />
     <Compile Include="Assets\Cameraman\Properties\VantageAngle.cs" />
-    <Compile Include="Assets\Cameraman\Properties\Visibility.cs" />
     <Compile Include="Assets\Cameraman\Shot.cs" />
     <Compile Include="Assets\Cameraman\Solvers\CameraDistribution.cs" />
     <Compile Include="Assets\Cameraman\Solvers\HillClimber.cs" />
     <Compile Include="Assets\Cameraman\Solvers\Solver.cs" />
     <Compile Include="Assets\Cameraman\Subject.cs" />
     <Compile Include="Assets\Cameraman\Utils\Pair.cs" />
+    <Compile Include="Assets\Cameraman\Cameraman.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

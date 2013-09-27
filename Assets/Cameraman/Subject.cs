@@ -166,6 +166,10 @@ public class Subject
 				onScreenPosition.y = viewPortSpaceCenter.y > 0 ? viewPortSpaceCenter.y > 1 ? float.PositiveInfinity : float.NaN : float.NegativeInfinity;
 			}
 			
+			//If it is too small it is not visible;
+			if (projectionSize < 0.001)
+				onScreenFraction = 0;
+			
 			Vector3 relativeCameraPos = proxy.transform.InverseTransformPoint(camera.transform.position).normalized;
 			vantageAngle.y = Mathf.Asin(relativeCameraPos.y) * Mathf.Rad2Deg;
 			vantageAngle.x = -Mathf.Atan2(relativeCameraPos.x,-relativeCameraPos.z) * Mathf.Rad2Deg;

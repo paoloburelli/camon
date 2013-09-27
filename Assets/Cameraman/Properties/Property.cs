@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [Serializable]
 public class Property
 {
-	public enum PropertyType {Visibility, ProjectionSize, VantageAngle, PositionOnScreen};
+	public enum PropertyType {ProjectionSize, VantageAngle, PositionOnScreen};
 	
 	public PropertyType Type{
 		get {return type;}

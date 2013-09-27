@@ -44,18 +44,17 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\CamOn\Controller.cs" />
-     <Compile Include="Assets\CamOn\Properties\PositionOnScreen.cs" />
-     <Compile Include="Assets\CamOn\Properties\ProjectionSize.cs" />
-     <Compile Include="Assets\CamOn\Properties\Property.cs" />
-     <Compile Include="Assets\CamOn\Properties\VantageAngle.cs" />
-     <Compile Include="Assets\CamOn\Properties\Visibility.cs" />
-     <Compile Include="Assets\CamOn\Shot.cs" />
-     <Compile Include="Assets\CamOn\Solvers\CameraDistribution.cs" />
-     <Compile Include="Assets\CamOn\Solvers\HillClimber.cs" />
-     <Compile Include="Assets\CamOn\Solvers\Solver.cs" />
-     <Compile Include="Assets\CamOn\Subject.cs" />
-     <Compile Include="Assets\CamOn\Utils\Pair.cs" />
+     <Compile Include="Assets\Cameraman\Controller.cs" />
+     <Compile Include="Assets\Cameraman\Properties\PositionOnScreen.cs" />
+     <Compile Include="Assets\Cameraman\Properties\ProjectionSize.cs" />
+     <Compile Include="Assets\Cameraman\Properties\Property.cs" />
+     <Compile Include="Assets\Cameraman\Properties\VantageAngle.cs" />
+     <Compile Include="Assets\Cameraman\Shot.cs" />
+     <Compile Include="Assets\Cameraman\Solvers\CameraDistribution.cs" />
+     <Compile Include="Assets\Cameraman\Solvers\HillClimber.cs" />
+     <Compile Include="Assets\Cameraman\Solvers\Solver.cs" />
+     <Compile Include="Assets\Cameraman\Subject.cs" />
+     <Compile Include="Assets\Cameraman\Utils\Pair.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
