@@ -42,6 +42,10 @@ public class Shot : ScriptableObject
 				if (!(Properties [i] is VantageAngle))
 					Properties [i] = new VantageAngle (Properties [i]);
 				break;
+			case Property.PropertyType.RelativePosition:
+				if (!(Properties [i] is RelativePosition))
+					Properties [i] = new RelativePosition (Properties [i]);
+				break;
 			}
 		
 	}
@@ -64,7 +68,7 @@ public class Shot : ScriptableObject
 		
 		if (subjects != null)
 			foreach (Property p in Properties) {
-				value += subjects [p.Subject].Visibility * p.Evaluate (subjects) * p.Weight;
+				value += p.Evaluate (subjects) * p.Weight;
 				weight += p.Weight;
 			}
 		

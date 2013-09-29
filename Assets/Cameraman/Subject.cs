@@ -35,7 +35,7 @@ public class Subject
 	bool[] onScreenCornersVisibility = new bool[CORNERS_COUNT];
 	float onScreenFraction;
 	float projectionSize;
-	Vector2 onScreenPosition = new Vector2 (0, 0);
+	Vector3 onScreenPosition = new Vector3 (0, 0, 0);
 	Vector2 vantageAngle = new Vector2 (0, 0);
 	
 	public Vector3 Position {
@@ -64,7 +64,7 @@ public class Subject
 		get { return projectionSize; }
 	}
 	
-	public Vector2 PositionOnScreen {
+	public Vector3 PositionOnScreen {
 		get { return onScreenPosition; }
 	}
 	
@@ -111,7 +111,7 @@ public class Subject
 			transform.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 			
 			onScreenFraction = 0;
-			float screenTop = 0, screenBottom = 1, screenRight = 0, screenLeft = 1;
+			float screenTop = 0, screenBottom = 1, screenRight = 0, screenLeft = 1, screenFront=float.PositiveInfinity, screenBack=0;
 		
 			foreach (Vector3 v in proxyMesh.vertices) {
 				Vector3 tv = proxy.transform.TransformPoint (v);
@@ -134,6 +134,11 @@ public class Subject
 						screenLeft = sv.x;
 						onScreenCorners [(int)Corner.Left] = tv;
 					}
+					if (sv.z > screenBack)
+						screenBack = sv.z;
+					
+					if (sv.z < screenFront)
+						screenFront = sv.z;
 				}
 			}
 			onScreenFraction *= 1.0f / proxyMesh.vertices.LongLength;
@@ -151,6 +156,7 @@ public class Subject
 					
 				onScreenPosition.x = screenLeft + width / 2;
 				onScreenPosition.y = screenBottom + height / 2;
+				onScreenPosition.z = (screenFront + screenBack)/2;
 				
 			} else {
 				for (int i=0; i<CORNERS_COUNT; i++) {

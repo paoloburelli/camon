@@ -8,7 +8,7 @@ public class ShotEditor : Editor
 {
 	Shot shot;
 	Property.PropertyType propertyToAdd = Property.PropertyType.ProjectionSize;
-	int targetSubject = 0;
+	int targetSubject = 0,secondaryTarget = 1;
 
 	public override void OnInspectorGUI ()
 	{
@@ -43,7 +43,7 @@ public class ShotEditor : Editor
 			Property toRemove = null;
 			foreach (Property p in shot.Properties) {
 				EditorGUILayout.BeginHorizontal ();
-				EditorGUILayout.LabelField (p.Type.ToString ()+" (Subject "+p.Subject+")	",GUILayout.MinWidth(100));
+				EditorGUILayout.LabelField (p.Type.ToString ()+" (Subject "+p.Subject+")	",GUILayout.MinWidth(140));
 				switch (p.Type) {
 				case Property.PropertyType.ProjectionSize:
 					EditorGUILayout.LabelField("Size",GUILayout.Width(30));
@@ -60,6 +60,10 @@ public class ShotEditor : Editor
 					((PositionOnScreen)p).DesiredHorizontalPosition = EditorGUILayout.FloatField(((PositionOnScreen)p).DesiredHorizontalPosition,GUILayout.MaxWidth(30));
 					EditorGUILayout.LabelField("Y",EditorStyles.wordWrappedLabel);
 					((PositionOnScreen)p).DesiredVerticalPosition = EditorGUILayout.FloatField(((PositionOnScreen)p).DesiredVerticalPosition,GUILayout.MaxWidth(30));
+					break;
+				case Property.PropertyType.RelativePosition:
+					p.DesiredValue = (int)((RelativePosition.Position)EditorGUILayout.EnumPopup((RelativePosition.Position)p.DesiredValue));
+					EditorGUILayout.LabelField(" (Subject "+((RelativePosition)p).SecondarySubject+")",GUILayout.MinWidth(30));
 					break;
 				}
 				EditorGUILayout.LabelField("Weight",GUILayout.Width(45));
@@ -84,16 +88,27 @@ public class ShotEditor : Editor
 				case Property.PropertyType.VantageAngle:
 					shot.Properties.Add (new VantageAngle (targetSubject, 0, 0, 1));
 					break;
+				case Property.PropertyType.RelativePosition:
+					shot.Properties.Add (new RelativePosition (targetSubject, RelativePosition.Position.InFrontOf, secondaryTarget, 1));
+					break;
 				}
 			}
 		
-			propertyToAdd = (Property.PropertyType)EditorGUILayout.EnumPopup (propertyToAdd);
+			Property.PropertyType tmp = (Property.PropertyType)EditorGUILayout.EnumPopup (propertyToAdd);
+			if (tmp != Property.PropertyType.RelativePosition || shot.NumberOfSubjects > 1)
+				propertyToAdd = tmp;
+			
 			string[] options = new string[shot.NumberOfSubjects];
 			for (int i=0; i<options.Length; i++)
 				options [i] = "Subject " + i.ToString ();
 			if (targetSubject > options.Length - 1)
 				targetSubject--;
 			targetSubject = EditorGUILayout.Popup (targetSubject, options);
+			
+			
+			if (propertyToAdd == Property.PropertyType.RelativePosition)
+				secondaryTarget = EditorGUILayout.Popup (secondaryTarget, options);
+			
 			EditorGUILayout.EndHorizontal ();
 		
 

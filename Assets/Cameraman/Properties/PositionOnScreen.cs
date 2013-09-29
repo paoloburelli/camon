@@ -38,7 +38,7 @@ public class PositionOnScreen : Property
 		float hSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.x - DesiredHorizontalPosition);
 		float vSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.y - DesiredVerticalPosition);
 		
-		return (hSatisfaction+vSatisfaction)/2;
+		return mySubject.Visibility*(hSatisfaction+vSatisfaction)/2;
 	}
 	#endregion
 }

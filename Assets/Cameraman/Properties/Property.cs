@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [Serializable]
 public class Property
 {
-	public enum PropertyType {ProjectionSize, VantageAngle, PositionOnScreen};
+	public enum PropertyType {ProjectionSize, VantageAngle, PositionOnScreen, RelativePosition};
 	
 	public PropertyType Type{
 		get {return type;}
@@ -39,6 +39,7 @@ public class Property
 	{
 		this.Weight = weight;
 		subjectReferences = new int[1];
+		desiredValues = new float[1];
 	}
 	
 	public virtual float Evaluate(Subject[] subjectsList){

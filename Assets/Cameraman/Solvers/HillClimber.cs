@@ -36,9 +36,7 @@ public class HillClimber : Solver
 				if (shot.Visibility == 0) 
 					bestForward = (SubjectsCenter(subjects) - bestPosition).normalized;
 			
-
-
-				currentCamera.position = bestPosition + CameraDistribution.GetRandomDirection(subjects,shot.Properties,currentCamera).a * Random.value * (posDistance/10) *(1-bestPosFit);
+				currentCamera.position = bestPosition + Random.insideUnitSphere * (posDistance/10) *(1-bestPosFit);
 				Vector3 tmpLookAt = bestPosition + bestForward*posDistance;
 				currentCamera.LookAt(tmpLookAt);
 				currentCamera.forward += Random.insideUnitSphere * Random.value *(1-bestOrFit) / posDistance;

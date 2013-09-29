@@ -1,22 +1,10 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Cameraman/Solvers/HillClimber.cs">
-    <Files>
-      <File FileName="Assets/Cameraman/Shot.cs" Line="111" Column="4" />
-      <File FileName="Assets/Cameraman/Subject.cs" Line="171" Column="6" />
-      <File FileName="Assets/Cameraman/Cameraman.cs" Line="44" Column="21" />
-      <File FileName="Assets/Cameraman/Solvers/Solver.cs" Line="27" Column="2" />
-      <File FileName="Assets/Cameraman/Solvers/HillClimber.cs" Line="44" Column="72" />
-      <File FileName="Assets/Cameraman/Properties/VantageAngle.cs" Line="1" Column="1" />
-      <File FileName="Assets/Cameraman/Solvers/CameraDistribution.cs" Line="1" Column="1" />
-      <File FileName="Assets/Cameraman/Properties/ProjectionSize.cs" Line="1" Column="1" />
-      <File FileName="Assets/Cameraman/Properties/Property.cs" Line="1" Column="1" />
-      <File FileName="Assets/Cameraman/Editor/ShotEditor.cs" Line="1" Column="1" />
-      <File FileName="Assets/Cameraman/Editor/CameramanEditor.cs" Line="1" Column="1" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/paolo/Source Code/Libraries/Cameraman/Assets/Cameraman/Subject.cs" line="144" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

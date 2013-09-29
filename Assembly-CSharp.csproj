@@ -48,6 +48,7 @@
      <Compile Include="Assets\Cameraman\Properties\PositionOnScreen.cs" />
      <Compile Include="Assets\Cameraman\Properties\ProjectionSize.cs" />
      <Compile Include="Assets\Cameraman\Properties\Property.cs" />
+     <Compile Include="Assets\Cameraman\Properties\RelativePosition.cs" />
      <Compile Include="Assets\Cameraman\Properties\VantageAngle.cs" />
      <Compile Include="Assets\Cameraman\Shot.cs" />
      <Compile Include="Assets\Cameraman\Solvers\CameraDistribution.cs" />

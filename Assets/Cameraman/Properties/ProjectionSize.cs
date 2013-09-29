@@ -22,7 +22,7 @@ public class ProjectionSize : Property
 		if (float.IsInfinity(mySubject.ProjectionSize))
 			return 0;
 
-		return (1-Mathf.Abs(mySubject.ProjectionSize - DesiredValue));
+		return mySubject.Visibility*(1-Mathf.Abs(mySubject.ProjectionSize - DesiredValue));
 	}
 	#endregion
 }
