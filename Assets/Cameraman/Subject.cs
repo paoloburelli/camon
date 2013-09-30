@@ -35,8 +35,10 @@ public class Subject
 	bool[] onScreenCornersVisibility = new bool[CORNERS_COUNT];
 	float onScreenFraction;
 	float projectionSize;
-	Vector3 onScreenPosition = new Vector3 (0, 0, 0);
 	Vector2 vantageAngle = new Vector2 (0, 0);
+	Bounds screenSpaceBounds = new Bounds(Vector3.zero,Vector3.zero);
+	Vector3 screenMin = Vector3.one;
+	Vector3 screenMax = Vector3.zero;
 	
 	public Vector3 Position {
 		get { return proxy.transform.position; }
@@ -64,8 +66,14 @@ public class Subject
 		get { return projectionSize; }
 	}
 	
+	public Bounds ScreenBounds {
+		get {
+			return screenSpaceBounds;
+		}
+	}
+	
 	public Vector3 PositionOnScreen {
-		get { return onScreenPosition; }
+		get { return screenSpaceBounds.center; }
 	}
 	
 	public Vector2 VantageAngle {
@@ -102,7 +110,7 @@ public class Subject
 			while (transform.Find (BOUNDS_NAME) != null)
 				GameObject.DestroyImmediate (transform.Find (BOUNDS_NAME).gameObject);
 	}
-
+	
 	public void Update (Camera camera)
 	{
 		if (!Ignore) {
@@ -111,34 +119,36 @@ public class Subject
 			transform.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 			
 			onScreenFraction = 0;
-			float screenTop = 0, screenBottom = 1, screenRight = 0, screenLeft = 1, screenFront=float.PositiveInfinity, screenBack=0;
-		
+			screenMin = Vector3.one;
+			screenMin.z = float.PositiveInfinity;
+			screenMax = Vector3.zero;
+
 			foreach (Vector3 v in proxyMesh.vertices) {
 				Vector3 tv = proxy.transform.TransformPoint (v);
 				Vector3 sv = camera.WorldToViewportPoint (tv);
 				if (sv.z > 0 && sv.y < 1 && sv.y > 0 && sv.x > 0 && sv.x < 1) {
 					onScreenFraction++;
-					if (sv.y > screenTop) {
-						screenTop = sv.y;
+					if (sv.y > screenMax.y) {
+						screenMax.y = sv.y;
 						onScreenCorners [(int)Corner.Top] = tv;
 					}
-					if (sv.y < screenBottom) {
-						screenBottom = sv.y;
+					if (sv.y < screenMin.y) {
+						screenMin.y = sv.y;
 						onScreenCorners [(int)Corner.Bottom] = tv;
 					}
-					if (sv.x > screenRight) {
-						screenRight = sv.x;
+					if (sv.x > screenMax.x) {
+						screenMax.x = sv.x;
 						onScreenCorners [(int)Corner.Right] = tv;
 					}
-					if (sv.x < screenLeft) {
-						screenLeft = sv.x;
+					if (sv.x < screenMin.x) {
+						screenMin.x = sv.x;
 						onScreenCorners [(int)Corner.Left] = tv;
 					}
-					if (sv.z > screenBack)
-						screenBack = sv.z;
+					if (sv.z > screenMax.z)
+						screenMax.z = sv.z;
 					
-					if (sv.z < screenFront)
-						screenFront = sv.z;
+					if (sv.z < screenMin.z)
+						screenMin.z = sv.z;
 				}
 			}
 			onScreenFraction *= 1.0f / proxyMesh.vertices.LongLength;
@@ -149,14 +159,11 @@ public class Subject
 					onScreenCornersVisibility [i] = !Physics.Raycast (onScreenCorners [i], direction.normalized, direction.magnitude, LAYER_MASK);
 				}
 				
-				float height = (screenTop - screenBottom);
-				float width = (screenRight - screenLeft);
+				float height = screenMax.y - screenMin.y;
+				float width = screenMax.x - screenMin.x;
+				
 				projectionSize = height > width ? height : width;
 				projectionSize *= 1.1f; //this gives some borders around the object on the screen
-					
-				onScreenPosition.x = screenLeft + width / 2;
-				onScreenPosition.y = screenBottom + height / 2;
-				onScreenPosition.z = (screenFront + screenBack)/2;
 				
 			} else {
 				for (int i=0; i<CORNERS_COUNT; i++) {
@@ -165,17 +172,24 @@ public class Subject
 				}
 
 				projectionSize = float.NegativeInfinity;
+				
+				screenSpaceBounds.SetMinMax(Vector3.zero,Vector3.zero);
 						
 				Vector3 viewPortSpaceCenter = camera.WorldToViewportPoint (Position);
 					
-				onScreenPosition.x = viewPortSpaceCenter.x > 0 ? viewPortSpaceCenter.x > 1 ? float.PositiveInfinity : float.NaN : float.NegativeInfinity;
-				onScreenPosition.y = viewPortSpaceCenter.y > 0 ? viewPortSpaceCenter.y > 1 ? float.PositiveInfinity : float.NaN : float.NegativeInfinity;
+				screenMax.x = viewPortSpaceCenter.x > 0 ? viewPortSpaceCenter.x > 1 ? float.PositiveInfinity : float.NaN : float.NegativeInfinity;
+				screenMax.y = viewPortSpaceCenter.y > 0 ? viewPortSpaceCenter.y > 1 ? float.PositiveInfinity : float.NaN : float.NegativeInfinity;
+				screenMax.z = 0;
+				screenMin.x = screenMax.x;
+				screenMin.y = screenMax.y;
+				screenMin.z = screenMax.z;
 			}
 			
 			//If it is too small it is not visible;
 			//if (projectionSize < 0.01)
 			//	onScreenFraction = 0;
 			
+			screenSpaceBounds.SetMinMax(screenMin,screenMax);
 			Vector3 relativeCameraPos = proxy.transform.InverseTransformPoint(camera.transform.position).normalized;
 			vantageAngle.y = Mathf.Asin(relativeCameraPos.y) * Mathf.Rad2Deg;
 			vantageAngle.x = -Mathf.Atan2(relativeCameraPos.x,-relativeCameraPos.z) * Mathf.Rad2Deg;
