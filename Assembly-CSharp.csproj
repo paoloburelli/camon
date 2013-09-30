@@ -51,7 +51,6 @@
      <Compile Include="Assets\Cameraman\Properties\RelativePosition.cs" />
      <Compile Include="Assets\Cameraman\Properties\VantageAngle.cs" />
      <Compile Include="Assets\Cameraman\Shot.cs" />
-     <Compile Include="Assets\Cameraman\Solvers\CameraDistribution.cs" />
      <Compile Include="Assets\Cameraman\Solvers\HillClimber.cs" />
      <Compile Include="Assets\Cameraman\Solvers\Solver.cs" />
      <Compile Include="Assets\Cameraman\Subject.cs" />

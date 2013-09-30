@@ -210,5 +210,7 @@ public class Subject
 					Gizmos.DrawWireSphere (onScreenCorners [i], 0.05f * proxy.renderer.bounds.size.y);
 				}
 		}
+		
+		
 	}
 }
