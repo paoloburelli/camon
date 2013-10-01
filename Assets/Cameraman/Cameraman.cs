@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
-//[ExecuteInEditMode()]
 [AddComponentMenu("Camera/Cameraman")]
 public class Cameraman : MonoBehaviour
 {
@@ -23,32 +22,32 @@ public class Cameraman : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		if (Shot != null)
-			Shot.FixPropertyTypes ();
-		
-		if (SubjectsTransform != null)
-			Subjects = new Subject[SubjectsTransform.Length];
-		
-		for (int i=0; i<SubjectsTransform.Length; i++)
-			if (SubjectsTransform [i] != null)
-				Subjects [i] = new Subject (SubjectsTransform [i], Shot.SubjectCenters [i], Shot.SubjectScales [i], Shot.SubjectBounds [i]);
-		
-		bestCamera = (Transform)GameObject.Instantiate(transform);
-		GameObject.DestroyImmediate(bestCamera.GetComponent<Cameraman>());
-		GameObject.DestroyImmediate(bestCamera.GetComponent<AudioListener>());
-		bestCamera.gameObject.SetActive(false);
-		
-		solver.Start(bestCamera,Subjects,Shot);
+			if (Shot != null)
+				Shot.FixPropertyTypes ();
+			
+			if (SubjectsTransform != null)
+				Subjects = new Subject[SubjectsTransform.Length];
+			
+			for (int i=0; i<SubjectsTransform.Length; i++)
+				if (SubjectsTransform [i] != null)
+					Subjects [i] = new Subject (SubjectsTransform [i], Shot.SubjectCenters [i], Shot.SubjectScales [i], Shot.SubjectBounds [i]);
+			
+			bestCamera = (Transform)GameObject.Instantiate(transform);
+			GameObject.DestroyImmediate(bestCamera.GetComponent<Cameraman>());
+			GameObject.DestroyImmediate(bestCamera.GetComponent<AudioListener>());
+			bestCamera.gameObject.SetActive(false);
+			
+			solver.Start(bestCamera,Subjects,Shot);
 	}
 	
 	void FixedUpdate ()
 	{
-		if (Shot != null)
-			solver.Update(bestCamera,Subjects,Shot,10);
-		
-		float distance = (transform.position-bestCamera.position).magnitude;
-		transform.position = Vector3.Lerp(transform.position,bestCamera.position,distance/MovementSpeed);
-		transform.rotation = Quaternion.Slerp(transform.rotation,bestCamera.rotation,Time.deltaTime*RotationSpeed);
+			if (Shot != null)
+				solver.Update(bestCamera,Subjects,Shot,10);
+			
+			float distance = (transform.position-bestCamera.position).magnitude;
+			transform.position = Vector3.Lerp(transform.position,bestCamera.position,distance/MovementSpeed);
+			transform.rotation = Quaternion.Slerp(transform.rotation,bestCamera.rotation,Time.deltaTime*RotationSpeed);
 	}
 	
 	void OnApplicationQuit ()
@@ -61,6 +60,9 @@ public class Cameraman : MonoBehaviour
 	
 	void OnDrawGizmos ()
 	{
+		if (!Application.isPlaying)
+			while(GameObject.Find(Subject.PROXY_NAME) != null)
+				GameObject.DestroyImmediate(GameObject.Find(Subject.PROXY_NAME));
 		
 		if (Shot != null) {
 			Shot.UpdateSubjects (Subjects, camera);
@@ -73,6 +75,7 @@ public class Cameraman : MonoBehaviour
 					s.DrawGizmos ();
 		
 		solver.DrawGizmos();
+		
 	}
 }
 

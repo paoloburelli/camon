@@ -15,7 +15,7 @@ public class Subject
 	};
 	
 	const int LAYER_MASK = ~6; //do not test transparent and ignore raycast;
-	public const string BOUNDS_NAME = "[Camera Proxy]";
+	public const string PROXY_NAME = "[Camera Proxy]";
 	public const string IGNORE_TAG = "IGNORE";
 
 	public bool Ignore {
@@ -95,7 +95,7 @@ public class Subject
 		proxy.transform.parent = transform;
 		proxy.transform.localPosition = Vector3.Scale (transform.renderer.bounds.size, center - Vector3.one * 0.5f);
 		proxy.transform.localScale = scale;
-		proxy.name = BOUNDS_NAME;
+		proxy.name = PROXY_NAME;
 		proxyRenderer = proxy.GetComponent<MeshRenderer> ();
 		proxyMesh = proxy.GetComponent<MeshFilter> ().sharedMesh;
 		proxy.SetActive (transform.gameObject.activeInHierarchy);
@@ -107,8 +107,8 @@ public class Subject
 		proxyRenderer = null;
 		proxyMesh = null;
 		if (transform != null)
-			while (transform.Find (BOUNDS_NAME) != null)
-				GameObject.DestroyImmediate (transform.Find (BOUNDS_NAME).gameObject);
+			while (transform.Find (PROXY_NAME) != null)
+				GameObject.DestroyImmediate (transform.Find (PROXY_NAME).gameObject);
 	}
 	
 	public void Update (Camera camera)
@@ -210,7 +210,5 @@ public class Subject
 					Gizmos.DrawWireSphere (onScreenCorners [i], 0.05f * proxy.renderer.bounds.size.y);
 				}
 		}
-		
-		
 	}
 }

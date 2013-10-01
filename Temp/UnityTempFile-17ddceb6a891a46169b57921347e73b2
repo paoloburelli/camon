@@ -41,6 +41,7 @@
 'Assets/Cameraman/Solvers/HillClimber.cs'
 'Assets/Cameraman/Solvers/Solver.cs'
 'Assets/Cameraman/Subject.cs'
+'Assets/Cameraman/Tests/TestConvergence.cs'
 'Assets/Cameraman/Utils/Pair.cs'
 -r:'/Applications/Unity/Unity.app/Contents/Frameworks/Mono/lib/mono/unity/System.Runtime.Serialization.dll'
 -r:'/Applications/Unity/Unity.app/Contents/Frameworks/Mono/lib/mono/unity/System.Xml.Linq.dll'

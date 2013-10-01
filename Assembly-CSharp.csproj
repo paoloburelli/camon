@@ -54,6 +54,7 @@
      <Compile Include="Assets\Cameraman\Solvers\HillClimber.cs" />
      <Compile Include="Assets\Cameraman\Solvers\Solver.cs" />
      <Compile Include="Assets\Cameraman\Subject.cs" />
+     <Compile Include="Assets\Cameraman\Tests\TestConvergence.cs" />
      <Compile Include="Assets\Cameraman\Utils\Pair.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
