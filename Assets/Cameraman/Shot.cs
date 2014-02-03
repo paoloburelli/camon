@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -10,22 +9,7 @@ public class Shot : ScriptableObject
 	public List<Vector3> SubjectScales = new List<Vector3> ();
 	public List<PrimitiveType> SubjectBounds = new List<PrimitiveType> ();
 	public List<Property> Properties = new List<Property> ();
-	
-	[MenuItem("Assets/Create/Cameraman/Shot")]
-	public static void Crate ()
-	{
-		string path = AssetDatabase.GetAssetPath (Selection.activeObject);
-
-		if (path == "")
-			path = "Assets";
-
-		Shot asset = ScriptableObject.CreateInstance<Shot>();
-		AssetDatabase.CreateAsset (asset, AssetDatabase.GenerateUniqueAssetPath (path + "/Shot.asset"));
-		AssetDatabase.SaveAssets ();
-		EditorUtility.FocusProjectWindow ();
-		Selection.activeObject = asset;
-	}
-	
+		
 	public void FixPropertyTypes ()
 	{
 		for (int i=0; i<Properties.Count; i++)
