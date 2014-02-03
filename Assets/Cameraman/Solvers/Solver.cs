@@ -12,6 +12,7 @@ public abstract class Solver
 	
 	protected double evaluationTime; 
 	protected float bestFit = 0;
+	protected bool running = true;
 	
 	protected void logTrace(Vector3 position, Vector3 forward, float fitness){
 		if (positionTrace.Count >= TRACE_LENGHT){
@@ -43,5 +44,6 @@ public abstract class Solver
 	
 	abstract public float Update(Transform bestCamera, Subject[] subjects, Shot shot, int milliseconds);
 	abstract public void Start(Transform bestCamera, Subject[] subjects, Shot shot);
+	abstract public void Stop();
 }
 

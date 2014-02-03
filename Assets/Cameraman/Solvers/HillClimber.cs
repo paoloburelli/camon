@@ -11,12 +11,14 @@ public class HillClimber : Solver
 	public Vector3 SubjectsCenter(Subject[] subjects){
 			Vector3 center = Vector3.zero;
 			foreach (Subject s in subjects)
-				center += s.Position/subjects.Length;
+				if (s!=null)
+					center += s.Position/subjects.Length;
 			return center;
 	}
 	
 	public override float Update (Transform currentCamera, Subject[] subjects, Shot shot, int milliseconds)
 	{
+		if (running) {
 			double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 		
 			shot.UpdateSubjects (subjects, currentCamera.camera);
@@ -61,6 +63,8 @@ public class HillClimber : Solver
 			currentCamera.forward = bestForward;
 		
 			return bestFitness;
+		} else 
+			return 0;
 	}
 
 	public override void Start (Transform camera, Subject[] subjects, Shot shot)
@@ -69,6 +73,11 @@ public class HillClimber : Solver
 		bestForward = (SubjectsCenter(subjects) - bestPosition).normalized;
 		camera.position = bestPosition;
 		camera.forward = bestForward;
+		running = true;
+	}
+	
+	public override void Stop(){
+		running = false;
 	}
 }
 

@@ -67,14 +67,22 @@ public class Shot : ScriptableObject
 		float weight = 0;
 		
 		if (subjects != null){
-			foreach (Property p in Properties) {
-				value += p.Evaluate (subjects) * p.Weight;
-				weight += p.Weight;
+			
+			bool eval = true;
+			foreach (Subject s in subjects)
+				if (s == null)
+					eval = false;
+			
+			if (eval) {
+				foreach (Property p in Properties) {
+					value += p.Evaluate (subjects) * p.Weight;
+					weight += p.Weight;
+				}
+				foreach (Subject s in subjects){
+					value += s.Visibility;
+					weight += 1;
+				}
 			}
-			foreach (Subject s in subjects){
-				value += s.Visibility;
-				weight += 1;
-			}	
 		}
 		
 		return float.IsNaN (value / weight) ? 0 : value / weight;

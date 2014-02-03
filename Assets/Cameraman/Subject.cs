@@ -40,6 +40,12 @@ public class Subject
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
 	
+	public string Name {
+		get {
+			return transform.name;
+		}
+	}
+	
 	public Vector3 Position {
 		get { return proxy.transform.position; }
 	}
