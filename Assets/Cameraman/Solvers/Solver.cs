@@ -42,7 +42,7 @@ public abstract class Solver
 		}
 	}
 	
-	abstract public float Update(Transform bestCamera, Subject[] subjects, Shot shot, int milliseconds);
+	abstract public float Update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
 	abstract public void Start(Transform bestCamera, Subject[] subjects, Shot shot);
 	abstract public void Stop();
 }

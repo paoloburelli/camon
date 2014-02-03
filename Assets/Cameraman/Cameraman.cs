@@ -6,25 +6,38 @@ using System.Collections;
 [AddComponentMenu("Camera/Cameraman")]
 public class Cameraman : MonoBehaviour
 {
+	public float MovementResponsiveness = 0.1f;
+	public float RotationResponsiveness = 0.1f;
+	
 	[SerializeField]
-	protected Shot shot;
-
+	Shot shot;
+	[SerializeField]
+	Transform[] subjectsTransform;
+	
+    Subject[] subjects;
+	Solver solver = new HillClimber ();
+	Transform bestCamera;
+	
+	
+	public Subject[] Subjects {
+		get {
+			return subjects;
+		}
+	}
+	
 	public Shot Shot {
 		set {
 			if (value != shot) {
 				shot = value;
-				subjectsTransform = new Transform[shot.NumberOfSubjects];
-				if (Application.isPlaying)
-					Reset ();
+				if (shot != null)
+					subjectsTransform = new Transform[shot.NumberOfSubjects];
+				Reset ();
 			}	
 		}
 		get {
 			return shot;
 		}
 	}
-	
-	[SerializeField]
-	protected Transform[] subjectsTransform;
 	
 	public IEnumerator SubjectTrasnforms {
 		get {
@@ -39,113 +52,105 @@ public class Cameraman : MonoBehaviour
 	}
 	
 	public void SetSubjectTransform(int i, Transform f){
-		subjectsTransform[i] = f;
+		if (f != subjectsTransform[i]){
+			subjectsTransform[i] = f;
+			Reset();
+		}
 	}
 	
 	public Transform GetSubjectTransform(int i){
 		return subjectsTransform[i];
 	}
 	
-	public Subject[] Subjects;
-	public float MovementSpeed = 10f;
-	public float RotationSpeed = 1f;
-	
 	public int EvaluationsPerSecond {
 		get { return solver.EvaluationsPerSecond;}
 	}
 	
-	private Solver solver = new HillClimber ();
-	Transform bestCamera;
+	public bool ReadyForEvaluation {
+		get {
+			if (Shot == null || Shot.Properties == null)
+				return false;
+			
+			if (subjects == null)
+				return false;
+			
+			foreach (Subject s in subjects)
+				if (s == null)
+					return false;
+			
+			return true;
+		}
+	}
+	
+
 	
 	// Use this for initialization
 	void Start ()
 	{
-		if (shot != null) {
-			shot.FixPropertyTypes ();
-			
-			if (subjectsTransform != null)
-				Subjects = new Subject[subjectsTransform.Length];
-			
-			for (int i=0; i<subjectsTransform.Length; i++)
-				if (subjectsTransform [i] != null)
-					Subjects [i] = new Subject (subjectsTransform [i], shot.SubjectCenters [i], shot.SubjectScales [i], shot.SubjectBounds [i]);
-			
-			bestCamera = (Transform)GameObject.Instantiate (transform);
-			GameObject.DestroyImmediate (bestCamera.GetComponent<Cameraman> ());
-			GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
-			bestCamera.gameObject.SetActive (false);
-			
-			solver.Start (bestCamera, Subjects, shot);
-		}
+		bestCamera = (Transform)GameObject.Instantiate (transform);
+		GameObject.DestroyImmediate (bestCamera.GetComponent<Cameraman> ());
+		GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
+		bestCamera.gameObject.SetActive (false);
+		
+		Reset ();	
 	}
 	
 	public void  Reset ()
 	{
+		//Stop the solver
 		solver.Stop ();
 		
-		if (Subjects != null)
-			foreach (Subject s in Subjects)
-				if (s != null)
-					s.DestroyProxies ();
+		//Clean all the proxies in the scene
+		while (GameObject.Find(Subject.PROXY_NAME) != null)
+			GameObject.DestroyImmediate (GameObject.Find (Subject.PROXY_NAME));
 		
-		if (shot != null) {
+		if (shot == null){
+			subjectsTransform = null;
+			subjects = null;
+		} else {	
 			shot.FixPropertyTypes ();
-			
-			if (subjectsTransform != null)
-				Subjects = new Subject[subjectsTransform.Length];
+			subjects = new Subject[subjectsTransform.Length];
 		
-			bool ready = true;
 			for (int i=0; i<subjectsTransform.Length; i++)
 				if (subjectsTransform [i] != null)
-					Subjects [i] = new Subject (subjectsTransform [i], shot.SubjectCenters [i], shot.SubjectScales [i], shot.SubjectBounds [i]);
-				else
-					ready = false;
+					subjects [i] = new Subject (subjectsTransform [i], shot.SubjectCenters [i], shot.SubjectScales [i], shot.SubjectBounds [i]);
 		
-			if (ready)
-				solver.Start (bestCamera, Subjects, shot);
+			if (ReadyForEvaluation && Application.isPlaying)
+				solver.Start (bestCamera, subjects, shot);
 		}
 	}
 	
 	void FixedUpdate ()
 	{
-		if (shot != null) {
-			bool eval = Subjects != null;
-			if (eval)
-				foreach (Subject s in Subjects)
-					if (s == null)
-						eval = false;
-			
-			if (eval) {
-				solver.Update (bestCamera, Subjects, shot, 10);
-				
-				float distance = (transform.position - bestCamera.position).magnitude;
-				transform.position = Vector3.Lerp (transform.position, bestCamera.position, distance / MovementSpeed);
-				transform.rotation = Quaternion.Slerp (transform.rotation, bestCamera.rotation, 0.01f * RotationSpeed);
-			}
+		if (ReadyForEvaluation) {
+			//calculate for as long as half the fixed delta time
+			solver.Update (bestCamera, subjects, shot, 0.5f*Time.fixedDeltaTime);
+			transform.position = Vector3.Lerp (transform.position, bestCamera.position, MovementResponsiveness * Time.fixedDeltaTime * 50);
+			transform.rotation = Quaternion.Slerp (transform.rotation, bestCamera.rotation, RotationResponsiveness * Time.fixedDeltaTime * 50);
 		}
 	}
 	
 	void OnApplicationQuit ()
 	{
-		if (Subjects != null)
-			foreach (Subject s in Subjects)
+		if (subjects != null)
+			foreach (Subject s in subjects)
 				if (s != null)
 					s.DestroyProxies ();
 	}
 	
 	void OnDrawGizmos ()
 	{
-		if (!Application.isPlaying)
-			while (GameObject.Find(Subject.PROXY_NAME) != null)
-				GameObject.DestroyImmediate (GameObject.Find (Subject.PROXY_NAME));
+		//if (!Application.isPlaying)
+		//	while (GameObject.Find(Subject.PROXY_NAME) != null)
+		//		GameObject.DestroyImmediate (GameObject.Find (Subject.PROXY_NAME));
 		
-		if (shot != null) {
-			shot.UpdateSubjects (Subjects, camera);
+		if (ReadyForEvaluation) {
+			shot.UpdateSubjects (subjects, camera);
 			shot.Evaluate ();
 		}
 		
-		if (Subjects != null)
-			foreach (Subject s in Subjects)
+		if (subjects != null)
+			foreach (Subject s in subjects)
 				if (s != null) 
 					s.DrawGizmos ();
 		

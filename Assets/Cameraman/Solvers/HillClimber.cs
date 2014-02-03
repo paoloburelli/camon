@@ -16,9 +16,10 @@ public class HillClimber : Solver
 			return center;
 	}
 	
-	public override float Update (Transform currentCamera, Subject[] subjects, Shot shot, int milliseconds)
+	public override float Update (Transform currentCamera, Subject[] subjects, Shot shot, float maxExecutionTime)
 	{
 		if (running) {
+			double maxMilliseconds = maxExecutionTime * 1000;
 			double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 		
 			shot.UpdateSubjects (subjects, currentCamera.camera);
@@ -28,7 +29,7 @@ public class HillClimber : Solver
 			float bestOrFit = shot.Evaluate (orientationProps);
 			
 			
-			while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < milliseconds) {
+			while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
 				double evalBegin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 				
 				float posDistance = (bestPosition-SubjectsCenter(subjects)).magnitude;

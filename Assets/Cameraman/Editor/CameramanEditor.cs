@@ -22,19 +22,13 @@ public class CameramanEditor : Editor
 			for (int i=0; i<controller.SubjectTransformsCount; i++){
 				Transform prevT = controller.GetSubjectTransform(i);
 				controller.SetSubjectTransform(i,(Transform)EditorGUILayout.ObjectField ("Subject " + i, controller.GetSubjectTransform(i), typeof(Transform), true));
-				if (controller.GetSubjectTransform(i) != prevT && Application.isPlaying){
+				
+				if (controller.GetSubjectTransform(i) != prevT)
 					EditorUtility.SetDirty (controller.Shot);
-					controller.Reset();
-				}
 			}
-		
-			bool eval = controller.Subjects != null;
-			if (eval)
-				foreach (Subject s in controller.Subjects)
-					if (s == null)
-						eval = false;
-			
-			if (controller.Shot != null && controller.Shot.Properties != null && controller.Subjects != null && eval)
+					
+			if (controller.ReadyForEvaluation){
+				
 				foreach (Property p in controller.Shot.Properties){
 					string sbj = p.Subject.ToString();
 					if (p.Type == Property.PropertyType.RelativePosition)
@@ -43,13 +37,14 @@ public class CameramanEditor : Editor
 					EditorGUILayout.LabelField(p.Type+" on "+sbj+" = "+p.Evaluate(controller.Subjects));
 				}
 			
-			if (controller.Shot != null && controller.Shot.Properties != null && controller.Subjects != null && eval)
+
 				for (int i=0;i<controller.Subjects.Length;i++)
 					EditorGUILayout.LabelField("Visibility on "+i+" = "+controller.Subjects[i].Visibility);
+			}
 			
 			EditorGUILayout.Separator();
-			controller.MovementSpeed = EditorGUILayout.Slider("Movement Speed",controller.MovementSpeed,0,100);
-			controller.RotationSpeed = EditorGUILayout.Slider("Rotation Speed",controller.RotationSpeed,0,10);
+			controller.MovementResponsiveness = EditorGUILayout.Slider("Movement Responsiveness",controller.MovementResponsiveness,0,1);
+			controller.RotationResponsiveness = EditorGUILayout.Slider("Rotation Responsiveness",controller.RotationResponsiveness,0,1);
 			
 			if (Application.isPlaying) {
 				EditorGUILayout.Separator();
