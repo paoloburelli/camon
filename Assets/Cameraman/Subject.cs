@@ -40,6 +40,24 @@ public class Subject
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
 	
+	public Vector3 Scale {
+		get {
+			return proxy.transform.localScale;
+		}
+		set {
+			proxy.transform.localScale = value;
+		}
+	}
+
+	public Vector3 Center {
+		get {
+			return proxy.transform.localPosition;
+		}
+		set {
+			proxy.transform.localPosition = value;
+		}
+	}
+
 	public string Name {
 		get {
 			return transform.name;
@@ -98,8 +116,10 @@ public class Subject
 		GameObject.DestroyImmediate (proxy.collider);
 		proxy.renderer.sharedMaterial = new Material (Shader.Find ("Transparent/Diffuse"));
 		proxy.renderer.sharedMaterial.color = new Color (1, 0, 1, 0.4f);
+
+
 		proxy.transform.parent = transform;
-		proxy.transform.localPosition = Vector3.Scale (transform.renderer.bounds.size, center - Vector3.one * 0.5f);
+		proxy.transform.localPosition = center;
 		proxy.transform.localScale = scale;
 		proxy.name = PROXY_NAME;
 		proxyRenderer = proxy.GetComponent<MeshRenderer> ();

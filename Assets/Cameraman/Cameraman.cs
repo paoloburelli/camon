@@ -13,6 +13,12 @@ public class Cameraman : MonoBehaviour
 	Shot shot;
 	[SerializeField]
 	Transform[] subjectsTransform;
+
+	[SerializeField]
+	Vector3[] subjectsCenter;
+
+	[SerializeField]
+	Vector3[] subjectsScale;
 	
     Subject[] subjects;
 	Solver solver = new HillClimber ();
@@ -29,8 +35,16 @@ public class Cameraman : MonoBehaviour
 		set {
 			if (value != shot) {
 				shot = value;
-				if (shot != null)
+				if (shot != null){
 					subjectsTransform = new Transform[shot.NumberOfSubjects];
+					subjectsScale = new Vector3[shot.NumberOfSubjects];
+					subjectsCenter = new Vector3[shot.NumberOfSubjects];
+
+					for (int i = 0; i<shot.NumberOfSubjects;i++){
+						subjectsCenter[i] = shot.SubjectCenters[i];
+						subjectsScale[i] = shot.SubjectScales[i];
+					}
+				}
 				Reset ();
 			}	
 		}
@@ -39,13 +53,7 @@ public class Cameraman : MonoBehaviour
 		}
 	}
 	
-	public IEnumerator SubjectTrasnforms {
-		get {
-			return subjectsTransform.GetEnumerator();
-		}
-	}
-	
-	public int SubjectTransformsCount {
+	public int SubjectsCount {
 		get {
 			return subjectsTransform.Length;
 		}
@@ -60,6 +68,28 @@ public class Cameraman : MonoBehaviour
 	
 	public Transform GetSubjectTransform(int i){
 		return subjectsTransform[i];
+	}
+
+	public void SetSubjectScale(int i, Vector3 f){
+		if (f != subjectsScale[i]){
+			subjectsScale[i] = f;
+			Reset();
+		}
+	}
+	
+	public Vector3 GetSubjectScale(int i){
+		return subjectsScale[i];
+	}
+
+	public void SetSubjectCenter(int i, Vector3 f){
+		if (f != subjectsCenter[i]){
+			subjectsCenter[i] = f;
+			Reset();
+		}
+	}
+	
+	public Vector3 GetSubjectCenter(int i){
+		return subjectsCenter[i];
 	}
 	
 	public int EvaluationsPerSecond {
@@ -113,7 +143,7 @@ public class Cameraman : MonoBehaviour
 		
 			for (int i=0; i<subjectsTransform.Length; i++)
 				if (subjectsTransform [i] != null)
-					subjects [i] = new Subject (subjectsTransform [i], shot.SubjectCenters [i], shot.SubjectScales [i], shot.SubjectBounds [i]);
+					subjects [i] = new Subject (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
 		
 			if (ReadyForEvaluation && Application.isPlaying)
 				solver.Start (bestCamera, subjects, shot);
@@ -124,18 +154,10 @@ public class Cameraman : MonoBehaviour
 	{
 		if (ReadyForEvaluation) {
 			//calculate for as long as half the fixed delta time
-			solver.Update (bestCamera, subjects, shot, 0.5f*Time.fixedDeltaTime);
+			solver.Update (bestCamera, subjects, shot, 0.1f*Time.fixedDeltaTime);
 			transform.position = Vector3.Lerp (transform.position, bestCamera.position, MovementResponsiveness * Time.fixedDeltaTime * 50);
 			transform.rotation = Quaternion.Slerp (transform.rotation, bestCamera.rotation, RotationResponsiveness * Time.fixedDeltaTime * 50);
 		}
-	}
-	
-	void OnApplicationQuit ()
-	{
-		if (subjects != null)
-			foreach (Subject s in subjects)
-				if (s != null)
-					s.DestroyProxies ();
 	}
 	
 	void OnDrawGizmos ()
