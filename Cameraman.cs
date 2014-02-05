@@ -154,7 +154,7 @@ public class Cameraman : MonoBehaviour
 	{
 		if (ReadyForEvaluation) {
 			//calculate for as long as half the fixed delta time
-			solver.Update (bestCamera, subjects, shot, 0.1f*Time.fixedDeltaTime);
+			solver.Update (bestCamera, subjects, shot, 0.2f*Time.fixedDeltaTime);
 			transform.position = Vector3.Lerp (transform.position, bestCamera.position, MovementResponsiveness * Time.fixedDeltaTime * 50);
 			transform.rotation = Quaternion.Slerp (transform.rotation, bestCamera.rotation, RotationResponsiveness * Time.fixedDeltaTime * 50);
 		}

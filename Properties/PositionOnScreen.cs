@@ -34,9 +34,11 @@ public class PositionOnScreen : Property
 		
 		if (float.IsInfinity(mySubject.PositionOnScreen.x) || float.IsInfinity(mySubject.PositionOnScreen.y))
 			return 0;
-		
-		float hSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.x - DesiredHorizontalPosition);
-		float vSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.y - DesiredVerticalPosition);
+
+
+
+		float hSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.x - DesiredHorizontalPosition)/Mathf.Max(DesiredHorizontalPosition,1-DesiredHorizontalPosition);
+		float vSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.y - DesiredVerticalPosition)/Mathf.Max(DesiredVerticalPosition,1-DesiredVerticalPosition);
 		
 		return mySubject.Visibility*(hSatisfaction+vSatisfaction)/2;
 	}
