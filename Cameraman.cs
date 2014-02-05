@@ -150,15 +150,18 @@ public class Cameraman : MonoBehaviour
 		}
 	}
 	
-	void FixedUpdate ()
+	void Update ()
 	{
-		if (ReadyForEvaluation) {
-			//calculate for as long as half the fixed delta time
-			solver.Update (bestCamera, subjects, shot, 0.2f*Time.fixedDeltaTime);
-			transform.position = Vector3.Lerp (transform.position, bestCamera.position, MovementResponsiveness * Time.fixedDeltaTime * 50);
-			transform.rotation = Quaternion.Slerp (transform.rotation, bestCamera.rotation, RotationResponsiveness * Time.fixedDeltaTime * 50);
-		}
+        //Update the solver everyframe but never get the framerate below 30fps (0.001 / time.deltaTime)
+		if (ReadyForEvaluation) 
+            solver.Update(bestCamera, subjects, shot, 0.001f / Time.deltaTime);
 	}
+
+    void FixedUpdate()
+    {
+        transform.position = Vector3.Lerp(transform.position, bestCamera.position, MovementResponsiveness * Time.fixedDeltaTime * 50);
+        transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, RotationResponsiveness * Time.fixedDeltaTime * 50);
+    }
 	
 	void OnDrawGizmos ()
 	{
