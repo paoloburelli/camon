@@ -13,10 +13,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   NumberOfSubjects: 2
   SubjectCenters:
-  - {x: .5, y: .75, z: .5}
-  - {x: .5, y: .5, z: .5}
+  - {x: 0, y: .300000012, z: 0}
+  - {x: 0, y: 0, z: 0}
   SubjectScales:
-  - {x: 1, y: .5, z: 1}
+  - {x: 1, y: .300000012, z: 1}
   - {x: 1, y: 1, z: 1}
   SubjectBounds: 0100000003000000
   Properties:
