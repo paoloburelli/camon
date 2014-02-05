@@ -149,12 +149,17 @@ public class Cameraman : MonoBehaviour
 				solver.Start (bestCamera, subjects, shot);
 		}
 	}
-	
+
+    float timeLimit = 0.001f;
 	void Update ()
 	{
-        //Update the solver everyframe but never get the framerate below 30fps (0.001 / time.deltaTime)
+        if (Time.deltaTime < 0.016f)
+            timeLimit *= 1.1f;
+        else
+            timeLimit = 0.001f;
+
 		if (ReadyForEvaluation) 
-            solver.Update(bestCamera, subjects, shot, 0.001f / Time.deltaTime);
+            solver.Update(bestCamera, subjects, shot,timeLimit);
 	}
 
     void FixedUpdate()
