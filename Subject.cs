@@ -39,7 +39,13 @@ public class Subject
 	Bounds screenSpaceBounds = new Bounds(Vector3.zero,Vector3.zero);
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
-	
+
+	public Quaternion Orientation {
+		get {
+			return proxy.transform.rotation;
+		}
+	}
+
 	public Vector3 Scale {
 		get {
 			return proxy.transform.localScale;
@@ -121,6 +127,7 @@ public class Subject
 		proxy.transform.parent = transform;
 		proxy.transform.localPosition = center;
 		proxy.transform.localScale = scale;
+		proxy.transform.localRotation = Quaternion.Euler(0,0,0);
 		proxy.name = PROXY_NAME;
 		proxyRenderer = proxy.GetComponent<MeshRenderer> ();
 		proxyMesh = proxy.GetComponent<MeshFilter> ().sharedMesh;
@@ -218,7 +225,7 @@ public class Subject
 			screenSpaceBounds.SetMinMax(screenMin,screenMax);
 			Vector3 relativeCameraPos = proxy.transform.InverseTransformPoint(camera.transform.position).normalized;
 			vantageAngle.y = Mathf.Asin(relativeCameraPos.y) * Mathf.Rad2Deg;
-			vantageAngle.x = -Mathf.Atan2(relativeCameraPos.x,-relativeCameraPos.z) * Mathf.Rad2Deg;
+			vantageAngle.x = -Mathf.Atan2(relativeCameraPos.x,relativeCameraPos.z) * Mathf.Rad2Deg;
 			
 			transform.gameObject.layer = originalLayer;
 		}
