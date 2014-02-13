@@ -23,6 +23,12 @@ public class Cameraman : MonoBehaviour
     Subject[] subjects;
 	Solver solver = new HillClimber ();
 	Transform bestCamera;
+
+	public Transform EvaluationCamera {
+		get {
+			return bestCamera;
+		}
+	}
 	
 	
 	public Subject[] Subjects {

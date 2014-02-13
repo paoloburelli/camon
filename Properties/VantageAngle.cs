@@ -33,11 +33,15 @@ public class VantageAngle : Property
 	public override float Evaluate (Subject[] subjectsList)
 	{
 		Subject mySubject = subjectsList[subjectReferences[0]];
-		
-		float hSatisfaction = 1-(Mathf.Abs(mySubject.VantageAngle.x - DesiredHorizontalAngle))/360;
+
+		float hAngleDifference = Mathf.Abs(mySubject.VantageAngle.x - DesiredHorizontalAngle);
+		if (hAngleDifference > 180)
+			hAngleDifference = 360-hAngleDifference;
+
+		float hSatisfaction = 1-hAngleDifference/180;
 		float vSatisfaction = 1-(Mathf.Abs(mySubject.VantageAngle.y - DesiredVerticalAngle))/180;
 		
-		return (hSatisfaction+vSatisfaction)/2;
+		return (hSatisfaction*vSatisfaction);
 	}
 	#endregion
 }
