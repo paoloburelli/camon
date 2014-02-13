@@ -21,7 +21,7 @@ public class Cameraman : MonoBehaviour
 	Vector3[] subjectsScale;
 	
     Subject[] subjects;
-	Solver solver = new HillClimber ();
+	Solver solver = new ArtificialPotentialField ();
 	Transform bestCamera;
 
 	public Transform EvaluationCamera {
@@ -97,11 +97,7 @@ public class Cameraman : MonoBehaviour
 	public Vector3 GetSubjectCenter(int i){
 		return subjectsCenter[i];
 	}
-	
-	public int EvaluationsPerSecond {
-		get { return solver.EvaluationsPerSecond;}
-	}
-	
+
 	public bool ReadyForEvaluation {
 		get {
 			if (Shot == null || Shot.Properties == null)

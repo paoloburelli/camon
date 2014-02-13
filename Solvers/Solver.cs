@@ -9,9 +9,8 @@ public abstract class Solver
 	private Queue<Vector3> forwardTrace = new Queue<Vector3>(TRACE_LENGHT);
 	private Queue<Vector3> positionTrace = new Queue<Vector3>(TRACE_LENGHT);
 	private Queue<float> fitnessTrace = new Queue<float>(TRACE_LENGHT);
-	
-	protected double evaluationTime; 
-	protected float bestFit = 0;
+
+	protected float bestFitness = 0;
 	protected bool running = true;
 	
 	protected void logTrace(Vector3 position, Vector3 forward, float fitness){
@@ -26,13 +25,7 @@ public abstract class Solver
 		forwardTrace.Enqueue(forward);
 	}
 	
-	public int EvaluationsPerSecond {
-		get {
-			return (int)(1000/evaluationTime);
-		}
-	}
-	
-	public void DrawGizmos(){
+	public virtual void DrawGizmos(){
 		for (int i=0;i<positionTrace.Count;i++){
 			Gizmos.color = Color.red*fitnessTrace.ElementAt(i);
 			Gizmos.DrawCube(positionTrace.ElementAt(i),0.1f*Vector3.one);
@@ -41,9 +34,22 @@ public abstract class Solver
 			Gizmos.DrawLine(positionTrace.ElementAt(i),positionTrace.ElementAt(i)+forwardTrace.ElementAt(i));
 		}
 	}
-	
-	abstract public float Update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
-	abstract public void Start(Transform bestCamera, Subject[] subjects, Shot shot);
-	abstract public void Stop();
+
+	public float Update (Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime){
+		if (running){
+			return update (bestCamera,subjects,shot,maxExecutionTime);
+		}else 
+			return 0;
+	}
+
+	public virtual void Start(Transform bestCamera, Subject[] subjects, Shot shot){
+		running = true;
+	}
+
+	public virtual void Stop() {
+		running = false;
+	}
+
+	abstract protected float update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
 }
 

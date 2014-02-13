@@ -48,11 +48,6 @@ public class CameramanEditor : Editor
 			EditorGUILayout.Separator();
 			controller.MovementResponsiveness = EditorGUILayout.Slider("Movement Responsiveness",controller.MovementResponsiveness,0,1);
 			controller.RotationResponsiveness = EditorGUILayout.Slider("Rotation Responsiveness",controller.RotationResponsiveness,0,1);
-			
-			if (Application.isPlaying) {
-				EditorGUILayout.Separator();
-				EditorGUILayout.IntField("EPS",controller.EvaluationsPerSecond);
-			}
 		}	
 	}
 }

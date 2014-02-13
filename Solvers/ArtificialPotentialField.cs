@@ -1,9 +1,11 @@
-using UnityEngine;
 
-public class HillClimber : Solver
+using UnityEngine;
+using ArtificialPotentialFieldForces;
+
+public class ArtificialPotentialField : Solver
 {
 		Vector3 bestPosition, bestForward;
-
+	
 		public Vector3 SubjectsCenter (Subject[] subjects)
 		{
 				Vector3 center = Vector3.zero;
@@ -33,14 +35,24 @@ public class HillClimber : Solver
 				double maxMilliseconds = maxExecutionTime * 1000;
 				double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 		
-				shot.UpdateSubjects (subjects, currentCamera.camera);
-				bestFitness = shot.Evaluate ();
-
 				while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
-						currentCamera.position = bestPosition + Random.onUnitSphere * (1 - bestFitness);
-						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius(subjects);
-						currentCamera.LookAt (tmpLookAt);
+
+						currentCamera.position = bestPosition;
+						currentCamera.forward = bestForward;
+						shot.UpdateSubjects (subjects, currentCamera.camera);
+						bestFitness = shot.Evaluate();
+
+						Vector3 positionForce = Vector3.zero;
+						foreach(Property p in shot.Properties){
+							if (p is ProjectionSize)
+								positionForce += ((ProjectionSize)p).PositionForce(subjects,currentCamera.camera);
+							if (p is VantageAngle)
+								positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.camera);
+						}
 			
+						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1-bestFitness);
+						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness);
+						currentCamera.LookAt (tmpLookAt);
 						shot.UpdateSubjects (subjects, currentCamera.camera);
 						float tmpFit = shot.Evaluate ();
 			
