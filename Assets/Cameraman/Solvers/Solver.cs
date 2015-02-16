@@ -50,6 +50,30 @@ public abstract class Solver
 		running = false;
 	}
 
+	public Vector3 SubjectsCenter (Subject[] subjects)
+	{
+		Vector3 center = Vector3.zero;
+		foreach (Subject s in subjects)
+			if (s != null)
+				center += s.Position / subjects.Length;
+		return center;
+	}
+	
+	public float SubjectsRadius (Subject[] subjects)
+	{
+		Vector3 center = SubjectsCenter (subjects);
+		float radius = 1;
+		foreach (Subject s in subjects) {
+			if (s != null) {
+				float distance = (s.Position - center).magnitude;
+				if (distance > radius)
+					radius = distance;
+			}
+		}
+		
+		return radius;
+	}
+
 	abstract protected float update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
 }
 

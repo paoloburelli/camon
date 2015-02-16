@@ -223,7 +223,7 @@ MonoBehaviour:
   NumberOfSamples: 25
   bounds:
     m_Center: {x: 0, y: .600000024, z: 0}
-    m_Extent: {x: 2, y: 2, z: 2}
+    m_Extent: {x: 10, y: 2, z: 10}
 --- !u!1 &362979517
 GameObject:
   m_ObjectHideFlags: 0

@@ -33,30 +33,6 @@ public class ArtificialPotentialField : Solver
 {
 		Vector3 bestPosition, bestForward, lastCenter;
 	
-		public Vector3 SubjectsCenter (Subject[] subjects)
-		{
-				Vector3 center = Vector3.zero;
-				foreach (Subject s in subjects)
-						if (s != null)
-								center += s.Position / subjects.Length;
-				return center;
-		}
-
-		public float SubjectsRadius (Subject[] subjects)
-		{
-				Vector3 center = SubjectsCenter (subjects);
-				float radius = 1;
-				foreach (Subject s in subjects) {
-						if (s != null) {
-								float distance = (s.Position - center).magnitude;
-								if (distance > radius)
-										radius = distance;
-						}
-				}
-				
-				return radius;
-		}
-	
 		protected override float update (Transform currentCamera, Subject[] subjects, Shot shot, float maxExecutionTime)
 		{
 				double maxMilliseconds = maxExecutionTime * 1000;
