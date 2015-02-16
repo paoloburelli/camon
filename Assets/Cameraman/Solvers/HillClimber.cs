@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class HillClimber : Solver
 {
-		Vector3 bestPosition, bestForward;
+		Vector3 bestPosition, bestForward, lastCenter;
 
 		public Vector3 SubjectsCenter (Subject[] subjects)
 		{
@@ -32,13 +32,20 @@ public class HillClimber : Solver
 		{
 				double maxMilliseconds = maxExecutionTime * 1000;
 				double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-		
+
+				
+				Vector3 newCenter = SubjectsCenter (subjects);
+				currentCamera.transform.position = bestPosition + newCenter - lastCenter;
 				shot.UpdateSubjects (subjects, currentCamera.camera);
 				bestFitness = shot.Evaluate ();
+				bestPosition = currentCamera.transform.position;
+				lastCenter = newCenter;
+				
+				
 
 				while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
 						currentCamera.position = bestPosition + Random.onUnitSphere * (1 - bestFitness);
-						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius(subjects);
+						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius (subjects);
 						currentCamera.LookAt (tmpLookAt);
 			
 						shot.UpdateSubjects (subjects, currentCamera.camera);
@@ -68,6 +75,7 @@ public class HillClimber : Solver
 				bestForward = (SubjectsCenter (subjects) - bestPosition).normalized;
 				camera.position = bestPosition;
 				camera.forward = bestForward;
+				lastCenter = SubjectsCenter (subjects);
 		}
 }
 

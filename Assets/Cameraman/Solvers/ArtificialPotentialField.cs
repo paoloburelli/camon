@@ -1,10 +1,37 @@
 
 using UnityEngine;
-using ArtificialPotentialFieldForces;
+
+public static class PropertiesForces
+{
+	public static Vector3 PositionForce (this ProjectionSize property, Subject[] subjects, Camera currentCamera)
+	{
+		float direction = 1;
+		if (property.DesiredValue < subjects[0].Visibility)
+			direction = -1;
+		
+		if (subjects[0].Visibility == 0)
+			direction = 0;
+		
+		return direction * (currentCamera.transform.position - subjects[0].Position).normalized * (1 - property.Evaluate(subjects));
+	}
+	
+	public static Vector3 PositionForce (this VantageAngle property, Subject[] subjects, Camera currentCamera)
+	{
+		Vector3 relativeCamPos = (currentCamera.transform.position - subjects[0].Position);
+		
+		Vector3 direction =  subjects[0].Orientation * (Quaternion.Euler(-property.DesiredVerticalAngle,property.DesiredHorizontalAngle,0) * Vector3.forward);
+		
+		
+		Vector3 targetPosition = direction * relativeCamPos.magnitude;
+		Vector3 nextPos = Vector3.RotateTowards(relativeCamPos.normalized,targetPosition,1,1);
+		return (nextPos-relativeCamPos);
+	}
+}
+
 
 public class ArtificialPotentialField : Solver
 {
-		Vector3 bestPosition, bestForward;
+		Vector3 bestPosition, bestForward, lastCenter;
 	
 		public Vector3 SubjectsCenter (Subject[] subjects)
 		{
@@ -34,13 +61,15 @@ public class ArtificialPotentialField : Solver
 		{
 				double maxMilliseconds = maxExecutionTime * 1000;
 				double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-		
-				while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
 
-						currentCamera.position = bestPosition;
-						currentCamera.forward = bestForward;
-						shot.UpdateSubjects (subjects, currentCamera.camera);
-						bestFitness = shot.Evaluate();
+				Vector3 newCenter = SubjectsCenter (subjects);
+				currentCamera.transform.position = bestPosition + newCenter - lastCenter;
+				shot.UpdateSubjects (subjects, currentCamera.camera);
+				bestFitness = shot.Evaluate ();
+				bestPosition = currentCamera.transform.position;
+				lastCenter = newCenter;
+
+				while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
 
 						Vector3 positionForce = Vector3.zero;
 						foreach(Property p in shot.Properties){
@@ -51,7 +80,7 @@ public class ArtificialPotentialField : Solver
 						}
 			
 						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1-bestFitness);
-						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness);
+						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius(subjects)*.5f;
 						currentCamera.LookAt (tmpLookAt);
 						shot.UpdateSubjects (subjects, currentCamera.camera);
 						float tmpFit = shot.Evaluate ();

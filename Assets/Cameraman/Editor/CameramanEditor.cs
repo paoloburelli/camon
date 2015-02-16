@@ -23,7 +23,7 @@ public class CameramanEditor : Editor
 				Transform prevT = controller.GetSubjectTransform(i);
 				controller.SetSubjectTransform(i,(Transform)EditorGUILayout.ObjectField ("Subject " + i, controller.GetSubjectTransform(i), typeof(Transform), true));
 
-				controller.SetSubjectCenter(i,EditorGUILayout.Vector3Field("Subject "+i+" center",controller.GetSubjectCenter(i)));
+				controller.SetSubjectCenter(i,EditorGUILayout.Vector3Field("Subject "+i+" offset",controller.GetSubjectCenter(i)));
 				controller.SetSubjectScale(i,EditorGUILayout.Vector3Field("Subject "+i+" scale",controller.GetSubjectScale(i)));
 
 				if (controller.GetSubjectTransform(i) != prevT)

@@ -6,8 +6,9 @@ using System.Collections;
 [AddComponentMenu("Camera/Cameraman")]
 public class Cameraman : MonoBehaviour
 {
-	public float MovementResponsiveness = 0.1f;
-	public float RotationResponsiveness = 0.1f;
+	public float MovementResponsiveness = 0.95f;
+	public float RotationResponsiveness = 0.95f;
+	private Vector3 velocity = Vector3.zero;
 	
 	[SerializeField]
 	Shot shot;
@@ -164,14 +165,11 @@ public class Cameraman : MonoBehaviour
 
 		if (ReadyForEvaluation) 
             solver.Update(bestCamera, subjects, shot,timeLimit);
+
+		transform.position = Vector3.SmoothDamp(transform.position, bestCamera.position, ref velocity, 1.05f-MovementResponsiveness);
+		transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, Time.deltaTime * (1 + RotationResponsiveness*9));
 	}
 
-    void FixedUpdate()
-    {
-        transform.position = Vector3.Lerp(transform.position, bestCamera.position, MovementResponsiveness * Time.fixedDeltaTime * 50);
-        transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, RotationResponsiveness * Time.fixedDeltaTime * 50);
-    }
-	
 	void OnDrawGizmos ()
 	{
 		//if (!Application.isPlaying)

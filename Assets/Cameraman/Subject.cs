@@ -55,7 +55,7 @@ public class Subject
 		}
 	}
 
-	public Vector3 Center {
+	public Vector3 Offset {
 		get {
 			return proxy.transform.localPosition;
 		}

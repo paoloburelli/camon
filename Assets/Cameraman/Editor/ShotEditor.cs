@@ -17,7 +17,7 @@ public class ShotEditor : Editor
 		shot.NumberOfSubjects = EditorGUILayout.IntSlider ("Number Of Subjects", shot.NumberOfSubjects, 0, 4);
 		
 		while (shot.SubjectBounds.Count < shot.NumberOfSubjects) {
-			shot.SubjectCenters.Add (0.5f * Vector3.one);
+			shot.SubjectCenters.Add (Vector3.zero);
 			shot.SubjectScales.Add (Vector3.one);
 			shot.SubjectBounds.Add (PrimitiveType.Capsule);
 		}
@@ -30,7 +30,7 @@ public class ShotEditor : Editor
 		
 		for (int i = 0; i<shot.NumberOfSubjects; i++) {
 			shot.SubjectBounds [i] = (PrimitiveType)EditorGUILayout.EnumPopup ("Subject " + i, shot.SubjectBounds [i]);
-			shot.SubjectCenters [i] = EditorGUILayout.Vector3Field ("  Center", shot.SubjectCenters [i]);
+			shot.SubjectCenters [i] = EditorGUILayout.Vector3Field ("  Offset", shot.SubjectCenters [i]);
 			shot.SubjectScales [i] = EditorGUILayout.Vector3Field ("  Scale", shot.SubjectScales [i]);
 		}
 		
