@@ -64,7 +64,7 @@ public class ViewObjectiveFunction : MonoBehaviour {
 	}
 
 	void OnDrawGizmos(){
-		if (Application.isPlaying) {
+		if (Application.isPlaying && enabled) {
 		Vector3 step = (bounds.max - bounds.min)/NumberOfSamples;
 
 

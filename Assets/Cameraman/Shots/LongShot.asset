@@ -8,7 +8,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bcab26086afa4e36a1ca4638ae952b3, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c31db0cf5f2941d080dac56eaaa47b2, type: 3}
   m_Name: LongShot
   m_EditorClassIdentifier: 
   NumberOfSubjects: 1
@@ -20,13 +20,7 @@ MonoBehaviour:
   Properties:
   - type: 0
     desiredValues:
-    - 1
-    subjectReferences: 00000000
-    weight: 1
-  - type: 1
-    desiredValues:
-    - 0
-    - 0
+    - .600000024
     subjectReferences: 00000000
     weight: 1
   - type: 2
