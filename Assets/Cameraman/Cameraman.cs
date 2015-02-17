@@ -22,7 +22,7 @@ public class Cameraman : MonoBehaviour
 	Vector3[] subjectsScale;
 	
     Subject[] subjects;
-	Solver solver = new ArtificialPotentialField ();
+	Solver solver = new ParticleSwarmOptimisation (0.7298f,2.05f,2.05f,30);
 	Transform bestCamera;
 
 	public Transform EvaluationCamera {
@@ -149,7 +149,7 @@ public class Cameraman : MonoBehaviour
 					subjects [i] = new Subject (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
 		
 			if (ReadyForEvaluation && Application.isPlaying)
-				solver.Start (bestCamera, subjects, shot);
+				solver.Start (bestCamera, subjects);
 		}
 	}
 

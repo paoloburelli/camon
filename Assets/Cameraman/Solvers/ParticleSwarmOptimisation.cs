@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class Particle
 {
@@ -6,6 +7,7 @@ public class Particle
 	Vector3 positionVelocity = Vector3.zero,lookVelocity = Vector3.zero;
 	float fitness = 0;
 	Particle localOptimum;
+	long frameId = 0;
 	
 	public float Fitness {
 		get {
@@ -29,9 +31,47 @@ public class Particle
 	{
 		this.position = position;
 		this.lookAtPosition = position + forward;
-		localOptimum = this.Clone();
+		localOptimum = new Particle(this);
 	}
-	
+
+	public Particle (Particle p) {
+		this.position = p.position;
+		this.lookAtPosition = p.lookAtPosition;
+		this.fitness = p.fitness;
+		this.lookVelocity = p.lookVelocity;
+		this.positionVelocity = p.positionVelocity;
+	}
+
+
+	public float Refresh (Camera camera, Shot shot, Subject[] subjects)
+	{
+		if (Time.frameCount != frameId) {
+			//Update the local bests at each new frame
+			camera.transform.position = localOptimum.position;
+			camera.transform.LookAt(localOptimum.lookAtPosition);
+			shot.UpdateSubjects (subjects, camera);
+			localOptimum.fitness = shot.Evaluate ();
+
+			//Re-initialise 10% of the population at each new frame
+			if (Random.value <= 0.1f) {
+				//Debug.Log("Init");
+
+				Vector3 c = Solver.SubjectsCenter(subjects);
+				float r = Solver.SubjectsRadius(subjects);
+
+				this.position = c+r*Random.insideUnitSphere;
+				this.lookAtPosition = c+Random.insideUnitSphere;
+
+				this.fitness = 0;
+				this.lookVelocity = Vector3.zero;
+				this.positionVelocity = Vector3.zero;
+			}
+		}
+
+		frameId = Time.frameCount;
+		return localOptimum.fitness;
+	}
+
 	public float Evaluate (Camera camera, Shot shot, Subject[] subjects)
 	{
 		camera.transform.position = position;
@@ -39,16 +79,16 @@ public class Particle
 		shot.UpdateSubjects (subjects, camera);
 		fitness = shot.Evaluate ();
 		
-		if (fitness >= localOptimum.fitness)
-			localOptimum = this.Clone ();
+		if (localOptimum != null && fitness >= localOptimum.fitness)
+			localOptimum = new Particle(this);
 		
 		return fitness;
 	}
 	
 	public void UpdateVelocity (float inertia,float cognitiveFactor, float socialFactor, Particle globalOptimum)
 	{
-		lookVelocity = inertia * lookVelocity + cognitiveFactor * UnityEngine.Random.value * (globalOptimum.LookAt - LookAt) + socialFactor * UnityEngine.Random.value * (localOptimum.LookAt - LookAt);
-		positionVelocity = inertia * positionVelocity + cognitiveFactor * UnityEngine.Random.value * (globalOptimum.Position - Position) + socialFactor * UnityEngine.Random.value * (localOptimum.Position - Position);
+		lookVelocity += inertia * (cognitiveFactor * Random.value * (localOptimum.LookAt - LookAt) + socialFactor * Random.value * (globalOptimum.LookAt - LookAt)) - (1-inertia)*lookVelocity;
+		positionVelocity += inertia * (cognitiveFactor * Random.value * (localOptimum.Position - Position) + socialFactor * Random.value * (globalOptimum.Position - Position)) - (1-inertia)*positionVelocity;
 	}
 	
 	public void Move ()
@@ -56,78 +96,78 @@ public class Particle
 		position += positionVelocity;
 		lookAtPosition += lookVelocity;
 	}
-	
-	public Particle Clone ()
-	{
-		Particle tmp = new Particle (position, (lookAtPosition - position).normalized);
-		tmp.fitness = fitness;
-		return tmp;
-	}
-	
-//	public static Particle Random (Vector3 min, Vector3 max, ParticleSwarmOptimisation optimizer)
-//	{
-//		Vector3 mean = (max + min) / 2;
-//		Vector3 size = (max - mean) / 2;
-//		Vector3 position = GeometryUtilityExtra.RandomValidPosition (mean, size);
-//		Vector2 rotation = new Vector2 (UnityEngine.Random.value * 360 - 180,
-//		                                UnityEngine.Random.value * 180 - 90);
-//		return new Particle (position, rotation, optimizer);
-//	}
 }
 
 public class ParticleSwarmOptimisation : Solver
 {
-	Vector3 bestPosition, bestForward, lastCenter;
+
+	public float inertia;
+	public float cognitiveFactor;
+	public float socialFactor;
+	public int populationSize;
 	
+	Particle globalOptimum;
+	List<Particle> particles;
+	IEnumerator<Particle> enumerator=null;
+
+	public ParticleSwarmOptimisation(float inertia, float cognitiveFactor, float socialFactor, int popSize){
+		this.inertia = inertia;
+		this.socialFactor = socialFactor;
+		this.cognitiveFactor = cognitiveFactor;
+		this.populationSize = popSize;
+	}
 	
 	protected override float update (Transform currentCamera, Subject[] subjects, Shot shot, float maxExecutionTime)
 	{
 		double maxMilliseconds = maxExecutionTime * 1000;
 		double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-		
-		
-		Vector3 newCenter = SubjectsCenter (subjects);
-		currentCamera.transform.position = bestPosition + newCenter - lastCenter;
-		shot.UpdateSubjects (subjects, currentCamera.camera);
-		bestFitness = shot.Evaluate ();
-		bestPosition = currentCamera.transform.position;
-		lastCenter = newCenter;
-		
-		
-		
+
+		globalOptimum.Evaluate(currentCamera.camera,shot,subjects);
+
 		while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
-			currentCamera.position = bestPosition + Random.onUnitSphere * (1 - bestFitness);
-			Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius (subjects);
-			currentCamera.LookAt (tmpLookAt);
-			
-			shot.UpdateSubjects (subjects, currentCamera.camera);
-			float tmpFit = shot.Evaluate ();
-			
-			logTrace (currentCamera.position, currentCamera.forward, tmpFit);
-			
-			if (tmpFit > bestFitness) {
-				bestFitness = tmpFit;
-				bestPosition = currentCamera.position;
-				bestForward = currentCamera.forward;
+			if (!enumerator.MoveNext ()) {
+				enumerator = particles.GetEnumerator ();
+				enumerator.MoveNext ();
 			}
+
+			enumerator.Current.Refresh(currentCamera.camera,shot,subjects);
+			enumerator.Current.Move ();
+			enumerator.Current.Evaluate (currentCamera.camera,shot,subjects);
+			enumerator.Current.UpdateVelocity (inertia,cognitiveFactor,socialFactor,globalOptimum);
+
+			if (enumerator.Current.Fitness > globalOptimum.Fitness) {
+				globalOptimum = new Particle(enumerator.Current);
+			}
+
+			logTrace (currentCamera.position, currentCamera.forward, enumerator.Current.Fitness);
 		}
 		
-		currentCamera.position = bestPosition;
-		currentCamera.forward = bestForward;
+		currentCamera.position = globalOptimum.Position;
+		currentCamera.LookAt(globalOptimum.LookAt);
 		
 		return bestFitness;
 	}
 	
-	public override void Start (Transform camera, Subject[] subjects, Shot shot)
+	public override void Start (Transform camera, Subject[] subjects)
 	{
-		base.Start (camera, subjects, shot);
+		base.Start (camera, subjects);
 		if (camera == null)
 			throw new MissingReferenceException ("camera not initilised");
-		bestPosition = camera.position;
-		bestForward = (SubjectsCenter (subjects) - bestPosition).normalized;
-		camera.position = bestPosition;
-		camera.forward = bestForward;
-		lastCenter = SubjectsCenter (subjects);
+
+		particles = new List<Particle> ();
+		particles.Add(new Particle(camera.position,camera.forward));
+
+		Vector3 c = SubjectsCenter(subjects);
+		float r = SubjectsRadius(subjects);
+
+		for (int i=0;i<populationSize-1;i++){
+			Vector3 pos = c+r*Random.insideUnitSphere;
+			Vector3 lookAt = c+Random.insideUnitSphere;
+			particles.Add(new Particle(pos,(lookAt-pos).normalized));
+		}
+
+		enumerator = particles.GetEnumerator ();
+		globalOptimum = new Particle(particles[0]);
 	}
 
 }

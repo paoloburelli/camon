@@ -42,9 +42,9 @@ public class HillClimber : Solver
 				return bestFitness;
 		}
 
-		public override void Start (Transform camera, Subject[] subjects, Shot shot)
+		public override void Start (Transform camera, Subject[] subjects)
 		{
-				base.Start (camera, subjects, shot);
+				base.Start (camera, subjects);
 				if (camera == null)
 						throw new MissingReferenceException ("camera not initilised");
 				bestPosition = camera.position;

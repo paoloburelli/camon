@@ -42,7 +42,7 @@ public abstract class Solver
 			return 0;
 	}
 
-	public virtual void Start(Transform bestCamera, Subject[] subjects, Shot shot){
+	public virtual void Start(Transform bestCamera, Subject[] subjects){
 		running = true;
 	}
 
@@ -50,7 +50,7 @@ public abstract class Solver
 		running = false;
 	}
 
-	public Vector3 SubjectsCenter (Subject[] subjects)
+	public static Vector3 SubjectsCenter (Subject[] subjects)
 	{
 		Vector3 center = Vector3.zero;
 		foreach (Subject s in subjects)
@@ -59,7 +59,7 @@ public abstract class Solver
 		return center;
 	}
 	
-	public float SubjectsRadius (Subject[] subjects)
+	public static float SubjectsRadius (Subject[] subjects)
 	{
 		Vector3 center = SubjectsCenter (subjects);
 		float radius = 1;
