@@ -43,7 +43,7 @@ public class Particle
 	}
 
 
-	public float Refresh (Camera camera, Shot shot, Subject[] subjects)
+	public void Refresh (Camera camera, Shot shot, Subject[] subjects)
 	{
 		if (Time.frameCount != frameId) {
 			//Update the local bests at each new frame
@@ -69,7 +69,6 @@ public class Particle
 		}
 
 		frameId = Time.frameCount;
-		return localOptimum.fitness;
 	}
 
 	public float Evaluate (Camera camera, Shot shot, Subject[] subjects)

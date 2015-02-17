@@ -22,7 +22,9 @@ public class Cameraman : MonoBehaviour
 	Vector3[] subjectsScale;
 	
     Subject[] subjects;
-	Solver solver = new ParticleSwarmOptimisation (0.7298f,2.05f,2.05f,30);
+	Solver solver = new ArtificialPotentialField();
+	//Solver solver = new ParticleSwarmOptimisation (0.7298f,2.05f,2.05f,30);
+	//Solver solver = new GeneticAlgorithm (0.6f,0.7f,0.7f,30);
 	Transform bestCamera;
 
 	public Transform EvaluationCamera {
