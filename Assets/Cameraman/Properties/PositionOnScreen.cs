@@ -9,7 +9,7 @@ public class PositionOnScreen : Property
 	public PositionOnScreen (int subject, float x, float y, float weight) : base(weight)
 	{
 		subjectReferences[0] = subject;
-		type = Property.PropertyType.PositionOnScreen;
+		propertyType = Property.Type.PositionOnScreen;
 		desiredValues = new float[2];
 		desiredValues[0] = x;
 		desiredValues[1] = y;
@@ -28,7 +28,7 @@ public class PositionOnScreen : Property
 	new private float DesiredValue;
 	
 	#region implemented abstract members of Property
-	public override float Evaluate (Subject[] subjectsList)
+	protected override float evaluate (Subject[] subjectsList)
 	{
 		Subject mySubject = subjectsList[subjectReferences[0]];
 		

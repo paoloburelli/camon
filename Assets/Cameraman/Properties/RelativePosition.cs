@@ -14,7 +14,7 @@ public class RelativePosition : Property
 		subjectReferences[0] = subjectA;
 		subjectReferences[1] = subjectB;
 		
-		type = Property.PropertyType.RelativePosition;
+		propertyType = Property.Type.RelativePosition;
 		desiredValues[0] = (int)pos;
 	}
 	
@@ -23,7 +23,7 @@ public class RelativePosition : Property
 	}
 	
 	#region implemented abstract members of Property
-	public override float Evaluate (Subject[] subjectsList)
+	protected override float evaluate (Subject[] subjectsList)
 	{
 		Subject sA = subjectsList[subjectReferences[0]];
 		Subject sB = subjectsList[subjectReferences[1]];

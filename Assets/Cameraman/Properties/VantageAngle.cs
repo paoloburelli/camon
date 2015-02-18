@@ -9,7 +9,7 @@ public class VantageAngle : Property
 	public VantageAngle (int subject,float h, float v, float weight) : base(weight)
 	{
 		subjectReferences[0] = subject;
-		type = Property.PropertyType.VantageAngle;
+		propertyType = Property.Type.VantageAngle;
 		desiredValues = new float[2];
 		desiredValues[0] = h;
 		desiredValues[1] = v;
@@ -30,7 +30,7 @@ public class VantageAngle : Property
 	}
 	
 	#region implemented abstract members of Property
-	public override float Evaluate (Subject[] subjectsList)
+	protected override float evaluate (Subject[] subjectsList)
 	{
 		Subject mySubject = subjectsList[subjectReferences[0]];
 

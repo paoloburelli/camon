@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class ShotEditor : Editor
 {
 	Shot shot;
-	Property.PropertyType propertyToAdd = Property.PropertyType.ProjectionSize;
+	Property.Type propertyToAdd = Property.Type.ProjectionSize;
 	int targetSubject = 0,secondaryTarget = 1;
 
 	public override void OnInspectorGUI ()
@@ -43,25 +43,25 @@ public class ShotEditor : Editor
 			Property toRemove = null;
 			foreach (Property p in shot.Properties) {
 				EditorGUILayout.BeginHorizontal ();
-				EditorGUILayout.LabelField (p.Type.ToString ()+" (Subject "+p.Subject+")	",GUILayout.MinWidth(140));
-				switch (p.Type) {
-				case Property.PropertyType.ProjectionSize:
+				EditorGUILayout.LabelField (p.PropertyType.ToString ()+" (Subject "+p.Subject+")	",GUILayout.MinWidth(140));
+				switch (p.PropertyType) {
+				case Property.Type.ProjectionSize:
 					EditorGUILayout.LabelField("Size",GUILayout.Width(30));
 					p.DesiredValue = EditorGUILayout.FloatField(p.DesiredValue,GUILayout.MaxWidth(30));
 					break;
-				case Property.PropertyType.VantageAngle:
+				case Property.Type.VantageAngle:
 					EditorGUILayout.LabelField("H",EditorStyles.wordWrappedLabel);
 					((VantageAngle)p).DesiredHorizontalAngle = EditorGUILayout.FloatField(((VantageAngle)p).DesiredHorizontalAngle,GUILayout.MaxWidth(30));
 					EditorGUILayout.LabelField("V",EditorStyles.wordWrappedLabel);
 					((VantageAngle)p).DesiredVerticalAngle = EditorGUILayout.FloatField(((VantageAngle)p).DesiredVerticalAngle,GUILayout.MaxWidth(30));
 					break;
-				case Property.PropertyType.PositionOnScreen:
+				case Property.Type.PositionOnScreen:
 					EditorGUILayout.LabelField("X",EditorStyles.wordWrappedLabel);
 					((PositionOnScreen)p).DesiredHorizontalPosition = EditorGUILayout.FloatField(((PositionOnScreen)p).DesiredHorizontalPosition,GUILayout.MaxWidth(30));
 					EditorGUILayout.LabelField("Y",EditorStyles.wordWrappedLabel);
 					((PositionOnScreen)p).DesiredVerticalPosition = EditorGUILayout.FloatField(((PositionOnScreen)p).DesiredVerticalPosition,GUILayout.MaxWidth(30));
 					break;
-				case Property.PropertyType.RelativePosition:
+				case Property.Type.RelativePosition:
 					p.DesiredValue = (int)((RelativePosition.Position)EditorGUILayout.EnumPopup((RelativePosition.Position)p.DesiredValue));
 					EditorGUILayout.LabelField(" (Subject "+((RelativePosition)p).SecondarySubject+")",GUILayout.MinWidth(30));
 					break;
@@ -79,23 +79,23 @@ public class ShotEditor : Editor
 			if (GUILayout.Button ("Add")) {
 			
 				switch (propertyToAdd) {
-				case Property.PropertyType.PositionOnScreen:
+				case Property.Type.PositionOnScreen:
 					shot.Properties.Add (new PositionOnScreen (targetSubject, 0.5f, 0.5f, 1));
 					break;
-				case Property.PropertyType.ProjectionSize:
+				case Property.Type.ProjectionSize:
 					shot.Properties.Add (new ProjectionSize (targetSubject, 1, 1));
 					break;
-				case Property.PropertyType.VantageAngle:
+				case Property.Type.VantageAngle:
 					shot.Properties.Add (new VantageAngle (targetSubject, 0, 0, 1));
 					break;
-				case Property.PropertyType.RelativePosition:
+				case Property.Type.RelativePosition:
 					shot.Properties.Add (new RelativePosition (targetSubject, RelativePosition.Position.InFrontOf, secondaryTarget, 1));
 					break;
 				}
 			}
 		
-			Property.PropertyType tmp = (Property.PropertyType)EditorGUILayout.EnumPopup (propertyToAdd);
-			if (tmp != Property.PropertyType.RelativePosition || shot.NumberOfSubjects > 1)
+			Property.Type tmp = (Property.Type)EditorGUILayout.EnumPopup (propertyToAdd);
+			if (tmp != Property.Type.RelativePosition || shot.NumberOfSubjects > 1)
 				propertyToAdd = tmp;
 			
 			string[] options = new string[shot.NumberOfSubjects];
@@ -106,7 +106,7 @@ public class ShotEditor : Editor
 			targetSubject = EditorGUILayout.Popup (targetSubject, options);
 			
 			
-			if (propertyToAdd == Property.PropertyType.RelativePosition)
+			if (propertyToAdd == Property.Type.RelativePosition)
 				secondaryTarget = EditorGUILayout.Popup (secondaryTarget, options);
 			
 			EditorGUILayout.EndHorizontal ();

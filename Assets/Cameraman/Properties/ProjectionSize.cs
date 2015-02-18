@@ -9,13 +9,13 @@ public class ProjectionSize : Property
 	public ProjectionSize (int subject, float desiredSize, float weight) : base(weight)
 	{
 		subjectReferences[0] = subject;
-		type = Property.PropertyType.ProjectionSize;
+		propertyType = Property.Type.ProjectionSize;
 		desiredValues = new float[1];
 		desiredValues[0] = desiredSize;
 	}
 	
 	#region implemented abstract members of Property
-	public override float Evaluate (Subject[] subjectsList)
+	protected override float evaluate (Subject[] subjectsList)
 	{
 		Subject mySubject = subjectsList[subjectReferences[0]];
 		

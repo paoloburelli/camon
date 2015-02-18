@@ -5,10 +5,10 @@ using System.Collections.Generic;
 [Serializable]
 public class Property
 {
-	public enum PropertyType {ProjectionSize, VantageAngle, PositionOnScreen, RelativePosition};
+	public enum Type {ProjectionSize, VantageAngle, PositionOnScreen, RelativePosition};
 	
-	public PropertyType Type{
-		get {return type;}
+	public Type PropertyType{
+		get {return propertyType;}
 	}
 
 	public float Weight{
@@ -17,7 +17,7 @@ public class Property
 	}
 	
 	[SerializeField]
-	protected PropertyType type;
+	protected Type propertyType;
 	
 	[SerializeField]
 	protected float[] desiredValues;
@@ -27,10 +27,17 @@ public class Property
 	
 	[SerializeField]
 	private float weight;
+
+	private float satisfaction;
+	public float Satisfaction {
+		get {
+			return satisfaction;
+			}
+	}
 	
 	public Property(Property p){
 		weight = p.Weight;
-		type = p.Type;
+		propertyType = p.PropertyType;
 		desiredValues = p.desiredValues;
 		subjectReferences = p.subjectReferences;
 	}
@@ -42,7 +49,12 @@ public class Property
 		desiredValues = new float[1];
 	}
 	
-	public virtual float Evaluate(Subject[] subjectsList){
+	public float Evaluate(Subject[] subjectsList){
+		satisfaction = Evaluate(subjectsList);
+		return satisfaction;
+	}
+
+	protected virtual float evaluate(Subject[] subjectsList){
 		return 1;
 	}
 	

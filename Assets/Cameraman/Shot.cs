@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 
 [System.Serializable]
@@ -13,20 +13,20 @@ public class Shot : ScriptableObject
 	public void FixPropertyTypes ()
 	{
 		for (int i=0; i<Properties.Count; i++)
-			switch (Properties [i].Type) {
-			case Property.PropertyType.ProjectionSize:
+			switch (Properties [i].PropertyType) {
+			case Property.Type.ProjectionSize:
 				if (!(Properties [i] is ProjectionSize))
 					Properties [i] = new ProjectionSize (Properties [i]);
 				break;
-			case Property.PropertyType.PositionOnScreen:
+			case Property.Type.PositionOnScreen:
 				if (!(Properties [i] is PositionOnScreen))
 					Properties [i] = new PositionOnScreen (Properties [i]);
 				break;
-			case Property.PropertyType.VantageAngle:
+			case Property.Type.VantageAngle:
 				if (!(Properties [i] is VantageAngle))
 					Properties [i] = new VantageAngle (Properties [i]);
 				break;
-			case Property.PropertyType.RelativePosition:
+			case Property.Type.RelativePosition:
 				if (!(Properties [i] is RelativePosition))
 					Properties [i] = new RelativePosition (Properties [i]);
 				break;
@@ -72,15 +72,15 @@ public class Shot : ScriptableObject
 		return float.IsNaN (value / weight) ? 0 : value / weight;
 	}
 	
-	public float Evaluate (Property.PropertyType[] pTypes)
+	public float Evaluate (Property.Type[] pTypes)
 	{
 		float value = 0;
 		float weight = 0;
 		
 		if (subjects != null)
-			foreach (Property.PropertyType pt in pTypes)
+			foreach (Property.Type pt in pTypes)
 				foreach (Property p in Properties)
-					if (p.Type == pt) {
+					if (p.PropertyType == pt) {
 						value += p.Evaluate (subjects) * p.Weight;
 						weight += p.Weight;
 					}
@@ -104,7 +104,7 @@ public class Shot : ScriptableObject
 		
 		if (subjects != null)
 			foreach (Property p in Properties)
-				if (p.Type == Property.PropertyType.ProjectionSize) {
+				if (p.PropertyType == Property.Type.ProjectionSize) {
 					value += p.Evaluate (subjects) * p.Weight;
 					weight += p.Weight;
 				}

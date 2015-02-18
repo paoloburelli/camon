@@ -34,10 +34,10 @@ public class CameramanEditor : Editor
 				
 				foreach (Property p in controller.Shot.Properties){
 					string sbj = p.Subject.ToString();
-					if (p.Type == Property.PropertyType.RelativePosition)
+					if (p.PropertyType == Property.Type.RelativePosition)
 						sbj += " "+((RelativePosition.Position)p.DesiredValue).ToString()+" "+((RelativePosition)p).SecondarySubject;
 
-					EditorGUILayout.LabelField(p.Type+" on "+sbj+" = "+p.Evaluate(controller.Subjects));
+					EditorGUILayout.LabelField(p.PropertyType+" on "+sbj+" = "+p.Evaluate(controller.Subjects));
 				}
 			
 
