@@ -8,7 +8,7 @@ public class ViewObjectiveFunction : MonoBehaviour
 		public Bounds bounds;
 		float[][][] functionValues;
 		Vector3 index;
-		Cameraman cameraman;
+		Operator cameraman;
 
 		// Use this for initialization
 		void Start ()
@@ -26,7 +26,7 @@ public class ViewObjectiveFunction : MonoBehaviour
 								}
 						}
 				}
-				cameraman = GetComponent<Cameraman> ();
+				cameraman = GetComponent<Operator> ();
 				cameraman.enabled = false;
 				index = Vector3.zero;
 		}

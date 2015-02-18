@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class ShotMaker
 {
-    [MenuItem("Assets/Create/Cameraman/Shot")]
+    [MenuItem("Assets/Create/cam3ra/Shot")]
     public static void Crate()
     {
         string path = AssetDatabase.GetAssetPath(Selection.activeObject);

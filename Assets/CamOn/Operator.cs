@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
-[AddComponentMenu("Camera/Cameraman")]
-public class Cameraman : MonoBehaviour
+[AddComponentMenu("cam3ra/Camera Operator")]
+public class Operator : MonoBehaviour
 {
 	public float MovementResponsiveness = 0.95f;
 	public float RotationResponsiveness = 0.95f;
@@ -123,7 +123,7 @@ public class Cameraman : MonoBehaviour
 	void Start ()
 	{
 		bestCamera = (Transform)GameObject.Instantiate (transform);
-		GameObject.DestroyImmediate (bestCamera.GetComponent<Cameraman> ());
+		GameObject.DestroyImmediate (bestCamera.GetComponent<Operator> ());
 		GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
 		bestCamera.gameObject.SetActive (false);
 		

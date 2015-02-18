@@ -3,14 +3,14 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-[CustomEditor(typeof(Cameraman))]
-public class CameramanEditor : Editor
+[CustomEditor(typeof(Operator))]
+public class OperatorEditor : Editor
 {
-	Cameraman controller;
+	Operator controller;
 
 	public override void OnInspectorGUI ()
 	{
-		controller = (Cameraman)target;
+		controller = (Operator)target;
 		Shot prevShot = controller.Shot;
 		controller.Shot = (Shot)EditorGUILayout.ObjectField ("Shot", controller.Shot, typeof(Shot), false);
 
