@@ -88,28 +88,28 @@ public class Shot : ScriptableObject
 		return float.IsNaN (value / weight) ? 0 : value / weight;
 	}
 	
-	public float Visibility {
-		get {
-			float visbility = 0;
-			foreach (Subject s in subjects)
-				visbility += s.Visibility / subjects.Length;
-			return visbility;
-		}
-	}
-	
-	public float ProjectionSize {
-		get {
-		float value = 0;
-		float weight = 0;
-		
-		if (subjects != null)
-			foreach (Property p in Properties)
-				if (p.PropertyType == Property.Type.ProjectionSize) {
-					value += p.Evaluate (subjects) * p.Weight;
-					weight += p.Weight;
-				}
-		
-			return float.IsNaN (value / weight) ? 0 : value / weight;
-		}
-	}
+//	public float Visibility {
+//		get {
+//			float visbility = 0;
+//			foreach (Subject s in subjects)
+//				visbility += s.Visibility / subjects.Length;
+//			return visbility;
+//		}
+//	}
+//	
+//	public float ProjectionSize {
+//		get {
+//		float value = 0;
+//		float weight = 0;
+//		
+//		if (subjects != null)
+//			foreach (Property p in Properties)
+//				if (p.PropertyType == Property.Type.ProjectionSize) {
+//					value += p.Evaluate (subjects) * p.Weight;
+//					weight += p.Weight;
+//				}
+//		
+//			return float.IsNaN (value / weight) ? 0 : value / weight;
+//		}
+//	}
 }

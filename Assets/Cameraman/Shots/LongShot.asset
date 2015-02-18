@@ -18,20 +18,20 @@ MonoBehaviour:
   - {x: 1, y: 1, z: 1}
   SubjectBounds: 01000000
   Properties:
-  - type: 0
+  - propertyType: 0
     desiredValues:
-    - .600000024
+    - .800000012
     subjectReferences: 00000000
     weight: 1
-  - type: 2
-    desiredValues:
-    - .5
-    - .5
-    subjectReferences: 00000000
-    weight: 1
-  - type: 1
+  - propertyType: 1
     desiredValues:
     - 0
     - 0
+    subjectReferences: 00000000
+    weight: 1
+  - propertyType: 2
+    desiredValues:
+    - .5
+    - .5
     subjectReferences: 00000000
     weight: 1

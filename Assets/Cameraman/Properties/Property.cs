@@ -50,7 +50,7 @@ public class Property
 	}
 	
 	public float Evaluate(Subject[] subjectsList){
-		satisfaction = Evaluate(subjectsList);
+		satisfaction = evaluate(subjectsList);
 		return satisfaction;
 	}
 

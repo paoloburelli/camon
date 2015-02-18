@@ -15,23 +15,23 @@ MonoBehaviour:
   SubjectCenters:
   - {x: 0, y: .699999988, z: 0}
   SubjectScales:
-  - {x: .600000024, y: .600000024, z: .600000024}
+  - {x: .5, y: .5, z: .5}
   SubjectBounds: 00000000
   Properties:
-  - type: 0
+  - propertyType: 0
     desiredValues:
     - .600000024
     subjectReferences: 00000000
     weight: 1
-  - type: 2
+  - propertyType: 1
     desiredValues:
-    - .5
-    - .5
+    - 0
+    - 0
     subjectReferences: 00000000
     weight: 1
-  - type: 1
+  - propertyType: 2
     desiredValues:
-    - 0
-    - 0
+    - .5
+    - .5
     subjectReferences: 00000000
     weight: 1
