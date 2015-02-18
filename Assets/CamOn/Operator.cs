@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
-[AddComponentMenu("cam3ra/Camera Operator")]
+[AddComponentMenu("CamOn/Camera Operator")]
 public class Operator : MonoBehaviour
 {
 	public float MovementResponsiveness = 0.95f;
