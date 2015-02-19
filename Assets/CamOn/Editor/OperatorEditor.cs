@@ -44,7 +44,7 @@ public class OperatorEditor : Editor
 				for (int i=0;i<controller.Subjects.Length;i++)
 					EditorGUILayout.LabelField("Visibility on "+i+" = "+controller.Subjects[i].Visibility);
 			}
-			
+
 			EditorGUILayout.Separator();
 			controller.MovementResponsiveness = EditorGUILayout.Slider("Movement Responsiveness",controller.MovementResponsiveness,0,1);
 			controller.RotationResponsiveness = EditorGUILayout.Slider("Rotation Responsiveness",controller.RotationResponsiveness,0,1);

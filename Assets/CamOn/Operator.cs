@@ -22,9 +22,9 @@ public class Operator : MonoBehaviour
 	Vector3[] subjectsScale;
 	
     Subject[] subjects;
-	Solver solver = new ArtificialPotentialField();
-	//Solver solver = new ParticleSwarmOptimisation (0.7298f,2.05f,2.05f,30);
-	//Solver solver = new GeneticAlgorithm (0.6f,0.7f,0.7f,30);
+	readonly Solver solver = new ArtificialPotentialField();
+	//readonly Solver solver = new GreedyPSO (0.7298f,2.05f,2.05f,30);
+	//readonly Solver solver = new GeneticAlgorithm (0.6f,0.7f,0.7f,30);
 	Transform bestCamera;
 
 	public Transform EvaluationCamera {
@@ -168,8 +168,10 @@ public class Operator : MonoBehaviour
 		if (ReadyForEvaluation) 
             solver.Update(bestCamera, subjects, shot,timeLimit);
 
-		transform.position = Vector3.SmoothDamp(transform.position, bestCamera.position, ref velocity, 1.05f-MovementResponsiveness);
-		transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, Time.deltaTime * (1 + RotationResponsiveness*9));
+		float dampening = Mathf.Pow(solver.Satisfaction,4);
+
+		transform.position = Vector3.SmoothDamp(transform.position, bestCamera.position, ref velocity, 1.05f-MovementResponsiveness*dampening);
+		transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, Time.deltaTime * (0.1f + RotationResponsiveness*dampening*0.9f)*2);
 	}
 
 	void OnDrawGizmos ()

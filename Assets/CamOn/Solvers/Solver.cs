@@ -9,9 +9,15 @@ public abstract class Solver
 	private Queue<Vector3> forwardTrace = new Queue<Vector3>(TRACE_LENGHT);
 	private Queue<Vector3> positionTrace = new Queue<Vector3>(TRACE_LENGHT);
 	private Queue<float> fitnessTrace = new Queue<float>(TRACE_LENGHT);
+	
+	private bool running = true;
+	private float satisfaction = 0;
 
-	protected float bestFitness = 0;
-	protected bool running = true;
+	public float Satisfaction {
+		get {
+			return satisfaction;
+		}
+	}
 	
 	protected void logTrace(Vector3 position, Vector3 forward, float fitness){
 		if (positionTrace.Count >= TRACE_LENGHT){
@@ -37,9 +43,11 @@ public abstract class Solver
 
 	public float Update (Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime){
 		if (running){
-			return update (bestCamera,subjects,shot,maxExecutionTime);
+			satisfaction = update (bestCamera,subjects,shot,maxExecutionTime);
 		}else 
-			return 0;
+			satisfaction = 0;
+
+		return satisfaction;
 	}
 
 	public virtual void Start(Transform bestCamera, Subject[] subjects){

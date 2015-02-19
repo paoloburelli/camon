@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public class Particle
 {
-	Vector3 position,lookAtPosition;
+	public Vector3 Position,LookAt;
 	Vector3 positionVelocity = Vector3.zero,lookVelocity = Vector3.zero;
 	float fitness = 0;
 	Particle localOptimum;
@@ -15,28 +15,16 @@ public class Particle
 		}
 	}
 	
-	public Vector3 Position {
-		get {
-			return position;
-		}
-	}
-	
-	public Vector3 LookAt {
-		get {
-			return lookAtPosition;
-		}
-	}
-	
 	public Particle (Vector3 position, Vector3 forward)
 	{
-		this.position = position;
-		this.lookAtPosition = position + forward;
+		this.Position = position;
+		this.LookAt = position + forward;
 		localOptimum = new Particle(this);
 	}
 
 	public Particle (Particle p) {
-		this.position = p.position;
-		this.lookAtPosition = p.lookAtPosition;
+		this.Position = p.Position;
+		this.LookAt = p.LookAt;
 		this.fitness = p.fitness;
 		this.lookVelocity = p.lookVelocity;
 		this.positionVelocity = p.positionVelocity;
@@ -47,8 +35,8 @@ public class Particle
 	{
 		if (Time.frameCount != frameId) {
 			//Update the local bests at each new frame
-			camera.transform.position = localOptimum.position;
-			camera.transform.LookAt(localOptimum.lookAtPosition);
+			camera.transform.position = localOptimum.Position;
+			camera.transform.LookAt(localOptimum.LookAt);
 			shot.UpdateSubjects (subjects, camera);
 			localOptimum.fitness = shot.Evaluate ();
 
@@ -59,8 +47,8 @@ public class Particle
 				Vector3 c = Solver.SubjectsCenter(subjects);
 				float r = Solver.SubjectsRadius(subjects);
 
-				this.position = c+r*Random.insideUnitSphere;
-				this.lookAtPosition = c+Random.insideUnitSphere;
+				this.Position = c+r*Random.insideUnitSphere;
+				this.LookAt = c+Random.insideUnitSphere;
 
 				this.fitness = 0;
 				this.lookVelocity = Vector3.zero;
@@ -73,8 +61,8 @@ public class Particle
 
 	public float Evaluate (Camera camera, Shot shot, Subject[] subjects)
 	{
-		camera.transform.position = position;
-		camera.transform.LookAt(lookAtPosition);
+		camera.transform.position = Position;
+		camera.transform.LookAt(LookAt);
 		shot.UpdateSubjects (subjects, camera);
 		fitness = shot.Evaluate ();
 		
@@ -92,22 +80,22 @@ public class Particle
 	
 	public void Move ()
 	{
-		position += positionVelocity;
-		lookAtPosition += lookVelocity;
+		Position += positionVelocity;
+		LookAt += lookVelocity;
 	}
 }
 
 public class ParticleSwarmOptimisation : Solver
 {
 
-	public float inertia;
-	public float cognitiveFactor;
-	public float socialFactor;
-	public int populationSize;
+	protected float inertia;
+	protected float cognitiveFactor;
+	protected float socialFactor;
+	protected int populationSize;
 	
-	Particle globalOptimum;
-	List<Particle> particles;
-	IEnumerator<Particle> enumerator=null;
+	protected Particle globalOptimum;
+	protected List<Particle> particles;
+	protected IEnumerator<Particle> enumerator=null;
 
 	public ParticleSwarmOptimisation(float inertia, float cognitiveFactor, float socialFactor, int popSize){
 		this.inertia = inertia;
@@ -144,7 +132,7 @@ public class ParticleSwarmOptimisation : Solver
 		currentCamera.position = globalOptimum.Position;
 		currentCamera.LookAt(globalOptimum.LookAt);
 		
-		return bestFitness;
+		return globalOptimum.Fitness;
 	}
 	
 	public override void Start (Transform camera, Subject[] subjects)

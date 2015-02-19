@@ -104,8 +104,8 @@ public class GeneticAlgorithm : Solver
 		
 		currentCamera.position = globalOptimum.Position;
 		currentCamera.LookAt(globalOptimum.LookAt);
-		
-		return bestFitness;
+
+		return globalOptimum.Fitness;
 	}
 
 	protected void newGeneration(Subject[] subjects){

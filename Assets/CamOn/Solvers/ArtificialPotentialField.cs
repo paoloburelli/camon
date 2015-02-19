@@ -32,6 +32,7 @@ public static class PropertiesForces
 public class ArtificialPotentialField : Solver
 {
 		Vector3 bestPosition, bestForward, lastCenter;
+		float bestFitness = 0;
 	
 		protected override float update (Transform currentCamera, Subject[] subjects, Shot shot, float maxExecutionTime)
 		{
@@ -55,7 +56,7 @@ public class ArtificialPotentialField : Solver
 								positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.camera);
 						}
 			
-						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1-bestFitness);
+						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1-bestFitness) * 10;
 						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius(subjects)*.5f;
 						currentCamera.LookAt (tmpLookAt);
 						shot.UpdateSubjects (subjects, currentCamera.camera);

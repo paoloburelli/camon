@@ -3,6 +3,7 @@ using UnityEngine;
 public class HillClimber : Solver
 {
 		Vector3 bestPosition, bestForward, lastCenter;
+	float bestFitness;
 		
 		protected override float update (Transform currentCamera, Subject[] subjects, Shot shot, float maxExecutionTime)
 		{
