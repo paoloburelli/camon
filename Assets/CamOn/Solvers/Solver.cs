@@ -70,10 +70,10 @@ public abstract class Solver
 	public static float SubjectsRadius (Subject[] subjects)
 	{
 		Vector3 center = SubjectsCenter (subjects);
-		float radius = 1;
+		float radius = 0;
 		foreach (Subject s in subjects) {
 			if (s != null) {
-				float distance = (s.Position - center).magnitude;
+				float distance = (s.Position - center).magnitude + s.Scale.magnitude;
 				if (distance > radius)
 					radius = distance;
 			}

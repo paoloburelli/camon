@@ -56,8 +56,8 @@ public class ArtificialPotentialField : Solver
 								positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.camera);
 						}
 			
-						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1-bestFitness) * 10;
-						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius(subjects)*.5f;
+						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1 - Mathf.Pow(bestFitness,2)) * SubjectsRadius(subjects) * 10;
+						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow(bestFitness,2)) * SubjectsRadius(subjects) *10;
 						currentCamera.LookAt (tmpLookAt);
 						shot.UpdateSubjects (subjects, currentCamera.camera);
 						float tmpFit = shot.Evaluate ();
