@@ -28,7 +28,7 @@ public class RelativePosition : Property
 		Subject sA = subjectsList[subjectReferences[0]];
 		Subject sB = subjectsList[subjectReferences[1]];
 		
-		float rVal = Mathf.Ceil(sA.Visibility)*Mathf.Ceil(sB.Visibility);
+		float rVal = Mathf.Ceil(sA.InFrustum)*Mathf.Ceil(sB.InFrustum);
 		
 //		if (DesiredValue == (int)Position.Above && sA.PositionOnScreen.y > sB.PositionOnScreen.y)
 //			return rVal;

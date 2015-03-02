@@ -5,13 +5,14 @@ using System.Linq;
 
 public class Subject
 {
-	public const int CORNERS_COUNT = 4;
+	public const int SAMPLES = 5;
 	public enum Corner
 	{
 		Top,
 		Bottom,
 		Left,
-		Right
+		Right,
+		Center
 	};
 	
 	const int LAYER_MASK = ~6; //do not test transparent and ignore raycast;
@@ -31,9 +32,9 @@ public class Subject
 	MeshRenderer proxyRenderer;
 	Mesh proxyMesh;
 	GameObject proxy;
-	Vector3[] onScreenCorners = new Vector3[CORNERS_COUNT];
-	bool[] onScreenCornersVisibility = new bool[CORNERS_COUNT];
-	float onScreenFraction;
+	Vector3[] onScreenSamplePoints = new Vector3[SAMPLES];
+	bool[] samplePointsVisibility = new bool[SAMPLES];
+	float inFrustum;
 	float projectionSize;
 	Vector2 vantageAngle = new Vector2 (0, 0);
 	Bounds screenSpaceBounds = new Bounds(Vector3.zero,Vector3.zero);
@@ -43,6 +44,12 @@ public class Subject
 	public Quaternion Orientation {
 		get {
 			return proxy.transform.rotation;
+		}
+	}
+
+	public float InFrustum {
+		get {
+			return inFrustum;
 		}
 	}
 
@@ -81,15 +88,15 @@ public class Subject
 	public float Visibility {
 		get { 
 			float occlusion = 0;
-			foreach (bool c in onScreenCornersVisibility)
-				occlusion += c ? 0 : 1.0f / CORNERS_COUNT;
-			return onScreenFraction * (1 - occlusion);
+			foreach (bool c in samplePointsVisibility)
+				occlusion += c ? 0 : 1.0f / SAMPLES;
+			return inFrustum * (1 - occlusion);
 		}
 	}
 	
 	public bool Occlusion (Corner c)
 	{
-		return onScreenCornersVisibility [(int)c];
+		return samplePointsVisibility [(int)c];
 	}
 	
 	public float ProjectionSize {
@@ -151,7 +158,7 @@ public class Subject
 			int originalLayer = transform.gameObject.layer;
 			transform.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 			
-			onScreenFraction = 0;
+			inFrustum = 0;
 			screenMin = Vector3.one;
 			screenMin.z = float.PositiveInfinity;
 			screenMax = Vector3.zero;
@@ -160,22 +167,22 @@ public class Subject
 				Vector3 tv = proxy.transform.TransformPoint (v);
 				Vector3 sv = camera.WorldToViewportPoint (tv);
 				if (sv.z > 0 && sv.y < 1 && sv.y > 0 && sv.x > 0 && sv.x < 1) {
-					onScreenFraction++;
+					inFrustum++;
 					if (sv.y > screenMax.y) {
 						screenMax.y = sv.y;
-						onScreenCorners [(int)Corner.Top] = tv;
+						onScreenSamplePoints [(int)Corner.Top] = tv;
 					}
 					if (sv.y < screenMin.y) {
 						screenMin.y = sv.y;
-						onScreenCorners [(int)Corner.Bottom] = tv;
+						onScreenSamplePoints [(int)Corner.Bottom] = tv;
 					}
 					if (sv.x > screenMax.x) {
 						screenMax.x = sv.x;
-						onScreenCorners [(int)Corner.Right] = tv;
+						onScreenSamplePoints [(int)Corner.Right] = tv;
 					}
 					if (sv.x < screenMin.x) {
 						screenMin.x = sv.x;
-						onScreenCorners [(int)Corner.Left] = tv;
+						onScreenSamplePoints [(int)Corner.Left] = tv;
 					}
 					if (sv.z > screenMax.z)
 						screenMax.z = sv.z;
@@ -184,12 +191,13 @@ public class Subject
 						screenMin.z = sv.z;
 				}
 			}
-			onScreenFraction *= 1.0f / proxyMesh.vertices.LongLength;
+			onScreenSamplePoints [(int)Corner.Center] = (onScreenSamplePoints [(int)Corner.Top] + onScreenSamplePoints [(int)Corner.Bottom] + onScreenSamplePoints [(int)Corner.Right]+ onScreenSamplePoints [(int)Corner.Left])/4 + (onScreenSamplePoints [(int)Corner.Right] - onScreenSamplePoints [(int)Corner.Left]) * Random.value * 0.2f;
+			inFrustum *= 1.0f / proxyMesh.vertices.LongLength;
 			
-			if (onScreenFraction > 0) {
-				for (int i=0; i<CORNERS_COUNT; i++) {
-					Vector3 direction = camera.transform.position - onScreenCorners [i];
-					onScreenCornersVisibility [i] = !Physics.Raycast (onScreenCorners [i], direction.normalized, direction.magnitude, LAYER_MASK);
+			if (inFrustum > 0) {
+				for (int i=0; i<SAMPLES; i++) {
+					Vector3 direction = camera.transform.position - onScreenSamplePoints [i];
+					samplePointsVisibility [i] = !Physics.Raycast (onScreenSamplePoints [i], direction.normalized, direction.magnitude, LAYER_MASK);
 				}
 				
 				float height = screenMax.y - screenMin.y;
@@ -199,9 +207,9 @@ public class Subject
 				projectionSize *= 1.1f; //this gives some borders around the object on the screen
 				
 			} else {
-				for (int i=0; i<CORNERS_COUNT; i++) {
-					onScreenCorners [i] = Vector3.zero;
-					onScreenCornersVisibility [i] = false;
+				for (int i=0; i<SAMPLES; i++) {
+					onScreenSamplePoints [i] = Vector3.zero;
+					samplePointsVisibility [i] = false;
 				}
 
 				projectionSize = float.NegativeInfinity;
@@ -233,14 +241,14 @@ public class Subject
 	
 	public void DrawGizmos ()
 	{
-		if (onScreenFraction > 0) {
-			for (int i =0; i<CORNERS_COUNT; i++)
-				if (onScreenCornersVisibility [i]) {
+		if (inFrustum > 0) {
+			for (int i =0; i<SAMPLES; i++)
+				if (samplePointsVisibility [i]) {
 					Gizmos.color = Color.green;
-					Gizmos.DrawSphere (onScreenCorners [i], 0.05f * proxy.renderer.bounds.size.y);
+					Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.renderer.bounds.size.y);
 				} else {
 					Gizmos.color = Color.red;
-					Gizmos.DrawWireSphere (onScreenCorners [i], 0.05f * proxy.renderer.bounds.size.y);
+					Gizmos.DrawWireSphere (onScreenSamplePoints [i], 0.05f * proxy.renderer.bounds.size.y);
 				}
 		}
 	}

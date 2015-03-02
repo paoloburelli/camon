@@ -28,11 +28,11 @@ public static class PropertiesForces
 	}
 }
 
-
 public class ArtificialPotentialField : Solver
 {
 		Vector3 bestPosition, bestForward, lastCenter;
 		float bestFitness = 0;
+		Property.Type[] lookAtInfluencingProperties = {Property.Type.PositionOnScreen};
 	
 		protected override float update (Transform currentCamera, Subject[] subjects, Shot shot, float maxExecutionTime)
 		{
@@ -43,6 +43,7 @@ public class ArtificialPotentialField : Solver
 				currentCamera.transform.position = bestPosition + newCenter - lastCenter;
 				shot.UpdateSubjects (subjects, currentCamera.camera);
 				bestFitness = shot.Evaluate ();
+				float lookAtFitness = shot.InFrustum*.5f + shot.Evaluate(lookAtInfluencingProperties)*.5f;
 				bestPosition = currentCamera.transform.position;
 				lastCenter = newCenter;
 
@@ -56,8 +57,9 @@ public class ArtificialPotentialField : Solver
 								positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.camera);
 						}
 			
-						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1 - Mathf.Pow(bestFitness,2)) * SubjectsRadius(subjects) * 10;
-						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow(bestFitness,2)) * SubjectsRadius(subjects) *10;
+						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1-Mathf.Pow(bestFitness,2)) * SubjectsRadius(subjects);
+						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1-Mathf.Pow(lookAtFitness,4)) * SubjectsRadius(subjects);
+
 						currentCamera.LookAt (tmpLookAt);
 						shot.UpdateSubjects (subjects, currentCamera.camera);
 						float tmpFit = shot.Evaluate ();
