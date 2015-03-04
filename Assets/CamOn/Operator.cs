@@ -27,6 +27,8 @@ public class Operator : MonoBehaviour
 	//readonly Solver solver = new GeneticAlgorithm (0.6f,0.7f,0.7f,30);
 	Transform bestCamera;
 
+	bool firstRun = true;
+
 	public Transform EvaluationCamera {
 		get {
 			return bestCamera;
@@ -127,7 +129,7 @@ public class Operator : MonoBehaviour
 		GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
 		bestCamera.gameObject.SetActive (false);
 		
-		Reset ();	
+		Reset ();
 	}
 	
 	public void  Reset ()
@@ -191,6 +193,26 @@ public class Operator : MonoBehaviour
 					s.DrawGizmos ();
 		
 		solver.DrawGizmos ();
+	}
+
+	public void SelectShot(Shot shot, Transform [] actors, Vector3[] offsets=null, Vector3[] scales=null){
+		Shot = shot;
+		for (int i=0;i<actors.Length;i++)
+			SetSubjectTransform(i,actors[i]);
+
+		if (offsets != null)
+			for (int i=0;i<offsets.Length;i++)
+				SetSubjectCenter(i,offsets[i]);
+
+		if (scales != null)
+			for (int i=0;i<scales.Length;i++)
+				SetSubjectScale(i,scales[i]);
+
+		if (firstRun) {
+			transform.position = bestCamera.position;
+			transform.forward = bestCamera.forward;
+			firstRun = false;
+		}
 	}
 }
 

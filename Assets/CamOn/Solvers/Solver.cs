@@ -51,6 +51,15 @@ public abstract class Solver
 	}
 
 	public virtual void Start(Transform bestCamera, Subject[] subjects){
+		if (bestCamera == null)
+			throw new MissingReferenceException ("camera not initilised");
+
+		Vector3 randomPoint = Random.onUnitSphere;;
+		randomPoint.y = Mathf.Abs(randomPoint.y);
+
+		bestCamera.position = Solver.SubjectsCenter(subjects)+randomPoint*Solver.SubjectsRadius(subjects);
+		bestCamera.LookAt(Solver.SubjectsCenter(subjects));
+
 		running = true;
 	}
 

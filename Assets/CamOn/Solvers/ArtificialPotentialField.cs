@@ -82,12 +82,9 @@ public class ArtificialPotentialField : Solver
 		public override void Start (Transform camera, Subject[] subjects)
 		{
 				base.Start (camera, subjects);
-				if (camera == null)
-						throw new MissingReferenceException ("camera not initilised");
 				bestPosition = camera.position;
-				bestForward = (SubjectsCenter (subjects) - bestPosition).normalized;
-				camera.position = bestPosition;
-				camera.forward = bestForward;
+				bestForward = camera.forward;
+				lastCenter = SubjectsCenter(subjects);
 		}
 }
 

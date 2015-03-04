@@ -31,7 +31,6 @@ public class Shot : ScriptableObject
 					Properties [i] = new RelativePosition (Properties [i]);
 				break;
 			}
-		
 	}
 		
 	private Subject[] subjects;
@@ -63,8 +62,10 @@ public class Shot : ScriptableObject
 					weight += p.Weight;
 				}
 				foreach (Subject s in subjects){
-					value += s.Visibility < 0.3 ? s.Visibility : 1;
-					weight += 1.0f;
+					float w = Visibility < 0.1 ? (Properties.Count/(float)subjects.Length) : 1.0f/subjects.Length;
+
+					value += (1-Mathf.Pow(1-s.Visibility,2)) * w;
+					weight += w;
 				}
 			}
 		}
