@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections;
 
 [AddComponentMenu("CamOn/Camera Operator")]
-public class Operator : MonoBehaviour
+public class CameraOperator : MonoBehaviour
 {
 	public float MovementResponsiveness = 0.95f;
 	public float RotationResponsiveness = 0.95f;
@@ -21,10 +21,8 @@ public class Operator : MonoBehaviour
 	[SerializeField]
 	Vector3[] subjectsScale;
 	
-    Subject[] subjects;
+    	Subject[] subjects;
 	readonly Solver solver = new ArtificialPotentialField();
-	//readonly Solver solver = new GreedyPSO (0.7298f,2.05f,2.05f,30);
-	//readonly Solver solver = new GeneticAlgorithm (0.6f,0.7f,0.7f,30);
 	Transform bestCamera;
 
 	bool firstRun = true;
@@ -157,7 +155,7 @@ public class Operator : MonoBehaviour
 		}
 	}
 
-    float timeLimit = 0.01f;
+    	float timeLimit = 0.01f;
 	void Update ()
 	{
         if (Time.deltaTime < 1.0f/60)
