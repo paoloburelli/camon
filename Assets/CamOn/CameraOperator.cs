@@ -123,7 +123,7 @@ public class CameraOperator : MonoBehaviour
 	void Start ()
 	{
 		bestCamera = (Transform)GameObject.Instantiate (transform);
-		GameObject.DestroyImmediate (bestCamera.GetComponent<Operator> ());
+		GameObject.DestroyImmediate (bestCamera.GetComponent<CameraOperator> ());
 		GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
 		bestCamera.gameObject.SetActive (false);
 		
