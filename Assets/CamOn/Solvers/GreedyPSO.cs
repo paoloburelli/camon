@@ -25,7 +25,7 @@ public class GreedyPSO : ParticleSwarmOptimisation {
 		
 		Vector3 newCenter = SubjectsCenter (subjects);
 		globalOptimum.Position += newCenter - lastCenter;
-		lastBestFitness = globalOptimum.Evaluate(currentCamera.camera, shot, subjects);
+		lastBestFitness = globalOptimum.Evaluate(currentCamera.GetComponent<Camera>(), shot, subjects);
 		lastCenter = newCenter;
 		
 		while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
@@ -33,14 +33,14 @@ public class GreedyPSO : ParticleSwarmOptimisation {
 			Vector3 positionForce = Vector3.zero;
 			foreach(Property p in shot.Properties){
 				if (p is ProjectionSize)
-					positionForce += ((ProjectionSize)p).PositionForce(subjects,currentCamera.camera);
+					positionForce += ((ProjectionSize)p).PositionForce(subjects,currentCamera.GetComponent<Camera>());
 				if (p is VantageAngle)
-					positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.camera);
+					positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.GetComponent<Camera>());
 			}
 			
 			perticle.Position = globalOptimum.Position + positionForce*Random.value + Random.insideUnitSphere * (1-globalOptimum.Fitness);
 			perticle.LookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - globalOptimum.Fitness) * SubjectsRadius(subjects)*.5f;
-			perticle.Evaluate(currentCamera.camera, shot, subjects);
+			perticle.Evaluate(currentCamera.GetComponent<Camera>(), shot, subjects);
 			
 			logTrace (currentCamera.position, currentCamera.forward, perticle.Fitness);
 			

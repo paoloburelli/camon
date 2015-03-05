@@ -13,7 +13,7 @@ public class HillClimber : Solver
 				
 				Vector3 newCenter = SubjectsCenter (subjects);
 				currentCamera.transform.position = bestPosition + newCenter - lastCenter;
-				shot.UpdateSubjects (subjects, currentCamera.camera);
+				shot.UpdateSubjects (subjects, currentCamera.GetComponent<Camera>());
 				bestFitness = shot.Evaluate ();
 				bestPosition = currentCamera.transform.position;
 				lastCenter = newCenter;
@@ -25,7 +25,7 @@ public class HillClimber : Solver
 						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - bestFitness) * SubjectsRadius (subjects);
 						currentCamera.LookAt (tmpLookAt);
 			
-						shot.UpdateSubjects (subjects, currentCamera.camera);
+						shot.UpdateSubjects (subjects, currentCamera.GetComponent<Camera>());
 						float tmpFit = shot.Evaluate ();
 			
 						logTrace (currentCamera.position, currentCamera.forward, tmpFit);

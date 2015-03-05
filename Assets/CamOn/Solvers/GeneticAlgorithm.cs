@@ -84,7 +84,7 @@ public class GeneticAlgorithm : Solver
 		double maxMilliseconds = maxExecutionTime * 1000;
 		double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 
-		globalOptimum.Evaluate(currentCamera.camera,shot,subjects);
+		globalOptimum.Evaluate(currentCamera.GetComponent<Camera>(),shot,subjects);
 
 		while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
 			if (!enumerator.MoveNext ()) {
@@ -93,7 +93,7 @@ public class GeneticAlgorithm : Solver
 				enumerator.MoveNext ();
 			}
 		
-			enumerator.Current.Evaluate (currentCamera.camera,shot,subjects);
+			enumerator.Current.Evaluate (currentCamera.GetComponent<Camera>(),shot,subjects);
 
 			if (enumerator.Current.Fitness > globalOptimum.Fitness) {
 				globalOptimum = new Individual(enumerator.Current);

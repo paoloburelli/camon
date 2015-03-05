@@ -181,7 +181,7 @@ public class CameraOperator : MonoBehaviour
 		//		GameObject.DestroyImmediate (GameObject.Find (Subject.PROXY_NAME));
 		
 		if (ReadyForEvaluation) {
-			shot.UpdateSubjects (subjects, camera);
+			shot.UpdateSubjects (subjects, GetComponent<Camera>());
 			shot.Evaluate ();
 		}
 		

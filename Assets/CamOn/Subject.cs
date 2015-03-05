@@ -126,9 +126,9 @@ public class Subject
 		DestroyProxies ();
 		
 		proxy = GameObject.CreatePrimitive (type);
-		GameObject.DestroyImmediate (proxy.collider);
-		proxy.renderer.sharedMaterial = new Material (Shader.Find ("Transparent/Diffuse"));
-		proxy.renderer.sharedMaterial.color = new Color (1, 0, 1, 0.4f);
+		GameObject.DestroyImmediate (proxy.GetComponent<Collider>());
+		//proxy.GetComponent<Renderer>().sharedMaterial = new Material (Shader.Find ("Transparent/Diffuse"));
+		//proxy.GetComponent<Renderer>().sharedMaterial.color = new Color (1, 0, 1, 0.4f);
 
 
 		proxy.transform.parent = transform;
@@ -245,10 +245,10 @@ public class Subject
 			for (int i =0; i<SAMPLES; i++)
 				if (samplePointsVisibility [i]) {
 					Gizmos.color = Color.green;
-					Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.renderer.bounds.size.y);
+					Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
 				} else {
 					Gizmos.color = Color.red;
-					Gizmos.DrawWireSphere (onScreenSamplePoints [i], 0.05f * proxy.renderer.bounds.size.y);
+					Gizmos.DrawWireSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
 				}
 		}
 	}

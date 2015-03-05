@@ -41,7 +41,7 @@ public class ArtificialPotentialField : Solver
 
 				Vector3 newCenter = SubjectsCenter (subjects);
 				currentCamera.transform.position = bestPosition + newCenter - lastCenter;
-				shot.UpdateSubjects (subjects, currentCamera.camera);
+				shot.UpdateSubjects (subjects, currentCamera.GetComponent<Camera>());
 				bestFitness = shot.Evaluate ();
 				float lookAtFitness = shot.InFrustum*.5f + shot.Evaluate(lookAtInfluencingProperties)*.5f;
 				bestPosition = currentCamera.transform.position;
@@ -52,16 +52,16 @@ public class ArtificialPotentialField : Solver
 						Vector3 positionForce = Vector3.zero;
 						foreach(Property p in shot.Properties){
 							if (p is ProjectionSize)
-								positionForce += ((ProjectionSize)p).PositionForce(subjects,currentCamera.camera);
+								positionForce += ((ProjectionSize)p).PositionForce(subjects,currentCamera.GetComponent<Camera>());
 							if (p is VantageAngle)
-								positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.camera);
+								positionForce += ((VantageAngle)p).PositionForce(subjects,currentCamera.GetComponent<Camera>());
 						}
 			
 						currentCamera.position = bestPosition + positionForce*Random.value + Random.insideUnitSphere * (1-Mathf.Pow(bestFitness,2)) * SubjectsRadius(subjects);
 						Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1-Mathf.Pow(lookAtFitness,4)) * SubjectsRadius(subjects);
 
 						currentCamera.LookAt (tmpLookAt);
-						shot.UpdateSubjects (subjects, currentCamera.camera);
+						shot.UpdateSubjects (subjects, currentCamera.GetComponent<Camera>());
 						float tmpFit = shot.Evaluate ();
 			
 						logTrace (currentCamera.position, currentCamera.forward, tmpFit);

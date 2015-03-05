@@ -109,7 +109,7 @@ public class ParticleSwarmOptimisation : Solver
 		double maxMilliseconds = maxExecutionTime * 1000;
 		double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 
-		globalOptimum.Evaluate(currentCamera.camera,shot,subjects);
+		globalOptimum.Evaluate(currentCamera.GetComponent<Camera>(),shot,subjects);
 
 		while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
 			if (!enumerator.MoveNext ()) {
@@ -117,9 +117,9 @@ public class ParticleSwarmOptimisation : Solver
 				enumerator.MoveNext ();
 			}
 
-			enumerator.Current.Refresh(currentCamera.camera,shot,subjects);
+			enumerator.Current.Refresh(currentCamera.GetComponent<Camera>(),shot,subjects);
 			enumerator.Current.Move ();
-			enumerator.Current.Evaluate (currentCamera.camera,shot,subjects);
+			enumerator.Current.Evaluate (currentCamera.GetComponent<Camera>(),shot,subjects);
 			enumerator.Current.UpdateVelocity (inertia,cognitiveFactor,socialFactor,globalOptimum);
 
 			if (enumerator.Current.Fitness > globalOptimum.Fitness) {

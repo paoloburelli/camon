@@ -40,7 +40,7 @@ public class ViewObjectiveFunction : MonoBehaviour
 
 						cameraman.EvaluationCamera.position = bounds.min + Vector3.Scale (step, index);
 						cameraman.EvaluationCamera.LookAt (bounds.center);
-						cameraman.Shot.UpdateSubjects (cameraman.Subjects, cameraman.EvaluationCamera.camera);
+						cameraman.Shot.UpdateSubjects (cameraman.Subjects, cameraman.EvaluationCamera.GetComponent<Camera>());
 
 
 						functionValues [(int)index.x] [(int)index.y] [(int)index.z] = cameraman.Shot.Evaluate ();
