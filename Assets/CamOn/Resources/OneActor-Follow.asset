@@ -11,6 +11,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c31db0cf5f2941d080dac56eaaa47b2, type: 3}
   m_Name: OneActor-Follow
   m_EditorClassIdentifier: 
+  LockX: 0
+  LockY: 0
+  LockZ: 0
   NumberOfSubjects: 1
   SubjectCenters:
   - {x: 0, y: 0, z: 0}

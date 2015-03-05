@@ -155,7 +155,9 @@ public class CameraOperator : MonoBehaviour
 		}
 	}
 
-    	float timeLimit = 0.01f;
+    float timeLimit = 0.1f;
+	Vector3 oldPos;
+	Vector3 lookAtTarget;
 	void Update ()
 	{
         if (Time.deltaTime < 1.0f/60)
@@ -163,7 +165,7 @@ public class CameraOperator : MonoBehaviour
         else
             timeLimit *= 0.9f;
 
-        timeLimit = Mathf.Max(timeLimit, 0.01f);
+        timeLimit = Mathf.Max(timeLimit, 0.016f);
 
 		if (ReadyForEvaluation) 
             solver.Update(bestCamera, subjects, shot,timeLimit);

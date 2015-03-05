@@ -11,6 +11,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c31db0cf5f2941d080dac56eaaa47b2, type: 3}
   m_Name: TwoActors-OverTheShoulder
   m_EditorClassIdentifier: 
+  LockX: 0
+  LockY: 0
+  LockZ: 0
   NumberOfSubjects: 2
   SubjectCenters:
   - {x: 0, y: .699999988, z: 0}

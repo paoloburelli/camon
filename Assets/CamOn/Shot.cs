@@ -4,6 +4,7 @@ using System.Collections.Generic;
 [System.Serializable]
 public class Shot : ScriptableObject
 {
+	public bool LockX=false,LockY=false,LockZ=false;
 	public int NumberOfSubjects = 0;
 	public List<Vector3> SubjectCenters = new List<Vector3> ();
 	public List<Vector3> SubjectScales = new List<Vector3> ();

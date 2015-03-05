@@ -15,7 +15,14 @@ public class ShotEditor : Editor
 		shot = (Shot)target;
 		
 		shot.NumberOfSubjects = EditorGUILayout.IntSlider ("Number Of Subjects", shot.NumberOfSubjects, 0, 4);
-		
+
+		EditorGUILayout.BeginHorizontal();
+		EditorGUILayout.PrefixLabel("Lock");
+		shot.LockX = EditorGUILayout.ToggleLeft("X",shot.LockX,GUILayout.MaxWidth(30));
+		shot.LockY = EditorGUILayout.ToggleLeft("Y",shot.LockY,GUILayout.MaxWidth(30));
+		shot.LockZ = EditorGUILayout.ToggleLeft("Z",shot.LockZ,GUILayout.MaxWidth(30));
+		EditorGUILayout.EndHorizontal();
+
 		while (shot.SubjectBounds.Count < shot.NumberOfSubjects) {
 			shot.SubjectCenters.Add (Vector3.zero);
 			shot.SubjectScales.Add (Vector3.one);
