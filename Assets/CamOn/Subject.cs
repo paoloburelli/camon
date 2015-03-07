@@ -84,6 +84,10 @@ public class Subject
 	public Vector3 Forward {
 		get { return proxy.transform.forward; }
 	}
+
+	public Vector3 Right {
+		get { return proxy.transform.right; }
+	}
 	
 	public float Visibility {
 		get { 

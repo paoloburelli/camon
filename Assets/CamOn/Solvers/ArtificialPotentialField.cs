@@ -105,7 +105,9 @@ public class ArtificialPotentialField : Solver
 			} else if (p.PropertyType == Property.Type.RelativePosition) {
 				RelativePosition rp = (RelativePosition)p;
 				if ((RelativePosition.Position)rp.DesiredValue == RelativePosition.Position.InFrontOf) {
-					direction = ((subjects [rp.Subject].Position - center) + Vector3.up*radius*0.1f).normalized;
+					direction = ((subjects [rp.Subject].Position - subjects[rp.SecondarySubject].Position) + subjects [rp.Subject].Right*subjects [rp.Subject].Scale.x);
+					direction *= 1.1f + (subjects [rp.Subject].Scale.magnitude / direction.magnitude);
+					lookAtPoint = subjects [rp.SecondarySubject].Position;
 					break;	
 				}
 			}
