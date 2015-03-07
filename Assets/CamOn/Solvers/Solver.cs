@@ -2,17 +2,26 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+/// <summary>
+/// This is a general solver class which can be extended to define custom solvers
+/// </summary>
 public abstract class Solver
 {
-	public const int TRACE_LENGHT = 100;
-		
 	private Queue<Vector3> forwardTrace = new Queue<Vector3>(TRACE_LENGHT);
 	private Queue<Vector3> positionTrace = new Queue<Vector3>(TRACE_LENGHT);
 	private Queue<float> fitnessTrace = new Queue<float>(TRACE_LENGHT);
-	
 	private bool running = true;
 	private float satisfaction = 0;
-
+	
+	/// <summary>
+	/// Defines the length fo the debug trace (it is used only in editor mode)
+	/// </summary>
+	public const int TRACE_LENGHT = 100;
+		
+	/// <summary>
+	/// Returns the quality of the current best found solution
+	/// </summary>
+	/// <value>[0,1] A value describing how much the current best solution satisfies the shot requirements.</value>
 	public float Satisfaction {
 		get {
 			return satisfaction;
@@ -20,15 +29,17 @@ public abstract class Solver
 	}
 	
 	protected void logTrace(Vector3 position, Vector3 forward, float fitness){
-		if (positionTrace.Count >= TRACE_LENGHT){
-			positionTrace.Dequeue();
-			fitnessTrace.Dequeue();
-			forwardTrace.Dequeue();
+		if (Application.isEditor) {
+			if (positionTrace.Count >= TRACE_LENGHT){
+				positionTrace.Dequeue();
+				fitnessTrace.Dequeue();
+				forwardTrace.Dequeue();
+			}
+			
+			positionTrace.Enqueue(position);
+			fitnessTrace.Enqueue(fitness);
+			forwardTrace.Enqueue(forward);
 		}
-		
-		positionTrace.Enqueue(position);
-		fitnessTrace.Enqueue(fitness);
-		forwardTrace.Enqueue(forward);
 	}
 	
 	public virtual void DrawGizmos(){
@@ -41,6 +52,13 @@ public abstract class Solver
 		}
 	}
 
+	/// <summary>
+	/// Updates the solver for a given amount of time
+	/// </summary>
+	/// <param name="bestCamera">curret camera to be animated</param>
+	/// <param name="subjects">subjects in the shot</param>
+	/// <param name="shot">shot to be generated</param>
+	/// <param name="maxExecutionTime">maximum execution time.</param>
 	public float Update (Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime){
 		if (running){
 			satisfaction = update (bestCamera,subjects,shot,maxExecutionTime);
@@ -50,6 +68,12 @@ public abstract class Solver
 		return satisfaction;
 	}
 
+	/// <summary>
+	/// Enabling of the solver
+	/// </summary>
+	/// <param name="bestCamera">curret camera to be animated</param>
+	/// <param name="subjects">subjects in the shot</param>
+	/// <param name="shot">shot to be generated</param>
 	public virtual void Start(Transform bestCamera, Subject[] subjects, Shot shot){
 		if (bestCamera == null)
 			throw new MissingReferenceException ("camera not initilised");
@@ -58,10 +82,18 @@ public abstract class Solver
 		running = true;
 	}
 
+	/// <summary>
+	/// Disabling the solver
+	/// </summary>
 	public virtual void Stop() {
 		running = false;
 	}
 
+	/// <summary>
+	/// Given a list of ubjects, it calculates a position in the middle.
+	/// </summary>
+	/// <returns>A position wich is central to the subjects passed.</returns>
+	/// <param name="subjects">The subjects in the shot.</param>
 	public static Vector3 SubjectsCenter (Subject[] subjects)
 	{
 		Vector3 center = Vector3.zero;
@@ -70,7 +102,12 @@ public abstract class Solver
 				center += s.Position / subjects.Length;
 		return center;
 	}
-	
+
+	/// <summary>
+	/// Given a list of subjects, it calculates a sphere that contains them all.
+	/// </summary>
+	/// <returns>The radius of the sphere.</returns>
+	/// <param name="subjects">The subjects in the shot.</param>
 	public static float SubjectsRadius (Subject[] subjects)
 	{
 		Vector3 center = SubjectsCenter (subjects);
@@ -86,6 +123,12 @@ public abstract class Solver
 		return radius;
 	}
 
+	/// <summary>
+	/// Sets the position to the camera controlling if the camera is locked
+	/// </summary>
+	/// <param name="position">The position to be set.</param>
+	/// <param name="bestCamera">The camera on which to set the position.</param>
+	/// <param name="shot">The current shot.</param>
 	protected void setPosition(Vector3 position, Transform bestCamera, Shot shot){
 		if (shot.LockX)
 			position.x = bestCamera.position.x;
@@ -96,7 +139,7 @@ public abstract class Solver
 		
 		bestCamera.position = position;
 	}
-
+	
 	abstract protected float update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
 	abstract protected void initBestCamera (Transform bestCamera, Subject[] subjects, Shot shot);
 }
