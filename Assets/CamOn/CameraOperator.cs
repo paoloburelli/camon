@@ -6,6 +6,7 @@ using System.Collections;
 [AddComponentMenu("CamOn/Camera Operator")]
 public class CameraOperator : MonoBehaviour
 {
+	public enum Transition {Cut, Smooth};
 	public float MovementResponsiveness = 0.95f;
 	public float RotationResponsiveness = 0.95f;
 	private Vector3 velocity = Vector3.zero;
@@ -21,11 +22,9 @@ public class CameraOperator : MonoBehaviour
 	[SerializeField]
 	Vector3[] subjectsScale;
 	
-    	Subject[] subjects;
+    Subject[] subjects;
 	readonly Solver solver = new ArtificialPotentialField();
 	Transform bestCamera;
-
-	bool firstRun = true;
 
 	public Transform EvaluationCamera {
 		get {
@@ -128,6 +127,7 @@ public class CameraOperator : MonoBehaviour
 		bestCamera.gameObject.SetActive (false);
 		
 		Reset ();
+		PerformCut();
 	}
 	
 	public void  Reset ()
@@ -151,7 +151,7 @@ public class CameraOperator : MonoBehaviour
 					subjects [i] = new Subject (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
 		
 			if (ReadyForEvaluation && Application.isPlaying)
-				solver.Start (bestCamera, subjects);
+				solver.Start (bestCamera, subjects, shot);
 		}
 	}
 
@@ -195,7 +195,7 @@ public class CameraOperator : MonoBehaviour
 		solver.DrawGizmos ();
 	}
 
-	public void SelectShot(Shot shot, Transform [] actors, Vector3[] offsets=null, Vector3[] scales=null){
+	public void SelectShot(Shot shot, Transform [] actors, Transition transition = Transition.Cut, Vector3[] offsets=null, Vector3[] scales=null){
 		Shot = shot;
 		for (int i=0;i<actors.Length;i++)
 			SetSubjectTransform(i,actors[i]);
@@ -208,11 +208,13 @@ public class CameraOperator : MonoBehaviour
 			for (int i=0;i<scales.Length;i++)
 				SetSubjectScale(i,scales[i]);
 
-		if (firstRun) {
-			transform.position = bestCamera.position;
-			transform.forward = bestCamera.forward;
-			firstRun = false;
-		}
+		if (transition == Transition.Cut)
+			PerformCut();
+	}
+
+	public void PerformCut() {
+		transform.position = bestCamera.position;
+		transform.forward = bestCamera.forward;
 	}
 }
 

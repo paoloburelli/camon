@@ -50,16 +50,11 @@ public abstract class Solver
 		return satisfaction;
 	}
 
-	public virtual void Start(Transform bestCamera, Subject[] subjects){
+	public virtual void Start(Transform bestCamera, Subject[] subjects, Shot shot){
 		if (bestCamera == null)
 			throw new MissingReferenceException ("camera not initilised");
-
-		Vector3 randomPoint = Random.onUnitSphere;;
-		randomPoint.y = Mathf.Abs(randomPoint.y);
-
-		bestCamera.position = Solver.SubjectsCenter(subjects)+randomPoint*Solver.SubjectsRadius(subjects);
-		bestCamera.LookAt(Solver.SubjectsCenter(subjects));
-
+			
+		initBestCamera (bestCamera, subjects, shot);
 		running = true;
 	}
 
@@ -92,5 +87,6 @@ public abstract class Solver
 	}
 
 	abstract protected float update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
+	abstract protected void initBestCamera (Transform bestCamera, Subject[] subjects, Shot shot);
 }
 

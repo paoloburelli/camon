@@ -79,12 +79,40 @@ public class ArtificialPotentialField : Solver
 				return bestFitness;
 		}
 
-		public override void Start (Transform camera, Subject[] subjects)
-		{
-				base.Start (camera, subjects);
+	public override void Start (Transform camera, Subject[] subjects, Shot shot)
+	{
+				base.Start (camera, subjects, shot);
 				bestPosition = camera.position;
 				bestForward = camera.forward;
 				lastCenter = SubjectsCenter(subjects);
+	}
+
+	protected override void initBestCamera (Transform bestCamera, Subject[] subjects, Shot shot)
+	{
+		float radius = Solver.SubjectsRadius (subjects);
+		Vector3 center = Solver.SubjectsCenter (subjects);
+
+		Vector3 direction = Vector3.one * radius;
+		Vector3 lookAtPoint = center;
+
+
+		foreach (Property p in shot.Properties) {
+			if (p.PropertyType == Property.Type.VantageAngle) {
+				VantageAngle va = (VantageAngle)p;
+				direction = (Quaternion.Euler (va.DesiredHorizontalAngle, 0, 0) * subjects [va.Subject].Forward) * radius;
+				lookAtPoint = subjects [va.Subject].Position;
+				break;
+			} else if (p.PropertyType == Property.Type.RelativePosition) {
+				RelativePosition rp = (RelativePosition)p;
+				if ((RelativePosition.Position)rp.DesiredValue == RelativePosition.Position.InFrontOf) {
+					direction = ((subjects [rp.Subject].Position - center) + Vector3.up*radius*0.1f).normalized;
+					break;	
+				}
+			}
 		}
+				
+		bestCamera.position = lookAtPoint + direction;
+		bestCamera.LookAt(lookAtPoint);
+	}
 }
 
