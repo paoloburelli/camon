@@ -115,8 +115,8 @@ public class ArtificialPotentialField : Solver
 		}
 
 		//I'm not sure if the initial camera position should be calculated or it should be manually set
-		//setPosition(lookAtPoint + direction,bestCamera,shot);
-		bestCamera.position = lookAtPoint + direction;
+		setPosition(lookAtPoint + direction,bestCamera,shot);
+		//bestCamera.position = lookAtPoint + direction;
 		bestCamera.LookAt (lookAtPoint);
 	}
 }
