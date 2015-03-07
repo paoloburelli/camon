@@ -86,6 +86,17 @@ public abstract class Solver
 		return radius;
 	}
 
+	protected void setPosition(Vector3 position, Transform bestCamera, Shot shot){
+		if (shot.LockX)
+			position.x = bestCamera.position.x;
+		if (shot.LockY)
+			position.y = bestCamera.position.y;
+		if (shot.LockZ)
+			position.z = bestCamera.position.z;
+		
+		bestCamera.position = position;
+	}
+
 	abstract protected float update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
 	abstract protected void initBestCamera (Transform bestCamera, Subject[] subjects, Shot shot);
 }
