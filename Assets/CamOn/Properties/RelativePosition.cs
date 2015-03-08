@@ -4,52 +4,61 @@ using UnityEngine;
 [Serializable]
 public class RelativePosition : Property
 {
+	/// <summary>
+	/// Possible types of relative placement
+	/// </summary>
 	public enum Position{Above,Below,LeftOf,RightOf,InFrontOf,Behind}
-	private  int positionsCount = Enum.GetNames(typeof(Position)).Length;
 
+	/// <summary>
+	/// Copy constructor.
+	/// This is used to deserialise properties from a shot file.
+	/// </summary>
+	/// <param name="p">P.</param>
 	public RelativePosition (Property p) : base(p){}
 
-	public RelativePosition (int subjectA, Position  pos, int subjectB, float weight) : base(weight)
+	/// <summary>
+	/// Initializes a new instance of the <see cref="RelativePosition"/> class.
+	/// </summary>
+	/// <param name="mainSubjectIndex">Index of the main actor.</param>
+	/// <param name="pos">Relative position between the actors.</param>
+	/// <param name="secondarySubjectIndex">Index of the secondary actor.</param>
+	/// <param name="weight">Importance of this property.</param>
+	public RelativePosition (int mainSubjectIndex, Position  pos, int secondarySubjectIndex, float weight) : base(weight)
 	{
 		subjectReferences = new int[2];
-		subjectReferences[0] = subjectA;
-		subjectReferences[1] = subjectB;
+		subjectReferences[0] = mainSubjectIndex;
+		subjectReferences[1] = secondarySubjectIndex;
 
 		propertyType = Property.Type.RelativePosition;
 		desiredValues[0] = (int)pos;
 	}
 
-	public int SecondarySubject{
+	/// <summary>
+	/// Gets the index of the secondary subject.
+	/// </summary>
+	/// <value>The index of the secondary subject.</value>
+	public int SecondaryActorIndex{
 		get {return subjectReferences[1];}
 	}
 
+	/// <summary>
+	/// Gets or sets the desired relative position between the two subjects.
+	/// </summary>
+	/// <value>The desired position value.</value>
+	public Position DesiredPosition {
+		set {desiredValues [0] = (int)value; }
+		get {return (RelativePosition.Position)Mathf.FloorToInt(desiredValues[0]);}
+	}
+
 	#region implemented abstract members of Property
-	protected override float evaluate (Actor[] subjectsList)
+	protected override float evaluate (SubjectEvaluator[] subjectsList)
 	{
-		Actor sA = subjectsList[subjectReferences[0]];
-		Actor sB = subjectsList[subjectReferences[1]];
+		SubjectEvaluator sA = subjectsList[subjectReferences[0]];
+		SubjectEvaluator sB = subjectsList[subjectReferences[1]];
 
 		float rVal = Mathf.Ceil(sA.InFrustum)*Mathf.Ceil(sB.InFrustum);
 
-		//		if (DesiredValue == (int)Position.Above && sA.PositionOnScreen.y > sB.PositionOnScreen.y)
-		//			return rVal;
-		//		
-		//		if (DesiredValue == (int)Position.Below && sA.PositionOnScreen.y < sB.PositionOnScreen.y)
-		//			return rVal;
-		//		
-		//		if (DesiredValue == (int)Position.LeftOf && sA.PositionOnScreen.x < sB.PositionOnScreen.x)
-		//			return rVal;
-		//		
-		//		if (DesiredValue == (int)Position.RightOf && sA.PositionOnScreen.x > sB.PositionOnScreen.x)
-		//			return rVal;
-		//		
-		//		if (DesiredValue == (int)Position.InFrontOf && sA.PositionOnScreen.z < sB.PositionOnScreen.z)
-		//			return rVal;
-		//		
-		//		if (DesiredValue == (int)Position.Behind && sA.PositionOnScreen.z > sB.PositionOnScreen.z)
-		//			return rVal;
-
-		switch ((Position)DesiredValue) {
+		switch (DesiredPosition) {
 		case Position.Above:
 			return rVal*isBeyond(sA.ScreenBounds.min.y,sA.ScreenBounds.max.y,sB.ScreenBounds.min.y,sB.ScreenBounds.max.y);
 		case Position.Below:
@@ -90,10 +99,5 @@ public class RelativePosition : Property
 			return 0.5f-0.5f*(maxB-maxA)/(maxB-minB);
 
 		return 0.5f;
-	}
-
-	public override float DesiredValue {
-		set {desiredValues[0] = Mathf.FloorToInt(Mathf.Clamp(value,0,positionsCount-1));}
-		get {return desiredValues[0];}
 	}
 }

@@ -3,23 +3,64 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 
+/// <summary>
+/// A shot describes the way the camera should frame a scene.
+/// A shot is composed by a number of properties and actors.
+/// Shots can be created and edited in the unity editor an ia code.
+/// Shots created in the editor should be stored in the "Resources" folder so they can be loaded in the game.
+/// </summary>
 [System.Serializable]
 public class Shot : ScriptableObject
 {
-	public bool LockX=false,LockY=false,LockZ=false;
+	/// <summary>
+	/// Defines whether the camera should moove or not along the X axis.
+	/// If true, the camera should not move.
+	/// </summary>
+	public bool LockX = false;
+	/// <summary>
+	/// Defines whether the camera should moove or not along the Y axis.
+	/// If true, the camera should not move.
+	/// </summary>
+	public bool LockY = false;
+	/// <summary>
+	/// Defines whether the camera should moove or not along the X axis.
+	/// If true, the camera should not move.
+	/// </summary>
+	public bool LockZ=false;
+
+	/// <summary>
+	/// Offset of each subject evaluator.
+	/// </summary>
 	public List<Vector3> SubjectCenters = new List<Vector3> ();
+
+	/// <summary>
+	/// Scale modifier of each subject evaluator.
+	/// </summary>
 	public List<Vector3> SubjectScales = new List<Vector3> ();
+
+	/// <summary>
+	/// Shape of each subject evaluator.
+	/// </summary>
 	public List<PrimitiveType> SubjectBounds = new List<PrimitiveType> ();
+
+	/// <summary>
+	/// Properties composing the shot.
+	/// </summary>
 	public List<Property> Properties = new List<Property> ();
+
 	[SerializeField]
 	int numberOfActors = 0;
 
-	public int NumberOfActors {
+	/// <summary>
+	/// Gets or sets the number of subjects in the shot.
+	/// </summary>
+	/// <value>The number of subjects.</value>
+	public int NumberOfSubjects {
 		get {
 			return numberOfActors;
 		}
 		set {
-			numberOfActors = value;
+			numberOfActors = Mathf.Max(0,value);
 			while (SubjectBounds.Count < value) {
 				SubjectCenters.Add (Vector3.zero);
 				SubjectScales.Add (Vector3.one);
@@ -33,52 +74,49 @@ public class Shot : ScriptableObject
 		}
 	}
 
-	public void FixPropertyTypes ()
+	/// <summary>
+	/// Fixs the properties type afte deserialisation;
+	/// </summary>
+	public void FixPropertiesType ()
 	{
-		for (int i=0; i<Properties.Count; i++)
-			switch (Properties [i].PropertyType) {
-			case Property.Type.ProjectionSize:
-				if (!(Properties [i] is ProjectionSize))
-					Properties [i] = new ProjectionSize (Properties [i]);
-				break;
-			case Property.Type.PositionOnScreen:
-				if (!(Properties [i] is PositionOnScreen))
-					Properties [i] = new PositionOnScreen (Properties [i]);
-				break;
-			case Property.Type.VantageAngle:
-				if (!(Properties [i] is VantageAngle))
-					Properties [i] = new VantageAngle (Properties [i]);
-				break;
-			case Property.Type.RelativePosition:
-				if (!(Properties [i] is RelativePosition))
-					Properties [i] = new RelativePosition (Properties [i]);
-				break;
-			}
+		for (int i = 0; i < Properties.Count; i++) {
+			Property p = Properties [i];
+			Property.FixType (ref p);
+			Properties [i] = p;
+		}
 	}
-		
-	public float GetQuality (Actor[] actors, Camera camera=null)
+
+	/// <summary>
+	/// Return the quality of a specific camera setting with respect to the curren shot and the given subject evaluators.
+	/// The quality is calculated as a wighted sum of the properties level of satisfaction.
+	/// Visibility of each subject is also considered in the total quality.
+	/// </summary>
+	/// <returns>[0,1] The quality value; the higher the better.</returns>
+	/// <param name="subjects">A list of subject evaluators.</param>
+	/// <param name="camera">The camera to be evaluated. If the camera is not passed as a parameter, no evaluation is performed and the last recorded quality is passed.</param>
+	public float GetQuality (SubjectEvaluator[] subjects, Camera camera=null)
 	{
 		float value = 0;
 		float weight = 0;
 		
-		if (actors != null){
+		if (subjects != null){
 
 			if (camera != null)
-				Actor.ReevaluateAll (actors, camera);
+				SubjectEvaluator.ReevaluateAll (subjects, camera);
 			
 			bool eval = true;
-			foreach (Actor s in actors)
+			foreach (SubjectEvaluator s in subjects)
 				if (s == null)
 					eval = false;
 			
 			if (eval) {
 				foreach (Property p in Properties) {
-					value += p.Evaluate (actors) * p.Weight;
+					value += p.Evaluate (subjects) * p.Weight;
 					weight += p.Weight;
 				}
-				for (int i=0;i<actors.Length;i++){
+				for (int i=0;i<subjects.Length;i++){
 	
-					float f = (1-Mathf.Pow(1-actors[i].Visibility,4));
+					float f = (1-Mathf.Pow(1-subjects[i].Visibility,4));
 					float w =  Mathf.Lerp(PropertiesCount(i),1,f);
 
 					value += f * w;
@@ -89,14 +127,21 @@ public class Shot : ScriptableObject
 		
 		return float.IsNaN (value / weight) ? 0 : value / weight;
 	}
-	
-	public float GetQuality (Property.Type[] pTypes, Actor[] actors, Camera camera=null)
+
+	/// <summary>
+	/// Return the quality of a specific camera setting with respect to the specified properties and the given subject evaluators
+	/// </summary>
+	/// <returns>[0,1] The quality value; the higher the better.</returns>
+	/// <param name="pTypes">A list of properties.</param>
+	/// <param name="actors">A list of subject evaluators.</param>
+	/// <param name="camera">The camera to be evaluated. If the camera is not passed as a parameter, no evaluation is performed and the last recorded quality is passed.</param>
+	public float GetQuality (Property.Type[] pTypes, SubjectEvaluator[] actors, Camera camera=null)
 	{
 		float value = 0;
 		float weight = 0;
 
 		if (camera != null)
-			Actor.ReevaluateAll (actors, camera);
+			SubjectEvaluator.ReevaluateAll (actors, camera);
 		
 		if (actors != null)
 			foreach (Property.Type pt in pTypes)
@@ -108,32 +153,62 @@ public class Shot : ScriptableObject
 		
 		return float.IsNaN (value / weight) ? 1 : value / weight;
 	}
-	
-	public float Visibility(Actor[] actors) {
+
+	/// <summary>
+	/// Returns the level of visibility of the subject given a specific camera camera.
+	/// Visibility is intended as the fraction of the subjects which is included in the frame ans is not occluded by any obstacle.
+	/// </summary>
+	/// <param name="subjects">List of subjects.</param>
+	/// <param name="camera">The camera to be used for evaluation. If the camera is not passed as a parameter, no evaluation is performed and the last recorded visibility is passed.</param>
+	public float Visibility(SubjectEvaluator[] subjects, Camera camera=null) {
+
+		if (camera != null)
+			SubjectEvaluator.ReevaluateAll (subjects, camera);
+
 			float visbility = 0;
-			foreach (Actor s in actors)
-				visbility += s.Visibility / actors.Length;
+			foreach (SubjectEvaluator s in subjects)
+				visbility += s.Visibility / subjects.Length;
 			return visbility;
 	}
 
-	public float InFrustum(Actor[] actors) {
+	/// <summary>
+	/// Returns the fraction of the subjects that are included in the view frustum given a specific camera camera.
+	/// </summary>
+	/// <param name="subjects">List of subjects.</param>
+	/// <param name="camera">The camera to be used for evaluation. If the camera is not passed as a parameter, no evaluation is performed and the last recorded fraction is passed.</param>
+	public float InFrustum(SubjectEvaluator[] actors, Camera camera=null) {
+
+		if (camera != null)
+			SubjectEvaluator.ReevaluateAll (actors, camera);
+
 			float visbility = 0;
-			foreach (Actor s in actors)
+			foreach (SubjectEvaluator s in actors)
 				visbility += s.InFrustum / actors.Length;
 			return visbility;
 	}
 
-	public T GetProperty<T>(int actorIndex=0) where T : Property{
+	/// <summary>
+	/// Returns a property defined on a spcific subject
+	/// </summary>
+	/// <returns>The property.</returns>
+	/// <param name="subjectIndex">Index of the subject; the default value is 0.</param>
+	/// <typeparam name="T">The type of the property.</typeparam>
+	public T GetProperty<T>(int subjectIndex=0) where T : Property{
 		foreach (Property p in Properties)
-			if (p is T && p.Subject == actorIndex)
+			if (p is T && p.MainSubjectIndex == subjectIndex)
 				return (T)p;
 		return null;
 	}
 
-	private int PropertiesCount(int actorIndex) {
+	/// <summary>
+	/// Returns the number of properties set on a specific subject
+	/// </summary>
+	/// <returns>The count.</returns>
+	/// <param name="subjectIndex">Index of the subject</param>
+	private int PropertiesCount(int subjectIndex) {
 		int n = 0;
 		foreach (Property p in Properties)
-			if (p.Subject == actorIndex)
+			if (p.MainSubjectIndex == subjectIndex)
 				n++;
 		return n;
 	}

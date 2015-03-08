@@ -2,13 +2,15 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// This property can be used to define the position of a subject on the screen
+/// This property can be used to define the position of a a subject on the screen
+/// The position is defined in 2D coordinates.
 /// </summary>
 [Serializable]
 public class PositionOnScreen : Property
 {
 	/// <summary>
-	/// A copy constructor
+	/// Copy constructor.
+	/// This is used to deserialise properties from a shot file.
 	/// </summary>
 	/// <param name="p">P.</param>
 	public PositionOnScreen (Property p) : base(p){}
@@ -16,13 +18,13 @@ public class PositionOnScreen : Property
 	/// <summary>
 	/// Initializes a new instance of the <see cref="PositionOnScreen"/> class.
 	/// </summary>
-	/// <param name="subject">Index of the subject in the shot.</param>
+	/// <param name="subjectIndex">Index of the subject in the shot.</param>
 	/// <param name="x">[0,1] Desired horizontal coordinate, starting from left.</param>
 	/// <param name="y">[0,1] Desired vertical coordinate, starting from bottom.</param>
 	/// <param name="weight">[0,1] Importance of this property.</param>
-	public PositionOnScreen (int subject, float x, float y, float weight) : base(weight)
+	public PositionOnScreen (int subjectIndex, float x, float y, float weight) : base(weight)
 	{
-		subjectReferences[0] = subject;
+		subjectReferences[0] = subjectIndex;
 		propertyType = Property.Type.PositionOnScreen;
 		desiredValues = new float[2];
 		desiredValues[0] = x;
@@ -47,14 +49,10 @@ public class PositionOnScreen : Property
 		get {return desiredValues[1];}
 	}
 	
-	public override float DesiredValue{
-		set{}
-	}
-	
 	#region implemented abstract members of Property
-	protected override float evaluate (Actor[] subjectsList)
+	protected override float evaluate (SubjectEvaluator[] subjectsList)
 	{
-		Actor mySubject = subjectsList[subjectReferences[0]];
+		SubjectEvaluator mySubject = subjectsList[subjectReferences[0]];
 		
 		if (float.IsInfinity(mySubject.PositionOnScreen.x) || float.IsInfinity(mySubject.PositionOnScreen.y))
 			return 0;

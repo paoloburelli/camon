@@ -3,10 +3,10 @@ using UnityEngine;
 
 public static class PropertiesForces
 {
-	public static Vector3 PositionForce (this ProjectionSize property, Actor[] subjects, Camera currentCamera)
+	public static Vector3 PositionForce (this ProjectionSize property, SubjectEvaluator[] subjects, Camera currentCamera)
 	{
 		float direction = 1;
-		if (property.DesiredValue < subjects [0].Visibility)
+		if (property.DesiredSize < subjects [0].Visibility)
 			direction = -1;
 		
 		if (subjects [0].Visibility == 0)
@@ -15,12 +15,9 @@ public static class PropertiesForces
 		return direction * (currentCamera.transform.position - subjects [0].Position).normalized * (1 - property.Evaluate (subjects));
 	}
 	
-	public static Vector3 PositionForce (this VantageAngle property, Actor[] subjects, Camera currentCamera)
+	public static Vector3 PositionForce (this VantageAngle property, SubjectEvaluator[] subjects, Camera currentCamera)
 	{
 		Vector3 relativeCamPos = (currentCamera.transform.position - subjects [0].Position);
-		
-		//Vector3 direction = subjects [0].Orientation * (Quaternion.Euler (-property.DesiredVerticalAngle, property.DesiredHorizontalAngle, 0) * Vector3.forward);
-
 		Vector3 targetPosition = subjects [0].VantageDirection * relativeCamPos.magnitude;
 		Vector3 nextPos = Vector3.RotateTowards (relativeCamPos.normalized, targetPosition, 1, 1);
 		return (nextPos - relativeCamPos);
@@ -33,7 +30,7 @@ public class ArtificialPotentialField : Solver
 	float bestFitness = 0;
 	Property.Type[] lookAtInfluencingProperties = {Property.Type.PositionOnScreen};
 	
-	protected override float update (Transform currentCamera, Actor[] subjects, Shot shot, float maxExecutionTime)
+	protected override float update (Transform currentCamera, SubjectEvaluator[] subjects, Shot shot, float maxExecutionTime)
 	{
 		double maxMilliseconds = maxExecutionTime * 1000;
 		double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
@@ -77,7 +74,7 @@ public class ArtificialPotentialField : Solver
 		return bestFitness;
 	}
 
-	public override void Start (Transform camera, Actor[] subjects, Shot shot)
+	public override void Start (Transform camera, SubjectEvaluator[] subjects, Shot shot)
 	{
 		base.Start (camera, subjects, shot);
 		bestPosition = camera.position;
@@ -85,7 +82,7 @@ public class ArtificialPotentialField : Solver
 		lastCenter = SubjectsCenter (subjects);
 	}
 
-	protected override void initBestCamera (Transform bestCamera, Actor[] subjects, Shot shot)
+	protected override void initBestCamera (Transform bestCamera, SubjectEvaluator[] subjects, Shot shot)
 	{
 		float radius = Solver.SubjectsRadius (subjects);
 		Vector3 center = Solver.SubjectsCenter (subjects);
@@ -97,15 +94,15 @@ public class ArtificialPotentialField : Solver
 		foreach (Property p in shot.Properties) {
 			if (p.PropertyType == Property.Type.VantageAngle) {
 				VantageAngle va = (VantageAngle)p;
-				direction = (Quaternion.Euler (va.DesiredHorizontalAngle, 0, 0) * subjects [va.Subject].VantageDirection) * radius;
-				lookAtPoint = subjects [va.Subject].Position;
+				direction = (Quaternion.Euler (va.DesiredHorizontalAngle, 0, 0) * subjects [va.MainSubjectIndex].VantageDirection) * radius;
+				lookAtPoint = subjects [va.MainSubjectIndex].Position;
 				break;
 			} else if (p.PropertyType == Property.Type.RelativePosition) {
 				RelativePosition rp = (RelativePosition)p;
-				if ((RelativePosition.Position)rp.DesiredValue == RelativePosition.Position.InFrontOf) {
-					direction = ((subjects [rp.Subject].Position - subjects [rp.SecondarySubject].Position) + subjects [rp.Subject].Right * subjects [rp.Subject].Scale.x);
-					direction *= 1.1f + (subjects [rp.Subject].Scale.magnitude / direction.magnitude);
-					lookAtPoint = subjects [rp.SecondarySubject].Position;
+				if (rp.DesiredPosition == RelativePosition.Position.InFrontOf) {
+					direction = ((subjects [rp.MainSubjectIndex].Position - subjects [rp.SecondaryActorIndex].Position) + subjects [rp.MainSubjectIndex].Right * subjects [rp.MainSubjectIndex].Scale.x);
+					direction *= 1.1f + (subjects [rp.MainSubjectIndex].Scale.magnitude / direction.magnitude);
+					lookAtPoint = subjects [rp.SecondaryActorIndex].Position;
 					break;	
 				}
 			}
@@ -120,7 +117,7 @@ public class ArtificialPotentialField : Solver
 		Physics.Raycast (lookAtPoint,-bestCamera.forward, out hitInfo,direction.magnitude);
 
 		bool obstacle = hitInfo.distance < direction.magnitude;
-		foreach (Actor a in subjects)
+		foreach (SubjectEvaluator a in subjects)
 			if (hitInfo.collider == a.collider)
 				obstacle = false;
 

@@ -27,7 +27,13 @@ public abstract class Solver
 			return satisfaction;
 		}
 	}
-	
+
+	/// <summary>
+	/// Method used by solvers to keep logs of the last evaluated cameras
+	/// </summary>
+	/// <param name="position">Position.</param>
+	/// <param name="forward">Forward.</param>
+	/// <param name="fitness">Fitness.</param>
 	protected void logTrace(Vector3 position, Vector3 forward, float fitness){
 		if (Application.isEditor) {
 			if (positionTrace.Count >= TRACE_LENGHT){
@@ -41,7 +47,10 @@ public abstract class Solver
 			forwardTrace.Enqueue(forward);
 		}
 	}
-	
+
+	/// <summary>
+	/// Drows debug informations on the screen
+	/// </summary>
 	public virtual void DrawGizmos(){
 		for (int i=0;i<positionTrace.Count;i++){
 			Gizmos.color = Color.red*fitnessTrace.ElementAt(i);
@@ -59,7 +68,7 @@ public abstract class Solver
 	/// <param name="subjects">subjects in the shot</param>
 	/// <param name="shot">shot to be generated</param>
 	/// <param name="maxExecutionTime">maximum execution time.</param>
-	public float Update (Transform bestCamera, Actor[] subjects, Shot shot, float maxExecutionTime){
+	public float Update (Transform bestCamera, SubjectEvaluator[] subjects, Shot shot, float maxExecutionTime){
 		if (running){
 			satisfaction = update (bestCamera,subjects,shot,maxExecutionTime);
 		}else 
@@ -74,7 +83,7 @@ public abstract class Solver
 	/// <param name="bestCamera">curret camera to be animated</param>
 	/// <param name="subjects">subjects in the shot</param>
 	/// <param name="shot">shot to be generated</param>
-	public virtual void Start(Transform bestCamera, Actor[] subjects, Shot shot){
+	public virtual void Start(Transform bestCamera, SubjectEvaluator[] subjects, Shot shot){
 		if (bestCamera == null)
 			throw new MissingReferenceException ("camera not initilised");
 			
@@ -94,10 +103,10 @@ public abstract class Solver
 	/// </summary>
 	/// <returns>A position wich is central to the subjects passed.</returns>
 	/// <param name="subjects">The subjects in the shot.</param>
-	public static Vector3 SubjectsCenter (Actor[] subjects)
+	public static Vector3 SubjectsCenter (SubjectEvaluator[] subjects)
 	{
 		Vector3 center = Vector3.zero;
-		foreach (Actor s in subjects)
+		foreach (SubjectEvaluator s in subjects)
 			if (s != null)
 				center += s.Position / subjects.Length;
 		return center;
@@ -108,11 +117,11 @@ public abstract class Solver
 	/// </summary>
 	/// <returns>The radius of the sphere.</returns>
 	/// <param name="subjects">The subjects in the shot.</param>
-	public static float SubjectsRadius (Actor[] subjects)
+	public static float SubjectsRadius (SubjectEvaluator[] subjects)
 	{
 		Vector3 center = SubjectsCenter (subjects);
 		float radius = 0;
-		foreach (Actor s in subjects) {
+		foreach (SubjectEvaluator s in subjects) {
 			if (s != null) {
 				float distance = (s.Position - center).magnitude + s.Scale.magnitude;
 				if (distance > radius)
@@ -140,7 +149,7 @@ public abstract class Solver
 		bestCamera.position = position;
 	}
 	
-	abstract protected float update(Transform bestCamera, Actor[] subjects, Shot shot, float maxExecutionTime);
-	abstract protected void initBestCamera (Transform bestCamera, Actor[] subjects, Shot shot);
+	abstract protected float update(Transform bestCamera, SubjectEvaluator[] subjects, Shot shot, float maxExecutionTime);
+	abstract protected void initBestCamera (Transform bestCamera, SubjectEvaluator[] subjects, Shot shot);
 }
 

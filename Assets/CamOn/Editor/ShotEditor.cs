@@ -14,7 +14,7 @@ public class ShotEditor : Editor
 	{
 		shot = (Shot)target;
 		
-		shot.NumberOfActors = EditorGUILayout.IntSlider ("Number Of Subjects", shot.NumberOfActors, 0, 4);
+		shot.NumberOfSubjects = EditorGUILayout.IntSlider ("Number Of Actors", shot.NumberOfSubjects, 0, 4);
 
 		EditorGUILayout.BeginHorizontal();
 		EditorGUILayout.PrefixLabel("Lock");
@@ -23,14 +23,14 @@ public class ShotEditor : Editor
 		shot.LockZ = EditorGUILayout.ToggleLeft("Z",shot.LockZ,GUILayout.MaxWidth(30));
 		EditorGUILayout.EndHorizontal();
 
-		for (int i = 0; i<shot.NumberOfActors; i++) {
-			shot.SubjectBounds [i] = (PrimitiveType)EditorGUILayout.EnumPopup ("Subject " + i, shot.SubjectBounds [i]);
+		for (int i = 0; i<shot.NumberOfSubjects; i++) {
+			shot.SubjectBounds [i] = (PrimitiveType)EditorGUILayout.EnumPopup ("Actor " + i, shot.SubjectBounds [i]);
 			shot.SubjectCenters [i] = EditorGUILayout.Vector3Field ("  Offset", shot.SubjectCenters [i]);
 			shot.SubjectScales [i] = EditorGUILayout.Vector3Field ("  Scale", shot.SubjectScales [i]);
 		}
 		
-		if (shot.NumberOfActors > 0) {
-			shot.FixPropertyTypes();
+		if (shot.NumberOfSubjects > 0) {
+			shot.FixPropertiesType();
 			
 			EditorGUILayout.Separator ();
 			EditorGUILayout.LabelField ("Properties",EditorStyles.largeLabel);
@@ -38,11 +38,11 @@ public class ShotEditor : Editor
 			Property toRemove = null;
 			foreach (Property p in shot.Properties) {
 				EditorGUILayout.BeginHorizontal ();
-				EditorGUILayout.LabelField (p.PropertyType.ToString ()+" (Subject "+p.Subject+")	",GUILayout.MinWidth(140));
+				EditorGUILayout.LabelField (p.PropertyType.ToString ()+" (Actor "+p.MainSubjectIndex+")	",GUILayout.MinWidth(140));
 				switch (p.PropertyType) {
 				case Property.Type.ProjectionSize:
 					EditorGUILayout.LabelField("Size",GUILayout.Width(30));
-					p.DesiredValue = EditorGUILayout.FloatField(p.DesiredValue,GUILayout.MaxWidth(30));
+					((ProjectionSize)p).DesiredSize = EditorGUILayout.FloatField(((ProjectionSize)p).DesiredSize,GUILayout.MaxWidth(30));
 					break;
 				case Property.Type.VantageAngle:
 					EditorGUILayout.LabelField("H",EditorStyles.wordWrappedLabel);
@@ -57,8 +57,8 @@ public class ShotEditor : Editor
 					((PositionOnScreen)p).DesiredVerticalPosition = EditorGUILayout.FloatField(((PositionOnScreen)p).DesiredVerticalPosition,GUILayout.MaxWidth(30));
 					break;
 				case Property.Type.RelativePosition:
-					p.DesiredValue = (int)((RelativePosition.Position)EditorGUILayout.EnumPopup((RelativePosition.Position)p.DesiredValue));
-					EditorGUILayout.LabelField(" (Subject "+((RelativePosition)p).SecondarySubject+")",GUILayout.MinWidth(30));
+					((RelativePosition)p).DesiredPosition = (RelativePosition.Position)EditorGUILayout.EnumPopup(((RelativePosition)p).DesiredPosition);
+					EditorGUILayout.LabelField(" (Actor "+((RelativePosition)p).SecondaryActorIndex+")",GUILayout.MinWidth(30));
 					break;
 				}
 				EditorGUILayout.LabelField("Weight",GUILayout.Width(45));
@@ -90,12 +90,12 @@ public class ShotEditor : Editor
 			}
 		
 			Property.Type tmp = (Property.Type)EditorGUILayout.EnumPopup (propertyToAdd);
-			if (tmp != Property.Type.RelativePosition || shot.NumberOfActors > 1)
+			if (tmp != Property.Type.RelativePosition || shot.NumberOfSubjects > 1)
 				propertyToAdd = tmp;
 			
-			string[] options = new string[shot.NumberOfActors];
+			string[] options = new string[shot.NumberOfSubjects];
 			for (int i=0; i<options.Length; i++)
-				options [i] = "Subject " + i.ToString ();
+				options [i] = "Actor " + i.ToString ();
 			if (targetSubject > options.Length - 1)
 				targetSubject--;
 			targetSubject = EditorGUILayout.Popup (targetSubject, options);

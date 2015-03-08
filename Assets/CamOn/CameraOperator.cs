@@ -5,13 +5,34 @@ using System.Collections;
 
 
 /// <summary>
-/// Main component of CamOn.
+/// Main component of CamOn. 
+/// A camera operator can be asigned to a camera using the "On" method or by adding the component to a camera
+/// A shot can be selected using the SelectShot method or manually in the unity editor
 /// </summary>
 [AddComponentMenu("CamOn/Camera Operator")]
 public class CameraOperator : MonoBehaviour
 {
-	public enum Transition {Cut, Smooth};
+	/// <summary>
+	/// Types of transition:
+	/// </summary>
+	public enum Transition {
+		/// <summary>
+		/// The camre switches directly from one shot to the next one
+		/// </summary>
+		Cut,
+		/// <summary>
+		/// The camera smoothy animates from the current shot to the new one
+		/// </summary>
+		Smooth
+	};
+
+	/// <summary>
+	/// The movement responsiveness.
+	/// </summary>
 	public float MovementResponsiveness = 0.95f;
+	/// <summary>
+	/// The rotation responsiveness.
+	/// </summary>
 	public float RotationResponsiveness = 0.95f;
 	
 	[SerializeField]
@@ -26,33 +47,45 @@ public class CameraOperator : MonoBehaviour
 	Vector3[] subjectsScale;
 
 	readonly Solver solver = new ArtificialPotentialField();
-	Actor[] actors;
+	SubjectEvaluator[] actors;
 	Transform bestCamera;
 	Vector3 velocity = Vector3.zero;
 	bool started = false;
 
+	/// <summary>
+	/// Return the camera used internally for the solver computations
+	/// </summary>
+	/// <value>The evaluation camera.</value>
 	public Transform EvaluationCamera {
 		get {
 			return bestCamera;
 		}
 	}
 
-	public Actor[] Actors {
+	/// <summary>
+	/// Returns the current list of subjects evaluated
+	/// </summary>
+	/// <value>The subjects.</value>
+	public SubjectEvaluator[] Subjects {
 		get {
 			return actors;
 		}
 	}
-	
+
+	/// <summary>
+	/// Gets or sets the shot that will drive the camera.
+	/// </summary>
+	/// <value>The shot.</value>
 	public Shot Shot {
 		set {
 			if (value != shot) {
 				shot = value;
 				if (shot != null){
-					subjectsTransform = new Transform[shot.NumberOfActors];
-					subjectsScale = new Vector3[shot.NumberOfActors];
-					subjectsCenter = new Vector3[shot.NumberOfActors];
+					subjectsTransform = new Transform[shot.NumberOfSubjects];
+					subjectsScale = new Vector3[shot.NumberOfSubjects];
+					subjectsCenter = new Vector3[shot.NumberOfSubjects];
 
-					for (int i = 0; i<shot.NumberOfActors;i++){
+					for (int i = 0; i<shot.NumberOfSubjects;i++){
 						subjectsCenter[i] = shot.SubjectCenters[i];
 						subjectsScale[i] = shot.SubjectScales[i];
 					}
@@ -64,46 +97,84 @@ public class CameraOperator : MonoBehaviour
 			return shot;
 		}
 	}
-	
-	public int ActorsCount {
+
+	/// <summary>
+	/// Gets the subjects count.
+	/// </summary>
+	/// <value>The subjects count.</value>
+	public int SubjectsCount {
 		get {
 			return subjectsTransform.Length;
 		}
 	}
-	
-	public void AssignActorTransform(int actorIndex, Transform f){
-		if (f != subjectsTransform[actorIndex]){
-			subjectsTransform[actorIndex] = f;
+
+	/// <summary>
+	/// Assigns a transform to a subject in the current shot.
+	/// </summary>
+	/// <param name="subjectIndex">Subjects index.</param>
+	/// <param name="f">The tranform.</param>
+	public void AssignSubjectTransform(int subjectIndex, Transform f){
+		if (f != subjectsTransform[subjectIndex]){
+			subjectsTransform[subjectIndex] = f;
 			Reset();
 		}
 	}
-	
-	public Transform GetActorTransform(int actorIndex){
-		return subjectsTransform[actorIndex];
+
+	/// <summary>
+	/// Gets a subject's transform.
+	/// </summary>
+	/// <returns>The subject's transform.</returns>
+	/// <param name="subjectIndex">Subject's index.</param>
+	public Transform GetSubjectTransform(int subjectIndex){
+		return subjectsTransform[subjectIndex];
 	}
 
-	public void ModifyActorScale(int i, Vector3 f){
+	/// <summary>
+	/// Modifies a subject's scale.
+	/// </summary>
+	/// <param name="subjectIndex">Subject's index.</param>
+	/// <param name="f">The new scale.</param>
+	public void ModifySubjectScale(int i, Vector3 f){
 		if (f != subjectsScale[i]){
 			subjectsScale[i] = f;
 			Reset();
 		}
 	}
-	
-	public Vector3 GetActorScale(int i){
+
+	/// <summary>
+	/// Gets a subject's scale.
+	/// </summary>
+	/// <returns>The subject scale.</returns>
+	/// <param name="i">The subject's index.</param>
+	public Vector3 GetSubjectScale(int i){
 		return subjectsScale[i];
 	}
 
-	public void ModifyActorOffest(int i, Vector3 f){
+	/// <summary>
+	/// Modifies a subject's offest.
+	/// </summary>
+	/// <param name="i">The subject's index.</param>
+	/// <param name="f">The new offset.</param>
+	public void ModifySubjectOffest(int i, Vector3 f){
 		if (f != subjectsCenter[i]){
 			subjectsCenter[i] = f;
 			Reset();
 		}
 	}
-	
-	public Vector3 GetActorOffset(int i){
+
+	/// <summary>
+	/// Gets a subject's offset.
+	/// </summary>
+	/// <returns>The subject offset.</returns>
+	/// <param name="i">The subject's index.</param>
+	public Vector3 GetSubjectOffset(int i){
 		return subjectsCenter[i];
 	}
 
+	/// <summary>
+	/// Gets a value indicating whether this <see cref="CameraOperator"/> ready for evaluation.
+	/// </summary>
+	/// <value><c>true</c> if ready for evaluation; otherwise, <c>false</c>.</value>
 	public bool ReadyForEvaluation {
 		get {
 			if (Shot == null || Shot.Properties == null)
@@ -112,15 +183,14 @@ public class CameraOperator : MonoBehaviour
 			if (actors == null)
 				return false;
 			
-			foreach (Actor s in actors)
+			foreach (SubjectEvaluator s in actors)
 				if (s == null)
 					return false;
 			
 			return true;
 		}
 	}
-
-	// Use this for initialization
+		
 	void Start ()
 	{
 		if (!started) {
@@ -137,25 +207,28 @@ public class CameraOperator : MonoBehaviour
 			started = true;
 		}
 	}
-	
+
+	/// <summary>
+	/// Reset this instance and rebilds the subject evaluators.
+	/// </summary>
 	public void  Reset ()
 	{
 		//Stop the solver
 		solver.Stop ();
 		
 		//Clean all the proxies in the scene
-		Actor.DestroyAllProxies ();
+		SubjectEvaluator.DestroyAllProxies ();
 		
 		if (shot == null){
 			subjectsTransform = null;
 			actors = null;
 		} else {	
-			shot.FixPropertyTypes ();
-			actors = new Actor[subjectsTransform.Length];
+			shot.FixPropertiesType ();
+			actors = new SubjectEvaluator[subjectsTransform.Length];
 		
 			for (int i=0; i<subjectsTransform.Length; i++)
 				if (subjectsTransform [i] != null)
-					actors [i] = new Actor (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
+					actors [i] = new SubjectEvaluator (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
 		
 			if (ReadyForEvaluation && Application.isPlaying)
 				solver.Start (bestCamera, actors, shot);
@@ -188,32 +261,45 @@ public class CameraOperator : MonoBehaviour
 		}
 		
 		if (actors != null)
-			foreach (Actor s in actors)
+			foreach (SubjectEvaluator s in actors)
 				if (s != null) 
 					s.DrawGizmos ();
 		
 		solver.DrawGizmos ();
 	}
 
-	public void SelectShot(Shot shot, Transition transition, Transform [] actors, Vector3[] offsets=null, Vector3[] scales=null){
+	/// <summary>
+	/// Selects a new shot and initiates a transition.
+	/// </summary>
+	/// <param name="shot">Shot.</param>
+	/// <param name="transition">The type fo transition.</param>
+	/// <param name="subjectsTransform">A list of the transforms of the subjects of this shot.</param>
+	/// <param name="subjectsOffset">An optional list of offset modifiers for the subjects.</param>
+	/// <param name="subjectsScale">An optional list of scale modifiers for the subjects.</param>
+	public void SelectShot(Shot shot, Transition transition, Transform [] subjectsTransform, Vector3[] subjectsOffset=null, Vector3[] subjectsScale=null){
 		Shot = shot;
-		for (int i=0;i<actors.Length;i++)
-			AssignActorTransform(i,actors[i]);
+		for (int i=0;i<subjectsTransform.Length;i++)
+			AssignSubjectTransform(i,subjectsTransform[i]);
 
-		if (offsets != null)
-			for (int i=0;i<offsets.Length;i++)
-				ModifyActorOffest(i,offsets[i]);
+		if (subjectsOffset != null)
+			for (int i=0;i<subjectsOffset.Length;i++)
+				ModifySubjectOffest(i,subjectsOffset[i]);
 
-		if (scales != null)
-			for (int i=0;i<scales.Length;i++)
-				ModifyActorScale(i,scales[i]);
+		if (subjectsScale != null)
+			for (int i=0;i<subjectsScale.Length;i++)
+				ModifySubjectScale(i,subjectsScale[i]);
 
 		if (transition == Transition.Cut){
 			transform.position = bestCamera.position;
 			transform.forward = bestCamera.forward;
 		}
 	}
-		
+
+	/// <summary>
+	/// Returns the camera operator assigned to a specific camera.
+	/// If no operator exists, a new one is assigned.
+	/// </summary>
+	/// <param name="camera">Camera.</param>
 	public static CameraOperator On(Camera camera){
 		CameraOperator co = camera.GetComponent<CameraOperator> ();
 
@@ -225,6 +311,10 @@ public class CameraOperator : MonoBehaviour
 		return co;
 	}
 
+	/// <summary>
+	/// Returns the camera operator assigned to the main camera.
+	/// If no operator exists, a new one is assigned.
+	/// </summary>
 	public static CameraOperator OnMainCamera {
 		get {
 			return On (Camera.main);

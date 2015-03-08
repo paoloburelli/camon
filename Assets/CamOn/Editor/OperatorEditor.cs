@@ -19,30 +19,30 @@ public class OperatorEditor : Editor
 			if (controller.Shot != prevShot)
 				EditorUtility.SetDirty (controller.Shot);
 			
-			for (int i=0; i<controller.ActorsCount; i++){
-				Transform prevT = controller.GetActorTransform(i);
-				controller.AssignActorTransform(i,(Transform)EditorGUILayout.ObjectField ("Subject " + i, controller.GetActorTransform(i), typeof(Transform), true));
+			for (int i=0; i<controller.SubjectsCount; i++){
+				Transform prevT = controller.GetSubjectTransform(i);
+				controller.AssignSubjectTransform(i,(Transform)EditorGUILayout.ObjectField ("Actor " + i, controller.GetSubjectTransform(i), typeof(Transform), true));
 
-				controller.ModifyActorOffest(i,EditorGUILayout.Vector3Field("Subject "+i+" offset",controller.GetActorOffset(i)));
-				controller.ModifyActorScale(i,EditorGUILayout.Vector3Field("Subject "+i+" scale",controller.GetActorScale(i)));
+				controller.ModifySubjectOffest(i,EditorGUILayout.Vector3Field("Actor "+i+" offset",controller.GetSubjectOffset(i)));
+				controller.ModifySubjectScale(i,EditorGUILayout.Vector3Field("Actor "+i+" scale",controller.GetSubjectScale(i)));
 
-				if (controller.GetActorTransform(i) != prevT)
+				if (controller.GetSubjectTransform(i) != prevT)
 					EditorUtility.SetDirty (controller.Shot);
 			}
 					
 			if (controller.ReadyForEvaluation){
 				
 				foreach (Property p in controller.Shot.Properties){
-					string sbj = p.Subject.ToString();
+					string sbj = p.MainSubjectIndex.ToString();
 					if (p.PropertyType == Property.Type.RelativePosition)
-						sbj += " "+((RelativePosition.Position)p.DesiredValue).ToString()+" "+((RelativePosition)p).SecondarySubject;
+						sbj += " "+(((RelativePosition)p).DesiredPosition).ToString()+" "+((RelativePosition)p).SecondaryActorIndex;
 
-					EditorGUILayout.LabelField(p.PropertyType+" on "+sbj+" = "+p.Evaluate(controller.Actors));
+					EditorGUILayout.LabelField(p.PropertyType+" on "+sbj+" = "+p.Evaluate(controller.Subjects));
 				}
 			
 
-				for (int i=0;i<controller.Actors.Length;i++)
-					EditorGUILayout.LabelField("Visibility on "+i+" = "+controller.Actors[i].Visibility);
+				for (int i=0;i<controller.Subjects.Length;i++)
+					EditorGUILayout.LabelField("Visibility on "+i+" = "+controller.Subjects[i].Visibility);
 			}
 
 			EditorGUILayout.Separator();
