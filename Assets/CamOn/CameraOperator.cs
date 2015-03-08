@@ -51,6 +51,7 @@ public class CameraOperator : MonoBehaviour
 	Transform bestCamera;
 	Vector3 velocity = Vector3.zero;
 	bool started = false;
+	Transition transition = Transition.Smooth;
 
 	/// <summary>
 	/// Return the camera used internally for the solver computations
@@ -252,6 +253,12 @@ public class CameraOperator : MonoBehaviour
 
 		transform.position = Vector3.SmoothDamp(transform.position, bestCamera.position, ref velocity, 1.05f-MovementResponsiveness*dampening);
 		transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, Time.deltaTime * (0.1f + RotationResponsiveness*dampening*0.9f)*2);
+
+		if (transition == Transition.Cut) {
+			transform.position = bestCamera.position;
+			transform.rotation = bestCamera.rotation;
+			transition = Transition.Smooth;
+		}
 	}
 
 	void OnDrawGizmos ()
@@ -277,6 +284,7 @@ public class CameraOperator : MonoBehaviour
 	/// <param name="subjectsOffset">An optional list of offset modifiers for the subjects.</param>
 	/// <param name="subjectsScale">An optional list of scale modifiers for the subjects.</param>
 	public void SelectShot(Shot shot, Transition transition, Transform [] subjectsTransform, Vector3[] subjectsOffset=null, Vector3[] subjectsScale=null){
+
 		Shot = shot;
 		for (int i=0;i<subjectsTransform.Length;i++)
 			AssignSubjectTransform(i,subjectsTransform[i]);
@@ -289,10 +297,7 @@ public class CameraOperator : MonoBehaviour
 			for (int i=0;i<subjectsScale.Length;i++)
 				ModifySubjectScale(i,subjectsScale[i]);
 
-		if (transition == Transition.Cut){
-			transform.position = bestCamera.position;
-			transform.forward = bestCamera.forward;
-		}
+		this.transition = transition;
 	}
 
 	/// <summary>
