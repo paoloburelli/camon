@@ -25,4 +25,9 @@ public class ProjectionSize : Property
 		return mySubject.InFrustum*(1-Mathf.Abs(mySubject.ProjectionSize - DesiredValue));
 	}
 	#endregion
+
+	public override float DesiredValue {
+		set {desiredValues[0] = Mathf.Clamp(value,0.2f,3.0f);}
+		get {return desiredValues[0];}
+	}
 }

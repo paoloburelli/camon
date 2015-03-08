@@ -14,13 +14,12 @@ MonoBehaviour:
   LockX: 0
   LockY: 0
   LockZ: 0
-  NumberOfSubjects: 2
   SubjectCenters:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 0}
   SubjectScales:
-  - {x: 1, y: 1, z: 1}
-  - {x: 1, y: 1, z: 1}
+  - {x: .5, y: .899999976, z: .5}
+  - {x: .5, y: .899999976, z: .5}
   SubjectBounds: 0100000001000000
   Properties:
   - propertyType: 0
@@ -37,11 +36,12 @@ MonoBehaviour:
     desiredValues:
     - 0
     - 90
-    subjectReferences: 00000000
-    weight: .300000012
+    subjectReferences: 01000000
+    weight: 1
   - propertyType: 1
     desiredValues:
     - 0
     - 90
-    subjectReferences: 01000000
-    weight: .300000012
+    subjectReferences: 00000000
+    weight: 1
+  numberOfActors: 2

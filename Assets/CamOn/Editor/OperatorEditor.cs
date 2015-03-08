@@ -19,14 +19,14 @@ public class OperatorEditor : Editor
 			if (controller.Shot != prevShot)
 				EditorUtility.SetDirty (controller.Shot);
 			
-			for (int i=0; i<controller.SubjectsCount; i++){
-				Transform prevT = controller.GetSubjectTransform(i);
-				controller.SetSubjectTransform(i,(Transform)EditorGUILayout.ObjectField ("Subject " + i, controller.GetSubjectTransform(i), typeof(Transform), true));
+			for (int i=0; i<controller.ActorsCount; i++){
+				Transform prevT = controller.GetActorTransform(i);
+				controller.AssignActorTransform(i,(Transform)EditorGUILayout.ObjectField ("Subject " + i, controller.GetActorTransform(i), typeof(Transform), true));
 
-				controller.SetSubjectCenter(i,EditorGUILayout.Vector3Field("Subject "+i+" offset",controller.GetSubjectCenter(i)));
-				controller.SetSubjectScale(i,EditorGUILayout.Vector3Field("Subject "+i+" scale",controller.GetSubjectScale(i)));
+				controller.ModifyActorOffest(i,EditorGUILayout.Vector3Field("Subject "+i+" offset",controller.GetActorOffset(i)));
+				controller.ModifyActorScale(i,EditorGUILayout.Vector3Field("Subject "+i+" scale",controller.GetActorScale(i)));
 
-				if (controller.GetSubjectTransform(i) != prevT)
+				if (controller.GetActorTransform(i) != prevT)
 					EditorUtility.SetDirty (controller.Shot);
 			}
 					

@@ -63,7 +63,7 @@ public class Property
 		set {subjectReferences[0] = value;}
 	}
 	
-	public float DesiredValue {
+	public virtual float DesiredValue {
 		set {desiredValues[0] = value;}
 		get {return desiredValues[0];}
 	}

@@ -47,7 +47,9 @@ public class PositionOnScreen : Property
 		get {return desiredValues[1];}
 	}
 	
-	new private float DesiredValue;
+	public override float DesiredValue{
+		set{}
+	}
 	
 	#region implemented abstract members of Property
 	protected override float evaluate (Actor[] subjectsList)
@@ -56,9 +58,7 @@ public class PositionOnScreen : Property
 		
 		if (float.IsInfinity(mySubject.PositionOnScreen.x) || float.IsInfinity(mySubject.PositionOnScreen.y))
 			return 0;
-
-
-
+			
 		float hSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.x - DesiredHorizontalPosition)/Mathf.Max(DesiredHorizontalPosition,1-DesiredHorizontalPosition);
 		float vSatisfaction = 1-Mathf.Abs(mySubject.PositionOnScreen.y - DesiredVerticalPosition)/Mathf.Max(DesiredVerticalPosition,1-DesiredVerticalPosition);
 		

@@ -24,8 +24,8 @@ public class VantageAngle : Property
 		set {desiredValues[1] = value;}
 		get {return desiredValues[1];}
 	}
-	
-	new private float DesiredValue{
+
+	public override float DesiredValue{
 		set{}
 	}
 	
@@ -34,12 +34,14 @@ public class VantageAngle : Property
 	{
 		Actor mySubject = subjectsList[subjectReferences[0]];
 
-		float hAngleDifference = Mathf.Abs(mySubject.VantageAngle.x - DesiredHorizontalAngle);
+		Vector2 diff = mySubject.CalculateRelativeCameraAngle (DesiredHorizontalAngle, DesiredVerticalAngle);
+
+		float hAngleDifference = Mathf.Abs(diff.x);
 		if (hAngleDifference > 180)
 			hAngleDifference = 360-hAngleDifference;
 
 		float hSatisfaction = 1-hAngleDifference/180;
-		float vSatisfaction = 1-(Mathf.Abs(mySubject.VantageAngle.y - DesiredVerticalAngle))/180;
+		float vSatisfaction = 1-(Mathf.Abs(diff.y))/180;
 		
 		return (hSatisfaction*vSatisfaction);
 	}

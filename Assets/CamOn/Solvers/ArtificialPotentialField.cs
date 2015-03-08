@@ -19,10 +19,9 @@ public static class PropertiesForces
 	{
 		Vector3 relativeCamPos = (currentCamera.transform.position - subjects [0].Position);
 		
-		Vector3 direction = subjects [0].Orientation * (Quaternion.Euler (-property.DesiredVerticalAngle, property.DesiredHorizontalAngle, 0) * Vector3.forward);
-		
-		
-		Vector3 targetPosition = direction * relativeCamPos.magnitude;
+		//Vector3 direction = subjects [0].Orientation * (Quaternion.Euler (-property.DesiredVerticalAngle, property.DesiredHorizontalAngle, 0) * Vector3.forward);
+
+		Vector3 targetPosition = subjects [0].VantageDirection * relativeCamPos.magnitude;
 		Vector3 nextPos = Vector3.RotateTowards (relativeCamPos.normalized, targetPosition, 1, 1);
 		return (nextPos - relativeCamPos);
 	}
@@ -98,7 +97,7 @@ public class ArtificialPotentialField : Solver
 		foreach (Property p in shot.Properties) {
 			if (p.PropertyType == Property.Type.VantageAngle) {
 				VantageAngle va = (VantageAngle)p;
-				direction = (Quaternion.Euler (va.DesiredHorizontalAngle, 0, 0) * subjects [va.Subject].Forward) * radius;
+				direction = (Quaternion.Euler (va.DesiredHorizontalAngle, 0, 0) * subjects [va.Subject].VantageDirection) * radius;
 				lookAtPoint = subjects [va.Subject].Position;
 				break;
 			} else if (p.PropertyType == Property.Type.RelativePosition) {
@@ -116,6 +115,17 @@ public class ArtificialPotentialField : Solver
 		setPosition(lookAtPoint + direction,bestCamera,shot);
 		//bestCamera.position = lookAtPoint + direction;
 		bestCamera.LookAt (lookAtPoint);
+
+		RaycastHit hitInfo;
+		Physics.Raycast (lookAtPoint,-bestCamera.forward, out hitInfo,direction.magnitude);
+
+		bool obstacle = hitInfo.distance < direction.magnitude;
+		foreach (Actor a in subjects)
+			if (hitInfo.collider == a.collider)
+				obstacle = false;
+
+		if (obstacle)
+			bestCamera.position += bestCamera.forward * (direction.magnitude-hitInfo.distance);
 	}
 }
 

@@ -48,11 +48,11 @@ public class CameraOperator : MonoBehaviour
 			if (value != shot) {
 				shot = value;
 				if (shot != null){
-					subjectsTransform = new Transform[shot.NumberOfSubjects];
-					subjectsScale = new Vector3[shot.NumberOfSubjects];
-					subjectsCenter = new Vector3[shot.NumberOfSubjects];
+					subjectsTransform = new Transform[shot.NumberOfActors];
+					subjectsScale = new Vector3[shot.NumberOfActors];
+					subjectsCenter = new Vector3[shot.NumberOfActors];
 
-					for (int i = 0; i<shot.NumberOfSubjects;i++){
+					for (int i = 0; i<shot.NumberOfActors;i++){
 						subjectsCenter[i] = shot.SubjectCenters[i];
 						subjectsScale[i] = shot.SubjectScales[i];
 					}
@@ -65,42 +65,42 @@ public class CameraOperator : MonoBehaviour
 		}
 	}
 	
-	public int SubjectsCount {
+	public int ActorsCount {
 		get {
 			return subjectsTransform.Length;
 		}
 	}
 	
-	public void SetSubjectTransform(int i, Transform f){
-		if (f != subjectsTransform[i]){
-			subjectsTransform[i] = f;
+	public void AssignActorTransform(int actorIndex, Transform f){
+		if (f != subjectsTransform[actorIndex]){
+			subjectsTransform[actorIndex] = f;
 			Reset();
 		}
 	}
 	
-	public Transform GetSubjectTransform(int i){
-		return subjectsTransform[i];
+	public Transform GetActorTransform(int actorIndex){
+		return subjectsTransform[actorIndex];
 	}
 
-	public void SetSubjectScale(int i, Vector3 f){
+	public void ModifyActorScale(int i, Vector3 f){
 		if (f != subjectsScale[i]){
 			subjectsScale[i] = f;
 			Reset();
 		}
 	}
 	
-	public Vector3 GetSubjectScale(int i){
+	public Vector3 GetActorScale(int i){
 		return subjectsScale[i];
 	}
 
-	public void SetSubjectCenter(int i, Vector3 f){
+	public void ModifyActorOffest(int i, Vector3 f){
 		if (f != subjectsCenter[i]){
 			subjectsCenter[i] = f;
 			Reset();
 		}
 	}
 	
-	public Vector3 GetSubjectCenter(int i){
+	public Vector3 GetActorOffset(int i){
 		return subjectsCenter[i];
 	}
 
@@ -198,15 +198,15 @@ public class CameraOperator : MonoBehaviour
 	public void SelectShot(Shot shot, Transition transition, Transform [] actors, Vector3[] offsets=null, Vector3[] scales=null){
 		Shot = shot;
 		for (int i=0;i<actors.Length;i++)
-			SetSubjectTransform(i,actors[i]);
+			AssignActorTransform(i,actors[i]);
 
 		if (offsets != null)
 			for (int i=0;i<offsets.Length;i++)
-				SetSubjectCenter(i,offsets[i]);
+				ModifyActorOffest(i,offsets[i]);
 
 		if (scales != null)
 			for (int i=0;i<scales.Length;i++)
-				SetSubjectScale(i,scales[i]);
+				ModifyActorScale(i,scales[i]);
 
 		if (transition == Transition.Cut){
 			transform.position = bestCamera.position;

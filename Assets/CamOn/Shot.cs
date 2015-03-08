@@ -2,17 +2,37 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-[assembly:InternalsVisibleTo("ShotEditor")]
+
 [System.Serializable]
 public class Shot : ScriptableObject
 {
 	public bool LockX=false,LockY=false,LockZ=false;
-	public int NumberOfSubjects = 0;
 	public List<Vector3> SubjectCenters = new List<Vector3> ();
 	public List<Vector3> SubjectScales = new List<Vector3> ();
 	public List<PrimitiveType> SubjectBounds = new List<PrimitiveType> ();
 	public List<Property> Properties = new List<Property> ();
-		
+	[SerializeField]
+	int numberOfActors = 0;
+
+	public int NumberOfActors {
+		get {
+			return numberOfActors;
+		}
+		set {
+			numberOfActors = value;
+			while (SubjectBounds.Count < value) {
+				SubjectCenters.Add (Vector3.zero);
+				SubjectScales.Add (Vector3.one);
+				SubjectBounds.Add (PrimitiveType.Capsule);
+			}
+			while (SubjectBounds.Count > value) {
+				SubjectBounds.RemoveAt (SubjectBounds.Count - 1);
+				SubjectCenters.RemoveAt (SubjectCenters.Count - 1);
+				SubjectScales.RemoveAt (SubjectScales.Count - 1);
+			}
+		}
+	}
+
 	public void FixPropertyTypes ()
 	{
 		for (int i=0; i<Properties.Count; i++)
@@ -58,8 +78,8 @@ public class Shot : ScriptableObject
 				}
 				for (int i=0;i<actors.Length;i++){
 	
-					float f = (1-Mathf.Pow(1-actors[i].Visibility,10));
-					float w =  Mathf.Lerp(PropertiesCount(i),PropertiesCount(i)/(float)Properties.Count,f);
+					float f = (1-Mathf.Pow(1-actors[i].Visibility,4));
+					float w =  Mathf.Lerp(PropertiesCount(i),1,f);
 
 					value += f * w;
 					weight += w;

@@ -14,7 +14,7 @@ public class ShotEditor : Editor
 	{
 		shot = (Shot)target;
 		
-		shot.NumberOfSubjects = EditorGUILayout.IntSlider ("Number Of Subjects", shot.NumberOfSubjects, 0, 4);
+		shot.NumberOfActors = EditorGUILayout.IntSlider ("Number Of Subjects", shot.NumberOfActors, 0, 4);
 
 		EditorGUILayout.BeginHorizontal();
 		EditorGUILayout.PrefixLabel("Lock");
@@ -23,25 +23,13 @@ public class ShotEditor : Editor
 		shot.LockZ = EditorGUILayout.ToggleLeft("Z",shot.LockZ,GUILayout.MaxWidth(30));
 		EditorGUILayout.EndHorizontal();
 
-		while (shot.SubjectBounds.Count < shot.NumberOfSubjects) {
-			shot.SubjectCenters.Add (Vector3.zero);
-			shot.SubjectScales.Add (Vector3.one);
-			shot.SubjectBounds.Add (PrimitiveType.Capsule);
-		}
-		while (shot.SubjectBounds.Count > shot.NumberOfSubjects) {
-			shot.SubjectBounds.RemoveAt (shot.SubjectBounds.Count - 1);
-			shot.SubjectCenters.RemoveAt (shot.SubjectCenters.Count - 1);
-			shot.SubjectScales.RemoveAt (shot.SubjectScales.Count - 1);
-		}
-		
-		
-		for (int i = 0; i<shot.NumberOfSubjects; i++) {
+		for (int i = 0; i<shot.NumberOfActors; i++) {
 			shot.SubjectBounds [i] = (PrimitiveType)EditorGUILayout.EnumPopup ("Subject " + i, shot.SubjectBounds [i]);
 			shot.SubjectCenters [i] = EditorGUILayout.Vector3Field ("  Offset", shot.SubjectCenters [i]);
 			shot.SubjectScales [i] = EditorGUILayout.Vector3Field ("  Scale", shot.SubjectScales [i]);
 		}
 		
-		if (shot.NumberOfSubjects > 0) {
+		if (shot.NumberOfActors > 0) {
 			shot.FixPropertyTypes();
 			
 			EditorGUILayout.Separator ();
@@ -102,10 +90,10 @@ public class ShotEditor : Editor
 			}
 		
 			Property.Type tmp = (Property.Type)EditorGUILayout.EnumPopup (propertyToAdd);
-			if (tmp != Property.Type.RelativePosition || shot.NumberOfSubjects > 1)
+			if (tmp != Property.Type.RelativePosition || shot.NumberOfActors > 1)
 				propertyToAdd = tmp;
 			
-			string[] options = new string[shot.NumberOfSubjects];
+			string[] options = new string[shot.NumberOfActors];
 			for (int i=0; i<options.Length; i++)
 				options [i] = "Subject " + i.ToString ();
 			if (targetSubject > options.Length - 1)

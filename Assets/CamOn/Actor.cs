@@ -7,9 +7,11 @@ public class Actor
 {
 	const int SAMPLES = 5;
 	const int LAYER_MASK = ~6; //do not test transparent and ignore raycast;
-	const string PROXY_NAME = "[Camera Proxy]";
+	const string PROXY_NAME = "[Proxy Goemetry]";
+	const string VANTAGE_ANGLE_PROXY_NAME = "[Vantage Angle Direction]";
 	const string IGNORE_TAG = "IGNORE";
 
+	Transform vantageDirectionTransform;
 	Transform transform;
 	MeshRenderer proxyRenderer;
 	Mesh proxyMesh;
@@ -18,10 +20,10 @@ public class Actor
 	bool[] samplePointsVisibility = new bool[SAMPLES];
 	float inFrustum;
 	float projectionSize;
-	Vector2 vantageAngle = new Vector2 (0, 0);
 	Bounds screenSpaceBounds = new Bounds(Vector3.zero,Vector3.zero);
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
+	Vector3 cameraPosition;
 
 	public enum SamplePoint
 	{
@@ -58,9 +60,26 @@ public class Actor
 				a.proxyRenderer = null;
 			}
 	}
+		
+	public Vector2 CalculateRelativeCameraAngle(float desiredHorizontalAngle, float desiredVerticalAngle){
+		vantageDirectionTransform.localRotation = Quaternion.Euler (-desiredVerticalAngle, -desiredHorizontalAngle, 0);
+		Vector3 relativeCameraDirection = vantageDirectionTransform.InverseTransformPoint(cameraPosition).normalized;
+		float v = Mathf.Asin(relativeCameraDirection.y) * Mathf.Rad2Deg;
+		float h = -Mathf.Atan2(relativeCameraDirection.x,relativeCameraDirection.z) * Mathf.Rad2Deg;
+		return new Vector2 (h, v);
+	}
 
-	public void Rotate (float xAngle,float yAngle, float zAngle){
-		proxy.transform.Rotate(xAngle,yAngle,zAngle);
+	public Collider collider {
+		get {
+			return proxy.GetComponent<Collider>(); 
+		}
+	}
+
+
+	public Vector3 VantageDirection {
+		get {
+			return vantageDirectionTransform.forward; 
+		}
 	}
 
 	public Quaternion Orientation {
@@ -106,7 +125,7 @@ public class Actor
 	public Vector3 Forward {
 		get { return proxy.transform.forward; }
 	}
-
+		
 	public Vector3 Right {
 		get { return proxy.transform.right; }
 	}
@@ -139,10 +158,6 @@ public class Actor
 		get { return screenSpaceBounds.center; }
 	}
 	
-	public Vector2 VantageAngle {
-		get { return vantageAngle; }
-	}
-	
 	public Actor (Transform transform, Vector3 center, Vector3 scale, PrimitiveType type)
 	{
 		if (transform == null)
@@ -159,13 +174,20 @@ public class Actor
 		GameObject.DestroyImmediate (proxy.GetComponent<Collider>());
 		proxy.transform.parent = transform;
 		proxy.transform.localPosition = center;
-		proxy.transform.localScale = scale;
+		proxy.transform.localScale = scale*0.9f;
 		proxy.transform.localRotation = Quaternion.Euler(0,0,0);
 		proxy.name = PROXY_NAME;
 		proxyRenderer = proxy.GetComponent<MeshRenderer> ();
 		proxyMesh = proxy.GetComponent<MeshFilter> ().sharedMesh;
 		proxy.SetActive (transform.gameObject.activeInHierarchy);
 		proxyRenderer.enabled = false;
+
+
+		vantageDirectionTransform = (new GameObject ()).transform;
+		vantageDirectionTransform.gameObject.name = VANTAGE_ANGLE_PROXY_NAME;
+		vantageDirectionTransform.parent = proxy.transform;
+		vantageDirectionTransform.localPosition = Vector3.zero;
+		vantageDirectionTransform.localRotation = Quaternion.Euler(0,0,0);
 	}
 
 	public void Reevaluate (Camera camera)
@@ -248,11 +270,9 @@ public class Actor
 			//	onScreenFraction = 0;
 			
 			screenSpaceBounds.SetMinMax(screenMin,screenMax);
-			Vector3 relativeCameraPos = proxy.transform.InverseTransformPoint(camera.transform.position).normalized;
-			vantageAngle.y = Mathf.Asin(relativeCameraPos.y) * Mathf.Rad2Deg;
-			vantageAngle.x = -Mathf.Atan2(relativeCameraPos.x,relativeCameraPos.z) * Mathf.Rad2Deg;
-			
 			transform.gameObject.layer = originalLayer;
+
+			cameraPosition = camera.transform.position;
 		}
 	}
 
