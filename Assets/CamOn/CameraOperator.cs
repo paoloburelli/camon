@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
 
+
+/// <summary>
+/// Main component of CamOn.
+/// </summary>
 [AddComponentMenu("CamOn/Camera Operator")]
 public class CameraOperator : MonoBehaviour
 {
 	public enum Transition {Cut, Smooth};
 	public float MovementResponsiveness = 0.95f;
 	public float RotationResponsiveness = 0.95f;
-	private Vector3 velocity = Vector3.zero;
 	
 	[SerializeField]
 	Shot shot;
@@ -21,18 +24,19 @@ public class CameraOperator : MonoBehaviour
 
 	[SerializeField]
 	Vector3[] subjectsScale;
-	
-    Subject[] subjects;
+
 	readonly Solver solver = new ArtificialPotentialField();
+    Subject[] subjects;
 	Transform bestCamera;
+	Vector3 velocity = Vector3.zero;
+	bool started = false;
 
 	public Transform EvaluationCamera {
 		get {
 			return bestCamera;
 		}
 	}
-	
-	
+
 	public Subject[] Subjects {
 		get {
 			return subjects;
@@ -115,19 +119,23 @@ public class CameraOperator : MonoBehaviour
 			return true;
 		}
 	}
-	
 
-	
 	// Use this for initialization
 	void Start ()
 	{
-		bestCamera = (Transform)GameObject.Instantiate (transform);
-		GameObject.DestroyImmediate (bestCamera.GetComponent<CameraOperator> ());
-		GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
-		bestCamera.gameObject.SetActive (false);
-		
-		Reset ();
-		PerformCut();
+		if (!started) {
+			bestCamera = (Transform)GameObject.Instantiate (transform);
+			GameObject.DestroyImmediate (bestCamera.GetComponent<CameraOperator> ());
+			GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
+			bestCamera.gameObject.SetActive (false);
+			
+			Reset ();
+
+			transform.position = bestCamera.position;
+			transform.forward = bestCamera.forward;
+
+			started = true;
+		}
 	}
 	
 	public void  Reset ()
@@ -156,8 +164,6 @@ public class CameraOperator : MonoBehaviour
 	}
 
     float timeLimit = 0.1f;
-	Vector3 oldPos;
-	Vector3 lookAtTarget;
 	void Update ()
 	{
         if (Time.deltaTime < 1.0f/60)
@@ -177,11 +183,7 @@ public class CameraOperator : MonoBehaviour
 	}
 
 	void OnDrawGizmos ()
-	{
-		//if (!Application.isPlaying)
-		//	while (GameObject.Find(Subject.PROXY_NAME) != null)
-		//		GameObject.DestroyImmediate (GameObject.Find (Subject.PROXY_NAME));
-		
+	{	
 		if (ReadyForEvaluation) {
 			shot.UpdateSubjects (subjects, GetComponent<Camera>());
 			shot.Evaluate ();
@@ -195,7 +197,7 @@ public class CameraOperator : MonoBehaviour
 		solver.DrawGizmos ();
 	}
 
-	public void SelectShot(Shot shot, Transform [] actors, Transition transition = Transition.Cut, Vector3[] offsets=null, Vector3[] scales=null){
+	public void SelectShot(Shot shot, Transition transition, Transform [] actors, Vector3[] offsets=null, Vector3[] scales=null){
 		Shot = shot;
 		for (int i=0;i<actors.Length;i++)
 			SetSubjectTransform(i,actors[i]);
@@ -208,13 +210,28 @@ public class CameraOperator : MonoBehaviour
 			for (int i=0;i<scales.Length;i++)
 				SetSubjectScale(i,scales[i]);
 
-		if (transition == Transition.Cut)
-			PerformCut();
+		if (transition == Transition.Cut){
+			transform.position = bestCamera.position;
+			transform.forward = bestCamera.forward;
+		}
+	}
+		
+	public static CameraOperator On(Camera camera){
+		CameraOperator co = camera.GetComponent<CameraOperator> ();
+
+		if (co == null) {
+			co = camera.gameObject.AddComponent<CameraOperator> ();
+			co.Start ();
+		}
+
+		return co;
 	}
 
-	public void PerformCut() {
-		transform.position = bestCamera.position;
-		transform.forward = bestCamera.forward;
+	public static CameraOperator OnMainCamera {
+		get {
+			return On (Camera.main);
+		}
 	}
+
 }
 

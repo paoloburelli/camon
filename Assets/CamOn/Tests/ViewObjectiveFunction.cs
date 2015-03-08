@@ -1,16 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
+/// <summary>
+/// Visualiser class used for debugging and evaluation
+/// </summary>
 public class ViewObjectiveFunction : MonoBehaviour
 {
 
-		public int NumberOfSamples = 10;
-		public Bounds bounds;
+		int NumberOfSamples = 10;
+		Bounds bounds;
 		float[][][] functionValues;
 		Vector3 index;
 		CameraOperator cameraman;
-
-		// Use this for initialization
+	
 		void Start ()
 		{
 				functionValues = new float[NumberOfSamples][][];

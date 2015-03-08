@@ -107,4 +107,11 @@ public class Shot : ScriptableObject
 			return visbility;
 		}
 	}
+
+	public T GetProperty<T>(int index=0) where T : Property{
+		foreach (Property p in Properties)
+			if (p is T && p.Subject == index)
+				return (T)p;
+		return null;
+	}
 }

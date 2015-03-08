@@ -41,6 +41,10 @@ public class Subject
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
 
+	public void Rotate (float xAngle,float yAngle, float zAngle){
+		proxy.transform.Rotate(xAngle,yAngle,zAngle);
+	}
+
 	public Quaternion Orientation {
 		get {
 			return proxy.transform.rotation;
