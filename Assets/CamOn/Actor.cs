@@ -3,31 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class Subject
+public class Actor
 {
-	public const int SAMPLES = 5;
-	public enum Corner
-	{
-		Top,
-		Bottom,
-		Left,
-		Right,
-		Center
-	};
-	
+	const int SAMPLES = 5;
 	const int LAYER_MASK = ~6; //do not test transparent and ignore raycast;
-	public const string PROXY_NAME = "[Camera Proxy]";
-	public const string IGNORE_TAG = "IGNORE";
+	const string PROXY_NAME = "[Camera Proxy]";
+	const string IGNORE_TAG = "IGNORE";
 
-	public bool Ignore {
-		get {
-			return transform.tag == IGNORE_TAG;
-		}
-		set {
-			transform.tag = value ? IGNORE_TAG : "Untagged";
-		}
-	}
-	
 	Transform transform;
 	MeshRenderer proxyRenderer;
 	Mesh proxyMesh;
@@ -40,6 +22,42 @@ public class Subject
 	Bounds screenSpaceBounds = new Bounds(Vector3.zero,Vector3.zero);
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
+
+	public enum SamplePoint
+	{
+		Top,
+		Bottom,
+		Left,
+		Right,
+		Center
+	};
+
+	public bool Ignore {
+		get {
+			return transform.tag == IGNORE_TAG;
+		}
+		set {
+			transform.tag = value ? IGNORE_TAG : "Untagged";
+		}
+	}
+
+	public static void DestroyAllProxies(Actor[] actors=null){
+		Transform t;
+		GameObject o;
+
+		if (actors == null)
+			while ((o = GameObject.Find (Actor.PROXY_NAME)) != null)
+				GameObject.DestroyImmediate (o);
+		else
+			foreach (Actor a in actors) {
+				while ((t = a.transform.Find (PROXY_NAME)) != null)
+					GameObject.DestroyImmediate (t.gameObject);
+
+				a.proxy = null;
+				a.proxyMesh = null;
+				a.proxyRenderer = null;
+			}
+	}
 
 	public void Rotate (float xAngle,float yAngle, float zAngle){
 		proxy.transform.Rotate(xAngle,yAngle,zAngle);
@@ -102,7 +120,7 @@ public class Subject
 		}
 	}
 	
-	public bool Occlusion (Corner c)
+	public bool Occlusion (SamplePoint c)
 	{
 		return samplePointsVisibility [(int)c];
 	}
@@ -125,20 +143,20 @@ public class Subject
 		get { return vantageAngle; }
 	}
 	
-	public Subject (Transform transform, Vector3 center, Vector3 scale, PrimitiveType type)
+	public Actor (Transform transform, Vector3 center, Vector3 scale, PrimitiveType type)
 	{
 		if (transform == null)
 			throw new System.ArgumentNullException ();
-			
+
 		this.transform = transform;
-		DestroyProxies ();
-		
+
+		Transform t;
+		if (transform != null)
+			while ((t = transform.Find (PROXY_NAME)) != null)
+				GameObject.DestroyImmediate (t.gameObject);
+				
 		proxy = GameObject.CreatePrimitive (type);
 		GameObject.DestroyImmediate (proxy.GetComponent<Collider>());
-		//proxy.GetComponent<Renderer>().sharedMaterial = new Material (Shader.Find ("Transparent/Diffuse"));
-		//proxy.GetComponent<Renderer>().sharedMaterial.color = new Color (1, 0, 1, 0.4f);
-
-
 		proxy.transform.parent = transform;
 		proxy.transform.localPosition = center;
 		proxy.transform.localScale = scale;
@@ -149,17 +167,8 @@ public class Subject
 		proxy.SetActive (transform.gameObject.activeInHierarchy);
 		proxyRenderer.enabled = false;
 	}
-	
-	public void DestroyProxies ()
-	{
-		proxyRenderer = null;
-		proxyMesh = null;
-		if (transform != null)
-			while (transform.Find (PROXY_NAME) != null)
-				GameObject.DestroyImmediate (transform.Find (PROXY_NAME).gameObject);
-	}
-	
-	public void Update (Camera camera)
+
+	public void Reevaluate (Camera camera)
 	{
 		if (!Ignore) {
 			
@@ -178,19 +187,19 @@ public class Subject
 					inFrustum++;
 					if (sv.y > screenMax.y) {
 						screenMax.y = sv.y;
-						onScreenSamplePoints [(int)Corner.Top] = tv;
+						onScreenSamplePoints [(int)SamplePoint.Top] = tv;
 					}
 					if (sv.y < screenMin.y) {
 						screenMin.y = sv.y;
-						onScreenSamplePoints [(int)Corner.Bottom] = tv;
+						onScreenSamplePoints [(int)SamplePoint.Bottom] = tv;
 					}
 					if (sv.x > screenMax.x) {
 						screenMax.x = sv.x;
-						onScreenSamplePoints [(int)Corner.Right] = tv;
+						onScreenSamplePoints [(int)SamplePoint.Right] = tv;
 					}
 					if (sv.x < screenMin.x) {
 						screenMin.x = sv.x;
-						onScreenSamplePoints [(int)Corner.Left] = tv;
+						onScreenSamplePoints [(int)SamplePoint.Left] = tv;
 					}
 					if (sv.z > screenMax.z)
 						screenMax.z = sv.z;
@@ -199,7 +208,7 @@ public class Subject
 						screenMin.z = sv.z;
 				}
 			}
-			onScreenSamplePoints [(int)Corner.Center] = (onScreenSamplePoints [(int)Corner.Top] + onScreenSamplePoints [(int)Corner.Bottom] + onScreenSamplePoints [(int)Corner.Right]+ onScreenSamplePoints [(int)Corner.Left])/4 + (onScreenSamplePoints [(int)Corner.Right] - onScreenSamplePoints [(int)Corner.Left]) * Random.value * 0.2f;
+			onScreenSamplePoints [(int)SamplePoint.Center] = (onScreenSamplePoints [(int)SamplePoint.Top] + onScreenSamplePoints [(int)SamplePoint.Bottom] + onScreenSamplePoints [(int)SamplePoint.Right]+ onScreenSamplePoints [(int)SamplePoint.Left])/4 + (onScreenSamplePoints [(int)SamplePoint.Right] - onScreenSamplePoints [(int)SamplePoint.Left]) * Random.value * 0.2f;
 			inFrustum *= 1.0f / proxyMesh.vertices.LongLength;
 			
 			if (inFrustum > 0) {
@@ -246,7 +255,15 @@ public class Subject
 			transform.gameObject.layer = originalLayer;
 		}
 	}
-	
+
+	public static void ReevaluateAll (Actor[] actors, Camera camera)
+	{
+		if (actors != null && camera != null)
+			foreach (Actor s in actors)
+				if (s != null)
+					s.Reevaluate (camera);
+	}
+
 	public void DrawGizmos ()
 	{
 		if (inFrustum > 0) {

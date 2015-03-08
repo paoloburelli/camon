@@ -23,10 +23,10 @@ public class RelativePosition : Property
 	}
 	
 	#region implemented abstract members of Property
-	protected override float evaluate (Subject[] subjectsList)
+	protected override float evaluate (Actor[] subjectsList)
 	{
-		Subject sA = subjectsList[subjectReferences[0]];
-		Subject sB = subjectsList[subjectReferences[1]];
+		Actor sA = subjectsList[subjectReferences[0]];
+		Actor sB = subjectsList[subjectReferences[1]];
 		
 		float rVal = Mathf.Ceil(sA.InFrustum)*Mathf.Ceil(sB.InFrustum);
 		

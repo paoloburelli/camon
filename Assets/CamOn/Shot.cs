@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
+[assembly:InternalsVisibleTo("ShotEditor")]
 [System.Serializable]
 public class Shot : ScriptableObject
 {
@@ -34,38 +36,32 @@ public class Shot : ScriptableObject
 			}
 	}
 		
-	private Subject[] subjects;
-
-	public void UpdateSubjects (Subject[] subjects, Camera camera)
-	{
-		this. subjects = subjects;
-		if (subjects != null && camera != null)
-			foreach (Subject s in subjects)
-				if (s != null)
-					s.Update (camera);
-	}
-	
-	public float Evaluate ()
+	public float GetQuality (Actor[] actors, Camera camera=null)
 	{
 		float value = 0;
 		float weight = 0;
 		
-		if (subjects != null){
+		if (actors != null){
+
+			if (camera != null)
+				Actor.ReevaluateAll (actors, camera);
 			
 			bool eval = true;
-			foreach (Subject s in subjects)
+			foreach (Actor s in actors)
 				if (s == null)
 					eval = false;
 			
 			if (eval) {
 				foreach (Property p in Properties) {
-					value += p.Evaluate (subjects) * p.Weight;
+					value += p.Evaluate (actors) * p.Weight;
 					weight += p.Weight;
 				}
-				foreach (Subject s in subjects){
-					float w = Visibility < 0.1 ? (Properties.Count/(float)subjects.Length) : 1.0f/subjects.Length;
+				for (int i=0;i<actors.Length;i++){
+	
+					float f = (1-Mathf.Pow(1-actors[i].Visibility,10));
+					float w =  Mathf.Lerp(PropertiesCount(i),PropertiesCount(i)/(float)Properties.Count,f);
 
-					value += (1-Mathf.Pow(1-s.Visibility,2)) * w;
+					value += f * w;
 					weight += w;
 				}
 			}
@@ -74,44 +70,51 @@ public class Shot : ScriptableObject
 		return float.IsNaN (value / weight) ? 0 : value / weight;
 	}
 	
-	public float Evaluate (Property.Type[] pTypes)
+	public float GetQuality (Property.Type[] pTypes, Actor[] actors, Camera camera=null)
 	{
 		float value = 0;
 		float weight = 0;
+
+		if (camera != null)
+			Actor.ReevaluateAll (actors, camera);
 		
-		if (subjects != null)
+		if (actors != null)
 			foreach (Property.Type pt in pTypes)
 				foreach (Property p in Properties)
 					if (p.PropertyType == pt) {
-						value += p.Evaluate (subjects) * p.Weight;
+						value += p.Evaluate (actors) * p.Weight;
 						weight += p.Weight;
 					}
 		
 		return float.IsNaN (value / weight) ? 1 : value / weight;
 	}
 	
-	public float Visibility {
-		get {
+	public float Visibility(Actor[] actors) {
 			float visbility = 0;
-			foreach (Subject s in subjects)
-				visbility += s.Visibility / subjects.Length;
+			foreach (Actor s in actors)
+				visbility += s.Visibility / actors.Length;
 			return visbility;
-		}
 	}
 
-	public float InFrustum {
-		get {
+	public float InFrustum(Actor[] actors) {
 			float visbility = 0;
-			foreach (Subject s in subjects)
-				visbility += s.InFrustum / subjects.Length;
+			foreach (Actor s in actors)
+				visbility += s.InFrustum / actors.Length;
 			return visbility;
-		}
 	}
 
-	public T GetProperty<T>(int index=0) where T : Property{
+	public T GetProperty<T>(int actorIndex=0) where T : Property{
 		foreach (Property p in Properties)
-			if (p is T && p.Subject == index)
+			if (p is T && p.Subject == actorIndex)
 				return (T)p;
 		return null;
+	}
+
+	private int PropertiesCount(int actorIndex) {
+		int n = 0;
+		foreach (Property p in Properties)
+			if (p.Subject == actorIndex)
+				n++;
+		return n;
 	}
 }

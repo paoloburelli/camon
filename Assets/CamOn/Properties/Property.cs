@@ -49,12 +49,12 @@ public class Property
 		desiredValues = new float[1];
 	}
 	
-	public float Evaluate(Subject[] subjectsList){
+	public float Evaluate(Actor[] subjectsList){
 		satisfaction = evaluate(subjectsList);
 		return satisfaction;
 	}
 
-	protected virtual float evaluate(Subject[] subjectsList){
+	protected virtual float evaluate(Actor[] subjectsList){
 		return 1;
 	}
 	

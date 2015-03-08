@@ -3,7 +3,7 @@ using UnityEngine;
 
 public static class PropertiesForces
 {
-	public static Vector3 PositionForce (this ProjectionSize property, Subject[] subjects, Camera currentCamera)
+	public static Vector3 PositionForce (this ProjectionSize property, Actor[] subjects, Camera currentCamera)
 	{
 		float direction = 1;
 		if (property.DesiredValue < subjects [0].Visibility)
@@ -15,7 +15,7 @@ public static class PropertiesForces
 		return direction * (currentCamera.transform.position - subjects [0].Position).normalized * (1 - property.Evaluate (subjects));
 	}
 	
-	public static Vector3 PositionForce (this VantageAngle property, Subject[] subjects, Camera currentCamera)
+	public static Vector3 PositionForce (this VantageAngle property, Actor[] subjects, Camera currentCamera)
 	{
 		Vector3 relativeCamPos = (currentCamera.transform.position - subjects [0].Position);
 		
@@ -34,16 +34,15 @@ public class ArtificialPotentialField : Solver
 	float bestFitness = 0;
 	Property.Type[] lookAtInfluencingProperties = {Property.Type.PositionOnScreen};
 	
-	protected override float update (Transform currentCamera, Subject[] subjects, Shot shot, float maxExecutionTime)
+	protected override float update (Transform currentCamera, Actor[] subjects, Shot shot, float maxExecutionTime)
 	{
 		double maxMilliseconds = maxExecutionTime * 1000;
 		double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 
 		Vector3 newCenter = SubjectsCenter (subjects);
 		setPosition(bestPosition + newCenter - lastCenter,currentCamera,shot);
-		shot.UpdateSubjects (subjects, currentCamera.GetComponent<Camera> ());
-		bestFitness = shot.Evaluate ();
-		float lookAtFitness = shot.InFrustum * .5f + shot.Evaluate (lookAtInfluencingProperties) * .5f;
+		bestFitness = shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());
+		float lookAtFitness = shot.InFrustum(subjects) * .5f + shot.GetQuality (lookAtInfluencingProperties,subjects) * .5f;
 		bestPosition = currentCamera.transform.position;
 		lastCenter = newCenter;
 
@@ -62,8 +61,7 @@ public class ArtificialPotentialField : Solver
 			Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow (lookAtFitness, 4)) * SubjectsRadius (subjects);
 
 			currentCamera.LookAt (tmpLookAt);
-			shot.UpdateSubjects (subjects, currentCamera.GetComponent<Camera> ());
-			float tmpFit = shot.Evaluate ();
+			float tmpFit = shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());
 			
 			logTrace (currentCamera.position, currentCamera.forward, tmpFit);
 								
@@ -80,7 +78,7 @@ public class ArtificialPotentialField : Solver
 		return bestFitness;
 	}
 
-	public override void Start (Transform camera, Subject[] subjects, Shot shot)
+	public override void Start (Transform camera, Actor[] subjects, Shot shot)
 	{
 		base.Start (camera, subjects, shot);
 		bestPosition = camera.position;
@@ -88,7 +86,7 @@ public class ArtificialPotentialField : Solver
 		lastCenter = SubjectsCenter (subjects);
 	}
 
-	protected override void initBestCamera (Transform bestCamera, Subject[] subjects, Shot shot)
+	protected override void initBestCamera (Transform bestCamera, Actor[] subjects, Shot shot)
 	{
 		float radius = Solver.SubjectsRadius (subjects);
 		Vector3 center = Solver.SubjectsCenter (subjects);

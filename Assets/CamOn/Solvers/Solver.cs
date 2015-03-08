@@ -59,7 +59,7 @@ public abstract class Solver
 	/// <param name="subjects">subjects in the shot</param>
 	/// <param name="shot">shot to be generated</param>
 	/// <param name="maxExecutionTime">maximum execution time.</param>
-	public float Update (Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime){
+	public float Update (Transform bestCamera, Actor[] subjects, Shot shot, float maxExecutionTime){
 		if (running){
 			satisfaction = update (bestCamera,subjects,shot,maxExecutionTime);
 		}else 
@@ -74,7 +74,7 @@ public abstract class Solver
 	/// <param name="bestCamera">curret camera to be animated</param>
 	/// <param name="subjects">subjects in the shot</param>
 	/// <param name="shot">shot to be generated</param>
-	public virtual void Start(Transform bestCamera, Subject[] subjects, Shot shot){
+	public virtual void Start(Transform bestCamera, Actor[] subjects, Shot shot){
 		if (bestCamera == null)
 			throw new MissingReferenceException ("camera not initilised");
 			
@@ -94,10 +94,10 @@ public abstract class Solver
 	/// </summary>
 	/// <returns>A position wich is central to the subjects passed.</returns>
 	/// <param name="subjects">The subjects in the shot.</param>
-	public static Vector3 SubjectsCenter (Subject[] subjects)
+	public static Vector3 SubjectsCenter (Actor[] subjects)
 	{
 		Vector3 center = Vector3.zero;
-		foreach (Subject s in subjects)
+		foreach (Actor s in subjects)
 			if (s != null)
 				center += s.Position / subjects.Length;
 		return center;
@@ -108,11 +108,11 @@ public abstract class Solver
 	/// </summary>
 	/// <returns>The radius of the sphere.</returns>
 	/// <param name="subjects">The subjects in the shot.</param>
-	public static float SubjectsRadius (Subject[] subjects)
+	public static float SubjectsRadius (Actor[] subjects)
 	{
 		Vector3 center = SubjectsCenter (subjects);
 		float radius = 0;
-		foreach (Subject s in subjects) {
+		foreach (Actor s in subjects) {
 			if (s != null) {
 				float distance = (s.Position - center).magnitude + s.Scale.magnitude;
 				if (distance > radius)
@@ -140,7 +140,7 @@ public abstract class Solver
 		bestCamera.position = position;
 	}
 	
-	abstract protected float update(Transform bestCamera, Subject[] subjects, Shot shot, float maxExecutionTime);
-	abstract protected void initBestCamera (Transform bestCamera, Subject[] subjects, Shot shot);
+	abstract protected float update(Transform bestCamera, Actor[] subjects, Shot shot, float maxExecutionTime);
+	abstract protected void initBestCamera (Transform bestCamera, Actor[] subjects, Shot shot);
 }
 

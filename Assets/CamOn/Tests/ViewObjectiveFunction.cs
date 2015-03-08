@@ -8,8 +8,9 @@ using System.Collections;
 public class ViewObjectiveFunction : MonoBehaviour
 {
 
-		int NumberOfSamples = 10;
-		Bounds bounds;
+		public int NumberOfSamples = 10;
+		public Bounds bounds;
+
 		float[][][] functionValues;
 		Vector3 index;
 		CameraOperator cameraman;
@@ -43,10 +44,8 @@ public class ViewObjectiveFunction : MonoBehaviour
 
 						cameraman.EvaluationCamera.position = bounds.min + Vector3.Scale (step, index);
 						cameraman.EvaluationCamera.LookAt (bounds.center);
-						cameraman.Shot.UpdateSubjects (cameraman.Subjects, cameraman.EvaluationCamera.GetComponent<Camera>());
 
-
-						functionValues [(int)index.x] [(int)index.y] [(int)index.z] = cameraman.Shot.Evaluate ();
+						functionValues [(int)index.x] [(int)index.y] [(int)index.z] = cameraman.Shot.GetQuality (cameraman.Actors,cameraman.EvaluationCamera.GetComponent<Camera>());
 
 						index.x += 1;
 

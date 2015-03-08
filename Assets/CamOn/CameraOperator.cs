@@ -26,7 +26,7 @@ public class CameraOperator : MonoBehaviour
 	Vector3[] subjectsScale;
 
 	readonly Solver solver = new ArtificialPotentialField();
-    Subject[] subjects;
+	Actor[] actors;
 	Transform bestCamera;
 	Vector3 velocity = Vector3.zero;
 	bool started = false;
@@ -37,9 +37,9 @@ public class CameraOperator : MonoBehaviour
 		}
 	}
 
-	public Subject[] Subjects {
+	public Actor[] Actors {
 		get {
-			return subjects;
+			return actors;
 		}
 	}
 	
@@ -109,10 +109,10 @@ public class CameraOperator : MonoBehaviour
 			if (Shot == null || Shot.Properties == null)
 				return false;
 			
-			if (subjects == null)
+			if (actors == null)
 				return false;
 			
-			foreach (Subject s in subjects)
+			foreach (Actor s in actors)
 				if (s == null)
 					return false;
 			
@@ -144,22 +144,21 @@ public class CameraOperator : MonoBehaviour
 		solver.Stop ();
 		
 		//Clean all the proxies in the scene
-		while (GameObject.Find(Subject.PROXY_NAME) != null)
-			GameObject.DestroyImmediate (GameObject.Find (Subject.PROXY_NAME));
+		Actor.DestroyAllProxies ();
 		
 		if (shot == null){
 			subjectsTransform = null;
-			subjects = null;
+			actors = null;
 		} else {	
 			shot.FixPropertyTypes ();
-			subjects = new Subject[subjectsTransform.Length];
+			actors = new Actor[subjectsTransform.Length];
 		
 			for (int i=0; i<subjectsTransform.Length; i++)
 				if (subjectsTransform [i] != null)
-					subjects [i] = new Subject (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
+					actors [i] = new Actor (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
 		
 			if (ReadyForEvaluation && Application.isPlaying)
-				solver.Start (bestCamera, subjects, shot);
+				solver.Start (bestCamera, actors, shot);
 		}
 	}
 
@@ -174,7 +173,7 @@ public class CameraOperator : MonoBehaviour
         timeLimit = Mathf.Max(timeLimit, 0.016f);
 
 		if (ReadyForEvaluation) 
-            solver.Update(bestCamera, subjects, shot,timeLimit);
+            solver.Update(bestCamera, actors, shot,timeLimit);
 
 		float dampening = Mathf.Pow(solver.Satisfaction,4);
 
@@ -185,12 +184,11 @@ public class CameraOperator : MonoBehaviour
 	void OnDrawGizmos ()
 	{	
 		if (ReadyForEvaluation) {
-			shot.UpdateSubjects (subjects, GetComponent<Camera>());
-			shot.Evaluate ();
+			shot.GetQuality (actors,GetComponent<Camera>());
 		}
 		
-		if (subjects != null)
-			foreach (Subject s in subjects)
+		if (actors != null)
+			foreach (Actor s in actors)
 				if (s != null) 
 					s.DrawGizmos ();
 		
@@ -232,6 +230,5 @@ public class CameraOperator : MonoBehaviour
 			return On (Camera.main);
 		}
 	}
-
 }
 

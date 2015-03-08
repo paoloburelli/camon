@@ -37,12 +37,12 @@ public class OperatorEditor : Editor
 					if (p.PropertyType == Property.Type.RelativePosition)
 						sbj += " "+((RelativePosition.Position)p.DesiredValue).ToString()+" "+((RelativePosition)p).SecondarySubject;
 
-					EditorGUILayout.LabelField(p.PropertyType+" on "+sbj+" = "+p.Evaluate(controller.Subjects));
+					EditorGUILayout.LabelField(p.PropertyType+" on "+sbj+" = "+p.Evaluate(controller.Actors));
 				}
 			
 
-				for (int i=0;i<controller.Subjects.Length;i++)
-					EditorGUILayout.LabelField("Visibility on "+i+" = "+controller.Subjects[i].Visibility);
+				for (int i=0;i<controller.Actors.Length;i++)
+					EditorGUILayout.LabelField("Visibility on "+i+" = "+controller.Actors[i].Visibility);
 			}
 
 			EditorGUILayout.Separator();
