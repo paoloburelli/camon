@@ -131,7 +131,8 @@ public class ArtificialPotentialField : Solver
 		foreach (Property p in shot.Properties) {
 			if (p.PropertyType == Property.Type.VantageAngle) {
 				VantageAngle va = (VantageAngle)p;
-				direction = (Quaternion.Euler (va.DesiredHorizontalAngle, 0, 0) * subjects [va.MainSubjectIndex].VantageDirection) * radius;
+				subjects[va.MainSubjectIndex].CalculateRelativeCameraAngle(va.DesiredHorizontalAngle,va.DesiredVerticalAngle);
+				direction = subjects[p.MainSubjectIndex].VantageDirection * radius;
 				lookAtPoint = subjects [va.MainSubjectIndex].Position;
 				break;
 			} else if (p.PropertyType == Property.Type.RelativePosition) {
