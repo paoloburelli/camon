@@ -13,7 +13,7 @@ public abstract class Solver
 	private bool running = true;
 	private float satisfaction = 0;
 	Vector3 lastCenter,subjectsVelocity;
-
+	
 	/// <summary>
 	/// Returns the group velocity of the subjcts in the current shot
 	/// </summary>
@@ -28,7 +28,7 @@ public abstract class Solver
 	/// Defines the length fo the debug trace (it is used only in editor mode)
 	/// </summary>
 	public const int TRACE_LENGHT = 100;
-		
+	
 	/// <summary>
 	/// Returns the quality of the current best found solution
 	/// </summary>
@@ -38,7 +38,7 @@ public abstract class Solver
 			return satisfaction;
 		}
 	}
-
+	
 	/// <summary>
 	/// Method used by solvers to keep logs of the last evaluated cameras
 	/// </summary>
@@ -58,7 +58,7 @@ public abstract class Solver
 			forwardTrace.Enqueue(forward);
 		}
 	}
-
+	
 	/// <summary>
 	/// Drows debug informations on the screen
 	/// </summary>
@@ -71,7 +71,7 @@ public abstract class Solver
 			Gizmos.DrawLine(positionTrace.ElementAt(i),positionTrace.ElementAt(i)+forwardTrace.ElementAt(i));
 		}
 	}
-
+	
 	/// <summary>
 	/// Updates the solver for a given amount of time
 	/// </summary>
@@ -83,15 +83,15 @@ public abstract class Solver
 		Vector3 newCenter = SubjectsCenter(subjects);
 		subjectsVelocity = (newCenter-lastCenter)/Time.deltaTime;
 		lastCenter = newCenter;
-
+		
 		if (running){
 			satisfaction = update (bestCamera,subjects,shot,maxExecutionTime);
 		}else 
 			satisfaction = 0;
-
+		
 		return satisfaction;
 	}
-
+	
 	/// <summary>
 	/// Enabling of the solver
 	/// </summary>
@@ -101,21 +101,21 @@ public abstract class Solver
 	public virtual void Start(Transform bestCamera, Actor[] subjects, Shot shot){
 		if (bestCamera == null)
 			throw new MissingReferenceException ("camera not initilised");
-			
+		
 		lastCenter = SubjectsCenter(subjects);
 		subjectsVelocity = Vector3.zero;
-
+		
 		initBestCamera (bestCamera, subjects, shot);
 		running = true;
 	}
-
+	
 	/// <summary>
 	/// Disabling the solver
 	/// </summary>
 	public virtual void Stop() {
 		running = false;
 	}
-
+	
 	/// <summary>
 	/// Given a list of ubjects, it calculates a position in the middle.
 	/// </summary>
@@ -129,7 +129,7 @@ public abstract class Solver
 				center += s.Position / subjects.Length;
 		return center;
 	}
-
+	
 	/// <summary>
 	/// Given a list of subjects, it calculates a sphere that contains them all.
 	/// </summary>
@@ -149,7 +149,7 @@ public abstract class Solver
 		
 		return radius;
 	}
-
+	
 	/// <summary>
 	/// Combined scale of the subjects, used to estimates theier total size.
 	/// </summary>
@@ -164,7 +164,7 @@ public abstract class Solver
 		}
 		return scale;
 	}
-
+	
 	/// <summary>
 	/// Sets the position to the camera controlling if the camera is locked
 	/// </summary>
@@ -176,7 +176,7 @@ public abstract class Solver
 			position.x = bestCamera.position.x;
 		if (shot.LockY || float.IsNaN(position.y))
 			position.y = bestCamera.position.y;
-		if (shot.LockZ || float.IsNaN(position.z) || bestCamera.GetComponent<Camera>().orthographic)
+		if (shot.LockZ || float.IsNaN(position.z))
 			position.z = bestCamera.position.z;
 		
 		bestCamera.position = position;

@@ -17,7 +17,7 @@ MonoBehaviour:
   VolumesOfInterestPosition:
   - {x: 0, y: .649999976, z: 0}
   VolumesOfInterestSize:
-  - {x: .300000012, y: .100000001, z: .300000012}
+  - {x: .400000006, y: .150000006, z: .400000006}
   Properties:
   - propertyType: 0
     desiredValues:

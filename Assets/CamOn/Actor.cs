@@ -17,32 +17,9 @@ public class Actor : MonoBehaviour
 	const string VANTAGE_ANGLE_PROXY_NAME = "[Vantage Angle Direction]";
 	const string IGNORE_TAG = "IGNORE";
 
-	Transform _vantageDirectionProxy,_proxy;
-	Mesh _proxyMesh;
-
-	Transform vantageDirectionProxy {
-		get {
-			if (_vantageDirectionProxy == null)
-				CreateProxy();
-			return _vantageDirectionProxy;
-		}
-	}
-
-	Transform proxy {
-		get {
-			if (_proxy == null)
-				CreateProxy();
-			return _proxy;
-		}
-	}
-
-	Mesh proxyMesh {
-		get {
-			if (_proxyMesh == null)
-				CreateProxy();
-			return _proxyMesh;
-		}
-	}
+	Transform vantageDirectionProxy;
+	GameObject proxy;
+	Mesh proxyMesh;
 
 
 	Vector3[] onScreenSamplePoints = new Vector3[SAMPLES];
@@ -286,40 +263,34 @@ public class Actor : MonoBehaviour
 		get { return screenSpaceBounds.center; }
 	}
 
-	void CreateProxy ()
-	{
+	public void CreateProxy() {
 		Transform t;
 		if (transform != null)
-			while ((t = transform.FindChild (PROXY_NAME)) != null)
+			while ((t = transform.Find (PROXY_NAME)) != null)
 				GameObject.DestroyImmediate (t.gameObject);
-
-		_proxy = GameObject.CreatePrimitive (Shape).transform;
-		GameObject.DestroyImmediate (_proxy.gameObject.GetComponent<Collider>());
-		_proxy.parent = transform;
-		_proxy.localPosition = offset;
-		_proxy.localScale = scale;
-		_proxy.localRotation = Quaternion.Euler(0,0,0);
-		_proxy.gameObject.name = PROXY_NAME;
-		_proxyMesh = proxy.gameObject.GetComponent<MeshFilter> ().sharedMesh;
-		_proxy.gameObject.SetActive (transform.gameObject.activeInHierarchy);
-		_proxy.gameObject.GetComponent<MeshRenderer> ().enabled = false;
+		
+		proxy = GameObject.CreatePrimitive (shape);
+		GameObject.DestroyImmediate (proxy.GetComponent<Collider>());
+		proxy.transform.parent = transform;
+		proxy.transform.localPosition = offset;
+		proxy.transform.localScale = scale*0.9f;
+		proxy.transform.localRotation = Quaternion.Euler(0,0,0);
+		proxy.name = PROXY_NAME;
+		proxyMesh = proxy.GetComponent<MeshFilter> ().sharedMesh;
+		proxy.SetActive (transform.gameObject.activeInHierarchy);
+		proxy.GetComponent<MeshRenderer> ().enabled = false;
 		
 		
-		_vantageDirectionProxy = (new GameObject ()).transform;
-		_vantageDirectionProxy.gameObject.name = VANTAGE_ANGLE_PROXY_NAME;
-		_vantageDirectionProxy.parent = _proxy.transform;
-		_vantageDirectionProxy.localPosition = Vector3.zero;
-		_vantageDirectionProxy.localRotation = Quaternion.Euler(0,0,0);
+		vantageDirectionProxy = (new GameObject ()).transform;
+		vantageDirectionProxy.gameObject.name = VANTAGE_ANGLE_PROXY_NAME;
+		vantageDirectionProxy.parent = proxy.transform;
+		vantageDirectionProxy.localPosition = Vector3.zero;
+		vantageDirectionProxy.localRotation = Quaternion.Euler(0,0,0);
 	}
-	
+
 	void Start ()
-	{
-
-	}
-
-	void Update(){
-		if (!Application.isPlaying)
-			Reevaluate(Camera.main);
+	{	
+		CreateProxy();
 	}
 
 	/// <summary>
@@ -337,7 +308,7 @@ public class Actor : MonoBehaviour
 			screenMin = Vector3.one;
 			screenMin.z = float.PositiveInfinity;
 			screenMax = Vector3.zero;
-
+			
 			foreach (Vector3 v in proxyMesh.vertices) {
 				Vector3 tv = proxy.transform.TransformPoint (v);
 				Vector3 sv = camera.WorldToViewportPoint (tv);
@@ -368,7 +339,7 @@ public class Actor : MonoBehaviour
 			}
 			onScreenSamplePoints [(int)SamplePoint.Center] = (onScreenSamplePoints [(int)SamplePoint.Top] + onScreenSamplePoints [(int)SamplePoint.Bottom] + onScreenSamplePoints [(int)SamplePoint.Right]+ onScreenSamplePoints [(int)SamplePoint.Left])/4 + (onScreenSamplePoints [(int)SamplePoint.Right] - onScreenSamplePoints [(int)SamplePoint.Left]) * Random.value * 0.2f;
 			inFrustum *= 1.0f / proxyMesh.vertices.LongLength;
-
+			
 			if (inFrustum > 0) {
 				for (int i=0; i<SAMPLES; i++) {
 					Vector3 direction = camera.transform.position - onScreenSamplePoints [i];
@@ -386,13 +357,13 @@ public class Actor : MonoBehaviour
 					onScreenSamplePoints [i] = Vector3.zero;
 					samplePointsVisibility [i] = false;
 				}
-
+				
 				projectionSize = float.NegativeInfinity;
 				
 				screenSpaceBounds.SetMinMax(Vector3.zero,Vector3.zero);
-						
+				
 				Vector3 viewPortSpaceCenter = camera.WorldToViewportPoint (Position);
-					
+				
 				screenMax.x = viewPortSpaceCenter.x > 0 ? viewPortSpaceCenter.x > 1 ? float.PositiveInfinity : float.NaN : float.NegativeInfinity;
 				screenMax.y = viewPortSpaceCenter.y > 0 ? viewPortSpaceCenter.y > 1 ? float.PositiveInfinity : float.NaN : float.NegativeInfinity;
 				screenMax.z = 0;
@@ -407,7 +378,7 @@ public class Actor : MonoBehaviour
 			
 			screenSpaceBounds.SetMinMax(screenMin,screenMax);
 			transform.gameObject.layer = originalLayer;
-
+			
 			cameraPosition = camera.transform.position;
 		}
 	}

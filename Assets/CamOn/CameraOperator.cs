@@ -105,16 +105,14 @@ public class CameraOperator : MonoBehaviour
 		
 	void Start ()
 	{
-		if (!started) {
 			if (shot != null)
 				shot.FixPropertiesType();
 			bestCamera = (Transform)GameObject.Instantiate(transform,transform.position,transform.rotation);
 			GameObject.DestroyImmediate (bestCamera.GetComponent<CameraOperator> ());
 			GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
 			bestCamera.gameObject.SetActive (false);
-			RestartSolver ();	
+			RestartSolver();
 			started = true;
-		}
 	}
 
 	/// <summary>
@@ -125,9 +123,12 @@ public class CameraOperator : MonoBehaviour
 		//Stop the solver
 		solver.Stop ();
 		if (ReadyForEvaluation && Application.isPlaying){
-			for (int i=0;i<actors.Length;i++)
+			for (int i=0;i<actors.Length;i++){
+				actors[i].CreateProxy();
 				actors[i].SetAreaOfInterest(shot.VolumesOfInterestSize[i],shot.VolumesOfInterestPosition[i]);
-			solver.Start (bestCamera, actors, shot);
+			}
+			if (bestCamera != null)
+				solver.Start (bestCamera, actors, shot);
 		}
 	}
 
@@ -175,7 +176,7 @@ public class CameraOperator : MonoBehaviour
 		this.Shot = shot;
 		this.actors = actors;
 		this.transition = transition;
-		RestartSolver ();
+		RestartSolver();
 	}
 
 	/// <summary>
@@ -186,10 +187,8 @@ public class CameraOperator : MonoBehaviour
 	public static CameraOperator On(Camera camera){
 		CameraOperator co = camera.GetComponent<CameraOperator> ();
 
-		if (co == null) {
+		if (co == null)
 			co = camera.gameObject.AddComponent<CameraOperator> ();
-			co.Start ();
-		}
 
 		return co;
 	}
