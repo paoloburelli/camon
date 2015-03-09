@@ -265,6 +265,15 @@ public class CameraOperator : MonoBehaviour
 
 	void OnDrawGizmos ()
 	{	
+		if (shot != null && actors == null){
+			actors = new SubjectEvaluator[subjectsTransform.Length];
+			
+			for (int i=0; i<subjectsTransform.Length; i++)
+				if (subjectsTransform [i] != null)
+					actors [i] = new SubjectEvaluator (subjectsTransform [i], subjectsCenter [i], subjectsScale [i], shot.SubjectBounds [i]);
+		}
+
+
 		if (ReadyForEvaluation) {
 			shot.GetQuality (actors,GetComponent<Camera>());
 		}
