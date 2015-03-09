@@ -390,15 +390,22 @@ public class SubjectEvaluator
 	/// </summary>
 	public void DrawGizmos ()
 	{
-		if (inFrustum > 0) {
-			for (int i =0; i<SAMPLES; i++)
-				if (samplePointsVisibility [i]) {
-					Gizmos.color = Color.green;
-					Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
-				} else {
-					Gizmos.color = Color.red;
-					Gizmos.DrawWireSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
-				}
+	
+		Gizmos.color = Color.white;
+		Vector3 scale = proxy.transform.localScale;
+		Transform t = proxy.transform.parent;
+		while ((t = t.parent) != null)
+			scale.Scale(t.localScale);
+
+		Gizmos.DrawWireMesh(proxyMesh,Position,Orientation,scale);
+
+		for (int i =0; i<SAMPLES; i++)
+		if (samplePointsVisibility [i]) {
+			Gizmos.color = Color.green;
+			Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
+		} else {
+			Gizmos.color = Color.red;
+			Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
 		}
 	}
 }
