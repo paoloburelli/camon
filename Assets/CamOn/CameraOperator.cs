@@ -94,7 +94,8 @@ public class CameraOperator : MonoBehaviour
 			
 			if (actors == null)
 				return false;
-			
+
+
 			foreach (Actor s in actors)
 				if (s == null)
 					return false;
@@ -105,33 +106,25 @@ public class CameraOperator : MonoBehaviour
 		
 	void Start ()
 	{
-			if (shot != null)
-				shot.FixPropertiesType();
+		if (!started){
 			bestCamera = (Transform)GameObject.Instantiate(transform,transform.position,transform.rotation);
 			GameObject.DestroyImmediate (bestCamera.GetComponent<CameraOperator> ());
 			GameObject.DestroyImmediate (bestCamera.GetComponent<AudioListener> ());
 			bestCamera.gameObject.SetActive (false);
-			RestartSolver();
 			started = true;
-	}
+		}
 
-	/// <summary>
-	/// Reset this instance and rebilds the subject evaluators.
-	/// </summary>
-	public void  RestartSolver ()
-	{
-		//Stop the solver
-		solver.Stop ();
-		if (ReadyForEvaluation && Application.isPlaying){
+		if (shot != null && actors != null){
+			shot.FixPropertiesType();
+			solver.Stop ();
 			for (int i=0;i<actors.Length;i++){
 				actors[i].CreateProxy();
 				actors[i].SetAreaOfInterest(shot.VolumesOfInterestSize[i],shot.VolumesOfInterestPosition[i]);
 			}
-			if (bestCamera != null)
-				solver.Start (bestCamera, actors, shot);
+			solver.Start (bestCamera, actors, shot);
 		}
 	}
-
+	
     float timeLimit = 0.1f;
 	void Update ()
 	{
@@ -176,7 +169,7 @@ public class CameraOperator : MonoBehaviour
 		this.Shot = shot;
 		this.actors = actors;
 		this.transition = transition;
-		RestartSolver();
+		Start();
 	}
 
 	/// <summary>

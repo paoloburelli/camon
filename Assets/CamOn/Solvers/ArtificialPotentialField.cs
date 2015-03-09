@@ -109,7 +109,7 @@ public class ArtificialPotentialField : Solver
 		currentCamera.position = bestPosition;
 		currentCamera.forward = bestForward;
 
-		return shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());;
+		return bestFitness;
 	}
 	
 	public override void Start (Transform camera, Actor[] subjects, Shot shot)

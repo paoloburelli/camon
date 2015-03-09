@@ -48,12 +48,10 @@ public class Actor : MonoBehaviour
 	/// <param name="scale">Size of the are of interest.</param>
 	/// <param name="offset">Position of the area of interest.</param>
 	public void SetAreaOfInterest(Vector3 scale,Vector3 offset) {
-		if (Application.isPlaying){
 			this.scaleModifier = scale;
 			this.offsetMofidier = offset;
 			proxy.transform.localScale = Vector3.Scale(this.scale,this.scaleModifier);
 			proxy.transform.localPosition = this.offset+this.offsetMofidier;
-		}
 	}
 
 	/// <summary>
@@ -156,7 +154,7 @@ public class Actor : MonoBehaviour
 	/// <value>The scale.</value>
 	public Vector3 Scale {
 		get {
-			return scale;
+			return proxy.transform.localScale;
 		}
 		set {
 			scale = value;
@@ -170,7 +168,7 @@ public class Actor : MonoBehaviour
 	/// <value>The offset.</value>
 	public Vector3 Offset {
 		get {
-			return offset;
+			return proxy.transform.localPosition;
 		}
 		set {
 			offset = value;
@@ -290,7 +288,8 @@ public class Actor : MonoBehaviour
 
 	void Start ()
 	{	
-		CreateProxy();
+		if (!Application.isPlaying)
+			CreateProxy();
 	}
 
 	/// <summary>
@@ -401,22 +400,23 @@ public class Actor : MonoBehaviour
 	/// </summary>
 	void OnDrawGizmos ()
 	{
-	
-		Gizmos.color = Color.white;
-		Vector3 scale = proxy.transform.localScale;
-		Transform t = proxy.transform.parent;
-		while ((t = t.parent) != null)
-			scale.Scale(t.localScale);
+		if (proxy != null) {
+			Gizmos.color = Color.white;
+			Vector3 scale = proxy.transform.localScale;
+			Transform t = proxy.transform.parent;
+			while ((t = t.parent) != null)
+				scale.Scale(t.localScale);
 
-		Gizmos.DrawWireMesh(proxyMesh,Position,Orientation,scale);
+			Gizmos.DrawWireMesh(proxyMesh,Position,Orientation,scale);
 
-		for (int i =0; i<SAMPLES; i++)
-		if (samplePointsVisibility [i]) {
-			Gizmos.color = Color.green;
-			Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
-		} else {
-			Gizmos.color = Color.red;
-			Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
+			for (int i =0; i<SAMPLES; i++)
+			if (samplePointsVisibility [i]) {
+				Gizmos.color = Color.green;
+				Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
+			} else {
+				Gizmos.color = Color.red;
+				Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
+			}
 		}
 	}
 
