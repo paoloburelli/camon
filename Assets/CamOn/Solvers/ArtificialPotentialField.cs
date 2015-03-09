@@ -3,30 +3,53 @@ using UnityEngine;
 
 public static class PropertiesForces
 {
-	public static Vector3 PositionForce (this ProjectionSize property, SubjectEvaluator[] subjects, Camera currentCamera)
+	public static Vector3 PositionForce (this ProjectionSize property, SubjectEvaluator[] subjects, Transform currentCamera)
 	{
-		float direction = 1;
-		if (property.DesiredSize < subjects [0].Visibility)
-			direction = -1;
+		float direction = -1;
+		if (property.DesiredSize < subjects [0].ProjectionSize)
+			direction = 1;
 		
 		if (subjects [0].Visibility == 0)
 			direction = 0;
 		
-		return direction * (currentCamera.transform.position - subjects [0].Position).normalized * (1 - property.Evaluate (subjects));
+		return direction * (currentCamera.position - subjects [0].Position).normalized * (1 - property.Evaluate (subjects));
 	}
-	
-	public static Vector3 PositionForce (this VantageAngle property, SubjectEvaluator[] subjects, Camera currentCamera)
+
+	public static Vector3 PositionForce (this VantageAngle property, SubjectEvaluator[] subjects, Transform currentCamera)
 	{
-		Vector3 relativeCamPos = (currentCamera.transform.position - subjects [0].Position);
+		Vector3 relativeCamPos = (currentCamera.position - subjects [0].Position);
 		Vector3 targetPosition = subjects [0].VantageDirection * relativeCamPos.magnitude;
 		Vector3 nextPos = Vector3.RotateTowards (relativeCamPos.normalized, targetPosition, 1, 1);
 		return (nextPos - relativeCamPos);
+	}
+
+	public static Vector3 OcclusionAvoidanceForce (SubjectEvaluator subject, Transform currentCamera){
+
+
+		float h = 0;
+		if (subject.Occluded(SubjectEvaluator.SamplePoint.Left))
+			h++;
+		if (subject.Occluded(SubjectEvaluator.SamplePoint.Right))
+			h--;
+		
+		float v = 0;
+		if (subject.Occluded(SubjectEvaluator.SamplePoint.Bottom))
+			v++;
+		if (subject.Occluded(SubjectEvaluator.SamplePoint.Top))
+			v--;
+
+		if (subject.Occlusion >= 1){
+			h = Random.value;
+			v = Random.value;
+		}
+		
+		return (currentCamera.up * v + currentCamera.right * h).normalized;
 	}
 }
 
 public class ArtificialPotentialField : Solver
 {
-	Vector3 bestPosition, bestForward, lastCenter, tmpPos;
+	Vector3 bestPosition, bestForward, tmpPos;
 	float bestFitness = 0;
 	Property.Type[] lookAtInfluencingProperties = {Property.Type.PositionOnScreen};
 	
@@ -35,26 +58,27 @@ public class ArtificialPotentialField : Solver
 		double maxMilliseconds = maxExecutionTime * 1000;
 		double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
 
-		Vector3 newCenter = SubjectsCenter (subjects);
-		setPosition(bestPosition + newCenter - lastCenter,currentCamera,shot);
+		setPosition(bestPosition + SubjectsVelocity*Time.deltaTime,currentCamera,shot);
 		bestFitness = shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());
 		float lookAtFitness = shot.InFrustum(subjects) * .5f + shot.GetQuality (lookAtInfluencingProperties,subjects) * .5f;
 		bestPosition = currentCamera.transform.position;
-		lastCenter = newCenter;
 
 		while (System.DateTime.Now.TimeOfDay.TotalMilliseconds - begin < maxMilliseconds) {
 
 			Vector3 positionForce = Vector3.zero;
 			foreach (Property p in shot.Properties) {
 				if (p is ProjectionSize)
-					positionForce += ((ProjectionSize)p).PositionForce (subjects, currentCamera.GetComponent<Camera> ());
+					positionForce += ((ProjectionSize)p).PositionForce (subjects, currentCamera);
 				if (p is VantageAngle)
-					positionForce += ((VantageAngle)p).PositionForce (subjects, currentCamera.GetComponent<Camera> ());
+					positionForce += ((VantageAngle)p).PositionForce (subjects, currentCamera);
 			}
+
+			foreach (SubjectEvaluator s in subjects)
+				positionForce += PropertiesForces.OcclusionAvoidanceForce(s,currentCamera) * s.Scale.magnitude;
 			
-			setPosition(bestPosition + positionForce * Random.value + Random.insideUnitSphere * (1 - Mathf.Pow (bestFitness, 2)) * SubjectsRadius (subjects),currentCamera,shot);
+			setPosition(bestPosition + positionForce + Random.insideUnitSphere * (1 - Mathf.Pow (bestFitness, 2)) * CombinedSubjectsScale(subjects)/10,currentCamera,shot);
 						
-			Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow (lookAtFitness, 4)) * SubjectsRadius (subjects);
+			Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow (lookAtFitness, 4)) * CombinedSubjectsScale(subjects)/10;
 
 			currentCamera.LookAt (tmpLookAt);
 			float tmpFit = shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());
@@ -79,7 +103,6 @@ public class ArtificialPotentialField : Solver
 		base.Start (camera, subjects, shot);
 		bestPosition = camera.position;
 		bestForward = camera.forward;
-		lastCenter = SubjectsCenter (subjects);
 	}
 
 	protected override void initBestCamera (Transform bestCamera, SubjectEvaluator[] subjects, Shot shot)

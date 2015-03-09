@@ -12,6 +12,17 @@ public abstract class Solver
 	private Queue<float> fitnessTrace = new Queue<float>(TRACE_LENGHT);
 	private bool running = true;
 	private float satisfaction = 0;
+	Vector3 lastCenter,subjectsVelocity;
+
+	/// <summary>
+	/// Returns the group velocity of the subjcts in the current shot
+	/// </summary>
+	/// <returns>The velocity (units pers second).</returns>
+	public Vector3 SubjectsVelocity{
+		get{
+			return subjectsVelocity;
+		}
+	}
 	
 	/// <summary>
 	/// Defines the length fo the debug trace (it is used only in editor mode)
@@ -69,6 +80,10 @@ public abstract class Solver
 	/// <param name="shot">shot to be generated</param>
 	/// <param name="maxExecutionTime">maximum execution time.</param>
 	public float Update (Transform bestCamera, SubjectEvaluator[] subjects, Shot shot, float maxExecutionTime){
+		Vector3 newCenter = SubjectsCenter(subjects);
+		subjectsVelocity = (newCenter-lastCenter)/Time.deltaTime;
+		lastCenter = newCenter;
+
 		if (running){
 			satisfaction = update (bestCamera,subjects,shot,maxExecutionTime);
 		}else 
@@ -87,6 +102,9 @@ public abstract class Solver
 		if (bestCamera == null)
 			throw new MissingReferenceException ("camera not initilised");
 			
+		lastCenter = SubjectsCenter(subjects);
+		subjectsVelocity = Vector3.zero;
+
 		initBestCamera (bestCamera, subjects, shot);
 		running = true;
 	}
@@ -133,17 +151,32 @@ public abstract class Solver
 	}
 
 	/// <summary>
+	/// Combined scale of the subjects, used to estimates theier total size.
+	/// </summary>
+	/// <returns>The subjects combined scale.</returns>
+	/// <param name="subjects">Subjects.</param>
+	public static float CombinedSubjectsScale (SubjectEvaluator[] subjects)
+	{
+		float scale = 0;
+		foreach (SubjectEvaluator s in subjects) {
+			if (s != null)
+				scale += s.Scale.magnitude;
+		}
+		return scale;
+	}
+
+	/// <summary>
 	/// Sets the position to the camera controlling if the camera is locked
 	/// </summary>
 	/// <param name="position">The position to be set.</param>
 	/// <param name="bestCamera">The camera on which to set the position.</param>
 	/// <param name="shot">The current shot.</param>
-	protected void setPosition(Vector3 position, Transform bestCamera, Shot shot){
-		if (shot.LockX)
+	public static void setPosition(Vector3 position, Transform bestCamera, Shot shot){
+		if (shot.LockX || float.IsNaN(position.x))
 			position.x = bestCamera.position.x;
-		if (shot.LockY)
+		if (shot.LockY || float.IsNaN(position.y))
 			position.y = bestCamera.position.y;
-		if (shot.LockZ)
+		if (shot.LockZ || float.IsNaN(position.z))
 			position.z = bestCamera.position.z;
 		
 		bestCamera.position = position;

@@ -78,7 +78,7 @@ public class SubjectEvaluator
 		return new Vector2 (h, v);
 	}
 
-	enum SamplePoint
+	public enum SamplePoint
 	{
 		Top,
 		Bottom,
@@ -87,7 +87,7 @@ public class SubjectEvaluator
 		Center
 	};
 
-	bool Occlusion (SamplePoint c)
+	public bool Occluded (SamplePoint c)
 	{
 		return samplePointsVisibility [(int)c];
 	}
@@ -198,10 +198,20 @@ public class SubjectEvaluator
 	/// <value>[0,1] The fraction of the subject visible.</value>
 	public float Visibility {
 		get { 
+			return inFrustum * (1 - Occlusion);
+		}
+	}
+
+	/// <summary>
+	/// Returns the fraction of the subject which is hidden by other geometry
+	/// </summary>
+	/// <value>[0,1] The occluded fraction.</value>
+	public float Occlusion {
+		get {
 			float occlusion = 0;
 			foreach (bool c in samplePointsVisibility)
 				occlusion += c ? 0 : 1.0f / SAMPLES;
-			return inFrustum * (1 - occlusion);
+			return occlusion;
 		}
 	}
 

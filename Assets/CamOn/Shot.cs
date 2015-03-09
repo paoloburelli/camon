@@ -116,7 +116,7 @@ public class Shot : ScriptableObject
 				}
 				for (int i=0;i<subjects.Length;i++){
 	
-					float f = (1-Mathf.Pow(1-subjects[i].Visibility,4));
+					float f = (1-Mathf.Pow(1-subjects[i].Visibility,10));
 					float w =  Mathf.Lerp(PropertiesCount(i),1,f);
 
 					value += f * w;
