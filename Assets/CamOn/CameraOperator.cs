@@ -253,14 +253,13 @@ public class CameraOperator : MonoBehaviour
 
 		float dampening = Mathf.Pow(solver.Satisfaction,4);
 
-		transform.position = Vector3.SmoothDamp(transform.position, bestCamera.position, ref velocity, 1.05f-MovementResponsiveness*dampening);
-		transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, Time.deltaTime * (0.1f + RotationResponsiveness*dampening*0.9f)*2);
-
-
 		if (transition == Transition.Cut) {
 			transform.position = bestCamera.position;
 			transform.rotation = bestCamera.rotation;
 			transition = Transition.Smooth;
+		} else {
+			transform.position = Vector3.SmoothDamp(transform.position, bestCamera.position, ref velocity, 1.05f-MovementResponsiveness*dampening);
+			transform.rotation = Quaternion.Slerp(transform.rotation, bestCamera.rotation, Time.deltaTime * (0.1f + RotationResponsiveness*dampening*0.9f)*2);
 		}
 	}
 
