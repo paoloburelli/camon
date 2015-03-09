@@ -14,7 +14,7 @@ public class ShotEditor : Editor
 	{
 		shot = (Shot)target;
 		
-		shot.NumberOfSubjects = EditorGUILayout.IntSlider ("Number Of Actors", shot.NumberOfSubjects, 0, 4);
+		shot.NumberOfActors = EditorGUILayout.IntSlider ("Number Of Actors", shot.NumberOfActors, 0, 4);
 
 		EditorGUILayout.BeginHorizontal();
 		EditorGUILayout.PrefixLabel("Lock");
@@ -23,13 +23,14 @@ public class ShotEditor : Editor
 		shot.LockZ = EditorGUILayout.ToggleLeft("Z",shot.LockZ,GUILayout.MaxWidth(30));
 		EditorGUILayout.EndHorizontal();
 
-		for (int i = 0; i<shot.NumberOfSubjects; i++) {
-			shot.SubjectBounds [i] = (PrimitiveType)EditorGUILayout.EnumPopup ("Actor " + i, shot.SubjectBounds [i]);
-			shot.SubjectCenters [i] = EditorGUILayout.Vector3Field ("  Offset", shot.SubjectCenters [i]);
-			shot.SubjectScales [i] = EditorGUILayout.Vector3Field ("  Scale", shot.SubjectScales [i]);
+
+		for (int i = 0; i<shot.NumberOfActors; i++) {
+			EditorGUILayout.LabelField("Actor "+i+" volume of interest:");
+			shot.VolumesOfInterestPosition [i] = EditorGUILayout.Vector3Field ("  Position", shot.VolumesOfInterestPosition [i]);
+			shot.VolumesOfInterestSize [i] = EditorGUILayout.Vector3Field ("  Size", shot.VolumesOfInterestSize [i]);
 		}
 		
-		if (shot.NumberOfSubjects > 0) {
+		if (shot.NumberOfActors > 0) {
 			shot.FixPropertiesType();
 			
 			EditorGUILayout.Separator ();
@@ -90,10 +91,10 @@ public class ShotEditor : Editor
 			}
 		
 			Property.Type tmp = (Property.Type)EditorGUILayout.EnumPopup (propertyToAdd);
-			if (tmp != Property.Type.RelativePosition || shot.NumberOfSubjects > 1)
+			if (tmp != Property.Type.RelativePosition || shot.NumberOfActors > 1)
 				propertyToAdd = tmp;
 			
-			string[] options = new string[shot.NumberOfSubjects];
+			string[] options = new string[shot.NumberOfActors];
 			for (int i=0; i<options.Length; i++)
 				options [i] = "Actor " + i.ToString ();
 			if (targetSubject > options.Length - 1)

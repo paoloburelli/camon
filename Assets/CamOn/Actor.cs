@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// A SubjectEvaluator is atomatically assigned to a transform by the <see cref="CameraOperator"/> behaviour when a shot is selected or a subject transforms are assigned.
-/// The subject evaluator class handles the estimation of all the parameters of a subect in a shot.
+/// The Actor is one of the two main component of CamOn, it handles the estimation of all the parameters of a subect in a shot.
+/// It supports a number of custom shapes used to represent the target object
 /// </summary>
-public class SubjectEvaluator
+[ExecuteInEditMode]
+[AddComponentMenu("CamOn/Actor")]
+public class Actor : MonoBehaviour
 {
 	const int SAMPLES = 5;
 	const int LAYER_MASK = ~6; //do not test transparent and ignore raycast;
@@ -15,11 +17,34 @@ public class SubjectEvaluator
 	const string VANTAGE_ANGLE_PROXY_NAME = "[Vantage Angle Direction]";
 	const string IGNORE_TAG = "IGNORE";
 
-	Transform vantageDirectionTransform;
-	Transform transform;
-	MeshRenderer proxyRenderer;
-	Mesh proxyMesh;
-	GameObject proxy;
+	Transform _vantageDirectionProxy,_proxy;
+	Mesh _proxyMesh;
+
+	Transform vantageDirectionProxy {
+		get {
+			if (_vantageDirectionProxy == null)
+				CreateProxy();
+			return _vantageDirectionProxy;
+		}
+	}
+
+	Transform proxy {
+		get {
+			if (_proxy == null)
+				CreateProxy();
+			return _proxy;
+		}
+	}
+
+	Mesh proxyMesh {
+		get {
+			if (_proxyMesh == null)
+				CreateProxy();
+			return _proxyMesh;
+		}
+	}
+
+
 	Vector3[] onScreenSamplePoints = new Vector3[SAMPLES];
 	bool[] samplePointsVisibility = new bool[SAMPLES];
 	float inFrustum;
@@ -28,6 +53,47 @@ public class SubjectEvaluator
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
 	Vector3 cameraPosition;
+
+	[SerializeField]
+	PrimitiveType shape;
+	[SerializeField]
+	Vector3 scale=Vector3.one;
+	[SerializeField]
+	Vector3 offset=Vector3.zero;
+
+	Vector3 scaleModifier = Vector3.one;
+	Vector3 offsetMofidier = Vector3.zero;
+
+	/// <summary>
+	/// Sets the area of interest of an Actor.
+	/// Used by CameraOperator to qhen a shot is selected
+	/// </summary>
+	/// <param name="scale">Size of the are of interest.</param>
+	/// <param name="offset">Position of the area of interest.</param>
+	public void SetAreaOfInterest(Vector3 scale,Vector3 offset) {
+		if (Application.isPlaying){
+			this.scaleModifier = scale;
+			this.offsetMofidier = offset;
+			proxy.transform.localScale = Vector3.Scale(this.scale,this.scaleModifier);
+			proxy.transform.localPosition = this.offset+this.offsetMofidier;
+		}
+	}
+
+	/// <summary>
+	/// Gets or sets the shape of the actor.
+	/// </summary>
+	/// <value>The actor's shape.</value>
+	public PrimitiveType Shape {
+		get {
+			return shape;
+		}
+		set {
+			if (shape != value) {
+				shape = value;
+				CreateProxy();
+			}
+		}
+	}
 
 	/// <summary>
 	/// Gets or sets a value indicating whether this <see cref="SubjectEvaluator"/> is ignored.
@@ -41,29 +107,7 @@ public class SubjectEvaluator
 			transform.tag = value ? IGNORE_TAG : "Untagged";
 		}
 	}
-
-	/// <summary>
-	/// Destroies all proxies associated to each subject evaluator.
-	/// </summary>
-	/// <param name="subjects">A list of subjects to be cleared; by default, all subjects are cleared.</param>
-	public static void DestroyAllProxies(SubjectEvaluator[] subjects=null){
-		Transform t;
-		GameObject o;
-
-		if (subjects == null)
-			while ((o = GameObject.Find (SubjectEvaluator.PROXY_NAME)) != null)
-				GameObject.DestroyImmediate (o);
-		else
-			foreach (SubjectEvaluator a in subjects) {
-				while ((t = a.transform.Find (PROXY_NAME)) != null)
-					GameObject.DestroyImmediate (t.gameObject);
-
-				a.proxy = null;
-				a.proxyMesh = null;
-				a.proxyRenderer = null;
-			}
-	}
-
+	
 	/// <summary>
 	/// Calculates angle between the current camera direction and a desired camera direction.
 	/// </summary>
@@ -71,13 +115,16 @@ public class SubjectEvaluator
 	/// <param name="desiredHorizontalAngle">Desired horizontal angle.</param>
 	/// <param name="desiredVerticalAngle">Desired vertical angle.</param>
 	public Vector2 CalculateRelativeCameraAngle(float desiredHorizontalAngle, float desiredVerticalAngle){
-		vantageDirectionTransform.localRotation = Quaternion.Euler (-desiredVerticalAngle, -desiredHorizontalAngle, 0);
-		Vector3 relativeCameraDirection = vantageDirectionTransform.InverseTransformPoint(cameraPosition).normalized;
+		vantageDirectionProxy.localRotation = Quaternion.Euler (-desiredVerticalAngle, -desiredHorizontalAngle, 0);
+		Vector3 relativeCameraDirection = vantageDirectionProxy.InverseTransformPoint(cameraPosition).normalized;
 		float v = Mathf.Asin(relativeCameraDirection.y) * Mathf.Rad2Deg;
 		float h = -Mathf.Atan2(relativeCameraDirection.x,relativeCameraDirection.z) * Mathf.Rad2Deg;
 		return new Vector2 (h, v);
 	}
-
+	
+	///<summary>
+	///Points used to sample actor's visibility
+	///</summary>
 	public enum SamplePoint
 	{
 		Top,
@@ -87,19 +134,13 @@ public class SubjectEvaluator
 		Center
 	};
 
+	/// <summary>
+	/// Check if a specific sample point is occluded
+	/// </summary>
+	/// <param name="c">C.</param>
 	public bool Occluded (SamplePoint c)
 	{
 		return samplePointsVisibility [(int)c];
-	}
-
-	/// <summary>
-	/// Gets the collider associated to this subject.
-	/// </summary>
-	/// <value>The collider.</value>
-	public Collider collider {
-		get {
-			return proxy.GetComponent<Collider>(); 
-		}
 	}
 
 	/// <summary>
@@ -108,7 +149,7 @@ public class SubjectEvaluator
 	/// <value>The vantage direction.</value>
 	public Vector3 VantageDirection {
 		get {
-			return vantageDirectionTransform.forward; 
+			return vantageDirectionProxy.forward; 
 		}
 	}
 
@@ -138,10 +179,11 @@ public class SubjectEvaluator
 	/// <value>The scale.</value>
 	public Vector3 Scale {
 		get {
-			return proxy.transform.localScale;
+			return scale;
 		}
 		set {
-			proxy.transform.localScale = value;
+			scale = value;
+			proxy.transform.localScale = Vector3.Scale(value,scaleModifier);
 		}
 	}
 
@@ -151,10 +193,11 @@ public class SubjectEvaluator
 	/// <value>The offset.</value>
 	public Vector3 Offset {
 		get {
-			return proxy.transform.localPosition;
+			return offset;
 		}
 		set {
-			proxy.transform.localPosition = value;
+			offset = value;
+			proxy.transform.localPosition = value+offsetMofidier;
 		}
 	}
 
@@ -243,51 +286,48 @@ public class SubjectEvaluator
 		get { return screenSpaceBounds.center; }
 	}
 
-	/// <summary>
-	/// Initializes a new instance of the <see cref="SubjectEvaluator"/> class.
-	/// </summary>
-	/// <param name="transform">Transform.</param>
-	/// <param name="center">Center.</param>
-	/// <param name="scale">Scale.</param>
-	/// <param name="type">Type.</param>
-	public SubjectEvaluator (Transform transform, Vector3 center, Vector3 scale, PrimitiveType type)
+	void CreateProxy ()
 	{
-		if (transform == null)
-			throw new System.ArgumentNullException ();
-
-		this.transform = transform;
-
 		Transform t;
 		if (transform != null)
-			while ((t = transform.Find (PROXY_NAME)) != null)
+			while ((t = transform.FindChild (PROXY_NAME)) != null)
 				GameObject.DestroyImmediate (t.gameObject);
-				
-		proxy = GameObject.CreatePrimitive (type);
-		GameObject.DestroyImmediate (proxy.GetComponent<Collider>());
-		proxy.transform.parent = transform;
-		proxy.transform.localPosition = center;
-		proxy.transform.localScale = scale*0.9f;
-		proxy.transform.localRotation = Quaternion.Euler(0,0,0);
-		proxy.name = PROXY_NAME;
-		proxyRenderer = proxy.GetComponent<MeshRenderer> ();
-		proxyMesh = proxy.GetComponent<MeshFilter> ().sharedMesh;
-		proxy.SetActive (transform.gameObject.activeInHierarchy);
-		proxyRenderer.enabled = false;
 
+		_proxy = GameObject.CreatePrimitive (Shape).transform;
+		GameObject.DestroyImmediate (_proxy.gameObject.GetComponent<Collider>());
+		_proxy.parent = transform;
+		_proxy.localPosition = offset;
+		_proxy.localScale = scale;
+		_proxy.localRotation = Quaternion.Euler(0,0,0);
+		_proxy.gameObject.name = PROXY_NAME;
+		_proxyMesh = proxy.gameObject.GetComponent<MeshFilter> ().sharedMesh;
+		_proxy.gameObject.SetActive (transform.gameObject.activeInHierarchy);
+		_proxy.gameObject.GetComponent<MeshRenderer> ().enabled = false;
+		
+		
+		_vantageDirectionProxy = (new GameObject ()).transform;
+		_vantageDirectionProxy.gameObject.name = VANTAGE_ANGLE_PROXY_NAME;
+		_vantageDirectionProxy.parent = _proxy.transform;
+		_vantageDirectionProxy.localPosition = Vector3.zero;
+		_vantageDirectionProxy.localRotation = Quaternion.Euler(0,0,0);
+	}
+	
+	void Start ()
+	{
 
-		vantageDirectionTransform = (new GameObject ()).transform;
-		vantageDirectionTransform.gameObject.name = VANTAGE_ANGLE_PROXY_NAME;
-		vantageDirectionTransform.parent = proxy.transform;
-		vantageDirectionTransform.localPosition = Vector3.zero;
-		vantageDirectionTransform.localRotation = Quaternion.Euler(0,0,0);
+	}
+
+	void Update(){
+		if (!Application.isPlaying)
+			Reevaluate(Camera.main);
 	}
 
 	/// <summary>
-	/// Calculates all subject screen values given a specific camera.
+	/// Calculates all actor's screen values given a specific camera.
 	/// </summary>
 	/// <param name="camera">Camera.</param>
 	public void Reevaluate (Camera camera)
-	{
+	{	
 		if (!Ignored) {
 			
 			int originalLayer = transform.gameObject.layer;
@@ -328,7 +368,7 @@ public class SubjectEvaluator
 			}
 			onScreenSamplePoints [(int)SamplePoint.Center] = (onScreenSamplePoints [(int)SamplePoint.Top] + onScreenSamplePoints [(int)SamplePoint.Bottom] + onScreenSamplePoints [(int)SamplePoint.Right]+ onScreenSamplePoints [(int)SamplePoint.Left])/4 + (onScreenSamplePoints [(int)SamplePoint.Right] - onScreenSamplePoints [(int)SamplePoint.Left]) * Random.value * 0.2f;
 			inFrustum *= 1.0f / proxyMesh.vertices.LongLength;
-			
+
 			if (inFrustum > 0) {
 				for (int i=0; i<SAMPLES; i++) {
 					Vector3 direction = camera.transform.position - onScreenSamplePoints [i];
@@ -373,14 +413,14 @@ public class SubjectEvaluator
 	}
 
 	/// <summary>
-	/// Reevaluates a list of subjects.
+	/// Reevaluates a list of actors.
 	/// </summary>
-	/// <param name="subjects">The list fo subjects.</param>
+	/// <param name="actors">The list fo actors.</param>
 	/// <param name="camera">Camera.</param>
-	public static void ReevaluateAll (SubjectEvaluator[] subjects, Camera camera)
+	public static void ReevaluateAll (Actor[] actors, Camera camera)
 	{
-		if (subjects != null && camera != null)
-			foreach (SubjectEvaluator s in subjects)
+		if (actors != null && camera != null)
+			foreach (Actor s in actors)
 				if (s != null)
 					s.Reevaluate (camera);
 	}
@@ -388,7 +428,7 @@ public class SubjectEvaluator
 	/// <summary>
 	/// Draws debug info.
 	/// </summary>
-	public void DrawGizmos ()
+	void OnDrawGizmos ()
 	{
 	
 		Gizmos.color = Color.white;
@@ -407,5 +447,20 @@ public class SubjectEvaluator
 			Gizmos.color = Color.red;
 			Gizmos.DrawSphere (onScreenSamplePoints [i], 0.05f * proxy.GetComponent<Renderer>().bounds.size.y);
 		}
+	}
+
+	/// <summary>
+	/// Creates and actor for a specifi transform
+	/// </summary>
+	/// <param name="t">The transform on which to attach the actor.</param>
+	/// <param name="shape">The shape of the actor.</param>
+	/// <param name="offset">The offset of the actor within the transfrom.</param>
+	/// <param name="scale">The scale of the actor within the transfrom.</param>
+	public static Actor Create(Transform t, PrimitiveType shape, Vector3 offset, Vector3 scale){
+		Actor rVal = t.gameObject.AddComponent<Actor>();
+		rVal.Shape = shape;
+		rVal.Offset = offset;
+		rVal.Scale = scale;
+		return rVal;
 	}
 }

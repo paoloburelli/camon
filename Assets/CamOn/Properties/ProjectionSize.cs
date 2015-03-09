@@ -30,9 +30,9 @@ public class ProjectionSize : Property
 	}
 	
 	#region implemented abstract members of Property
-	protected override float evaluate (SubjectEvaluator[] subjectsList)
+	protected override float evaluate (Actor[] subjectsList)
 	{
-		SubjectEvaluator mySubject = subjectsList[subjectReferences[0]];
+		Actor mySubject = subjectsList[subjectReferences[0]];
 		
 		if (float.IsInfinity(mySubject.ProjectionSize))
 			return 0;

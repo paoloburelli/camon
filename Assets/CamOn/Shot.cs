@@ -31,17 +31,12 @@ public class Shot : ScriptableObject
 	/// <summary>
 	/// Offset of each subject evaluator.
 	/// </summary>
-	public List<Vector3> SubjectCenters = new List<Vector3> ();
+	public List<Vector3> VolumesOfInterestPosition = new List<Vector3> ();
 
 	/// <summary>
 	/// Scale modifier of each subject evaluator.
 	/// </summary>
-	public List<Vector3> SubjectScales = new List<Vector3> ();
-
-	/// <summary>
-	/// Shape of each subject evaluator.
-	/// </summary>
-	public List<PrimitiveType> SubjectBounds = new List<PrimitiveType> ();
+	public List<Vector3> VolumesOfInterestSize = new List<Vector3> ();
 
 	/// <summary>
 	/// Properties composing the shot.
@@ -55,21 +50,19 @@ public class Shot : ScriptableObject
 	/// Gets or sets the number of subjects in the shot.
 	/// </summary>
 	/// <value>The number of subjects.</value>
-	public int NumberOfSubjects {
+	public int NumberOfActors {
 		get {
 			return numberOfActors;
 		}
 		set {
 			numberOfActors = Mathf.Max(0,value);
-			while (SubjectBounds.Count < value) {
-				SubjectCenters.Add (Vector3.zero);
-				SubjectScales.Add (Vector3.one);
-				SubjectBounds.Add (PrimitiveType.Capsule);
+			while (VolumesOfInterestPosition.Count < value) {
+				VolumesOfInterestPosition.Add (Vector3.zero);
+				VolumesOfInterestSize.Add (Vector3.one);
 			}
-			while (SubjectBounds.Count > value) {
-				SubjectBounds.RemoveAt (SubjectBounds.Count - 1);
-				SubjectCenters.RemoveAt (SubjectCenters.Count - 1);
-				SubjectScales.RemoveAt (SubjectScales.Count - 1);
+			while (VolumesOfInterestPosition.Count > value) {
+				VolumesOfInterestPosition.RemoveAt (VolumesOfInterestPosition.Count - 1);
+				VolumesOfInterestSize.RemoveAt (VolumesOfInterestSize.Count - 1);
 			}
 		}
 	}
@@ -94,7 +87,7 @@ public class Shot : ScriptableObject
 	/// <returns>[0,1] The quality value; the higher the better.</returns>
 	/// <param name="subjects">A list of subject evaluators.</param>
 	/// <param name="camera">The camera to be evaluated. If the camera is not passed as a parameter, no evaluation is performed and the last recorded quality is passed.</param>
-	public float GetQuality (SubjectEvaluator[] subjects, Camera camera=null)
+	public float GetQuality (Actor[] subjects, Camera camera=null)
 	{
 		float value = 0;
 		float weight = 0;
@@ -102,10 +95,10 @@ public class Shot : ScriptableObject
 		if (subjects != null){
 
 			if (camera != null)
-				SubjectEvaluator.ReevaluateAll (subjects, camera);
+				Actor.ReevaluateAll (subjects, camera);
 			
 			bool eval = true;
-			foreach (SubjectEvaluator s in subjects)
+			foreach (Actor s in subjects)
 				if (s == null)
 					eval = false;
 			
@@ -135,13 +128,13 @@ public class Shot : ScriptableObject
 	/// <param name="pTypes">A list of properties.</param>
 	/// <param name="actors">A list of subject evaluators.</param>
 	/// <param name="camera">The camera to be evaluated. If the camera is not passed as a parameter, no evaluation is performed and the last recorded quality is passed.</param>
-	public float GetQuality (Property.Type[] pTypes, SubjectEvaluator[] actors, Camera camera=null)
+	public float GetQuality (Property.Type[] pTypes, Actor[] actors, Camera camera=null)
 	{
 		float value = 0;
 		float weight = 0;
 
 		if (camera != null)
-			SubjectEvaluator.ReevaluateAll (actors, camera);
+			Actor.ReevaluateAll (actors, camera);
 		
 		if (actors != null)
 			foreach (Property.Type pt in pTypes)
@@ -160,13 +153,13 @@ public class Shot : ScriptableObject
 	/// </summary>
 	/// <param name="subjects">List of subjects.</param>
 	/// <param name="camera">The camera to be used for evaluation. If the camera is not passed as a parameter, no evaluation is performed and the last recorded visibility is passed.</param>
-	public float Visibility(SubjectEvaluator[] subjects, Camera camera=null) {
+	public float Visibility(Actor[] subjects, Camera camera=null) {
 
 		if (camera != null)
-			SubjectEvaluator.ReevaluateAll (subjects, camera);
+			Actor.ReevaluateAll (subjects, camera);
 
 			float visbility = 0;
-			foreach (SubjectEvaluator s in subjects)
+			foreach (Actor s in subjects)
 				visbility += s.Visibility / subjects.Length;
 			return visbility;
 	}
@@ -176,13 +169,13 @@ public class Shot : ScriptableObject
 	/// </summary>
 	/// <param name="subjects">List of subjects.</param>
 	/// <param name="camera">The camera to be used for evaluation. If the camera is not passed as a parameter, no evaluation is performed and the last recorded fraction is passed.</param>
-	public float InFrustum(SubjectEvaluator[] actors, Camera camera=null) {
+	public float InFrustum(Actor[] actors, Camera camera=null) {
 
 		if (camera != null)
-			SubjectEvaluator.ReevaluateAll (actors, camera);
+			Actor.ReevaluateAll (actors, camera);
 
 			float visbility = 0;
-			foreach (SubjectEvaluator s in actors)
+			foreach (Actor s in actors)
 				visbility += s.InFrustum / actors.Length;
 			return visbility;
 	}

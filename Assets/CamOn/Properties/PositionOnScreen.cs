@@ -50,9 +50,9 @@ public class PositionOnScreen : Property
 	}
 	
 	#region implemented abstract members of Property
-	protected override float evaluate (SubjectEvaluator[] subjectsList)
+	protected override float evaluate (Actor[] subjectsList)
 	{
-		SubjectEvaluator mySubject = subjectsList[subjectReferences[0]];
+		Actor mySubject = subjectsList[subjectReferences[0]];
 		
 		if (float.IsInfinity(mySubject.PositionOnScreen.x) || float.IsInfinity(mySubject.PositionOnScreen.y))
 			return 0;

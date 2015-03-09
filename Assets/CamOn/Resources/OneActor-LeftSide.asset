@@ -14,11 +14,10 @@ MonoBehaviour:
   LockX: 0
   LockY: 0
   LockZ: 0
-  SubjectCenters:
+  VolumesOfInterestPosition:
   - {x: 0, y: 0, z: 0}
-  SubjectScales:
-  - {x: .5, y: .899999976, z: .5}
-  SubjectBounds: 01000000
+  VolumesOfInterestSize:
+  - {x: 1, y: 1, z: 1}
   Properties:
   - propertyType: 0
     desiredValues:

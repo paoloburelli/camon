@@ -110,7 +110,7 @@ public class Property
 	/// Evaluates the satisfacton of this property, given a set of subjects
 	/// </summary>
 	/// <param name="subjectsList">Subjects list.</param>
-	public float Evaluate(SubjectEvaluator[] subjectsList){
+	public float Evaluate(Actor[] subjectsList){
 		satisfaction = evaluate(subjectsList);
 		return satisfaction;
 	}
@@ -120,7 +120,7 @@ public class Property
 	/// It is no abstract but virtual for serialisation issues.
 	/// </summary>
 	/// <param name="subjectsList">Subjects list.</param>
-	protected virtual float evaluate(SubjectEvaluator[] subjectsList){
+	protected virtual float evaluate(Actor[] subjectsList){
 		return 1;
 	}
 
