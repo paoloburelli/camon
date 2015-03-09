@@ -30,7 +30,8 @@ public class OperatorEditor : Editor
 			EditorGUILayout.Separator();
 
 			if (controller.ReadyForEvaluation){
-				
+				controller.Shot.GetQuality(controller.Actors,controller.transform.GetComponent<Camera>());
+
 				foreach (Property p in controller.Shot.Properties){
 					string sbj = p.MainSubjectIndex.ToString();
 					if (p.PropertyType == Property.Type.RelativePosition)

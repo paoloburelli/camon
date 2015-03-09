@@ -9,6 +9,7 @@ public class ActorEditor : Editor {
 	public override void OnInspectorGUI ()
 	{
 		Actor actor = (Actor)target;
+		actor.Reevaluate(Camera.main);
 		actor.Shape = (PrimitiveType)EditorGUILayout.EnumPopup ("Shape ", actor.Shape);
 		actor.Offset = EditorGUILayout.Vector3Field ("Offset", actor.Offset);
 		actor.Scale = EditorGUILayout.Vector3Field ("Scale", actor.Scale);

@@ -155,7 +155,7 @@ public class ArtificialPotentialField : Solver
 		
 		bool obstacle = hitInfo.distance < direction.magnitude;
 		foreach (Actor a in subjects)
-			if (hitInfo.collider == a.GetComponent<Collider>())
+			if (a != null && hitInfo.collider == a.GetComponent<Collider>())
 				obstacle = false;
 		
 		if (obstacle)

@@ -17,11 +17,34 @@ public class Actor : MonoBehaviour
 	const string VANTAGE_ANGLE_PROXY_NAME = "[Vantage Angle Direction]";
 	const string IGNORE_TAG = "IGNORE";
 
-	Transform vantageDirectionProxy;
-	GameObject proxy;
-	Mesh proxyMesh;
+	Transform _vantageDirectionProxy;
+	GameObject _proxy;
+	Mesh _proxyMesh;
 
+	Transform vantageDirectionProxy {
+		get {
+			if (_vantageDirectionProxy == null)
+				CreateProxy();
+			return _vantageDirectionProxy;
+		}
+	}
 
+	GameObject proxy {
+		get {
+			if (_proxy == null)
+				CreateProxy();
+			return _proxy;
+		}
+	}
+
+	Mesh proxyMesh {
+		get {
+			if (_proxyMesh == null)
+				CreateProxy();
+			return _proxyMesh;
+		}
+	}
+	
 	Vector3[] onScreenSamplePoints = new Vector3[SAMPLES];
 	bool[] samplePointsVisibility = new bool[SAMPLES];
 	float inFrustum;
@@ -34,7 +57,7 @@ public class Actor : MonoBehaviour
 	[SerializeField]
 	PrimitiveType shape;
 	[SerializeField]
-	Vector3 scale=Vector3.one;
+	Vector3 scale= new Vector3(.95f,.95f,.95f);
 	[SerializeField]
 	Vector3 offset=Vector3.zero;
 
@@ -267,31 +290,25 @@ public class Actor : MonoBehaviour
 			while ((t = transform.Find (PROXY_NAME)) != null)
 				GameObject.DestroyImmediate (t.gameObject);
 		
-		proxy = GameObject.CreatePrimitive (shape);
-		GameObject.DestroyImmediate (proxy.GetComponent<Collider>());
-		proxy.transform.parent = transform;
-		proxy.transform.localPosition = offset;
-		proxy.transform.localScale = scale*0.9f;
-		proxy.transform.localRotation = Quaternion.Euler(0,0,0);
-		proxy.name = PROXY_NAME;
-		proxyMesh = proxy.GetComponent<MeshFilter> ().sharedMesh;
-		proxy.SetActive (transform.gameObject.activeInHierarchy);
-		proxy.GetComponent<MeshRenderer> ().enabled = false;
+		_proxy = GameObject.CreatePrimitive (shape);
+		GameObject.DestroyImmediate (_proxy.GetComponent<Collider>());
+		_proxy.transform.parent = transform;
+		_proxy.transform.localPosition = offset;
+		_proxy.transform.localScale = scale;
+		_proxy.transform.localRotation = Quaternion.Euler(0,0,0);
+		_proxy.name = PROXY_NAME;
+		_proxyMesh = proxy.GetComponent<MeshFilter> ().sharedMesh;
+		_proxy.SetActive (transform.gameObject.activeInHierarchy);
+		_proxy.GetComponent<MeshRenderer> ().enabled = false;
 		
 		
-		vantageDirectionProxy = (new GameObject ()).transform;
-		vantageDirectionProxy.gameObject.name = VANTAGE_ANGLE_PROXY_NAME;
-		vantageDirectionProxy.parent = proxy.transform;
-		vantageDirectionProxy.localPosition = Vector3.zero;
-		vantageDirectionProxy.localRotation = Quaternion.Euler(0,0,0);
+		_vantageDirectionProxy = (new GameObject ()).transform;
+		_vantageDirectionProxy.gameObject.name = VANTAGE_ANGLE_PROXY_NAME;
+		_vantageDirectionProxy.parent = _proxy.transform;
+		_vantageDirectionProxy.localPosition = Vector3.zero;
+		_vantageDirectionProxy.localRotation = Quaternion.Euler(0,0,0);
 	}
-
-	void Start ()
-	{	
-		if (!Application.isPlaying)
-			CreateProxy();
-	}
-
+	
 	/// <summary>
 	/// Calculates all actor's screen values given a specific camera.
 	/// </summary>

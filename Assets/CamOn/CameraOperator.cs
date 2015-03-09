@@ -117,10 +117,9 @@ public class CameraOperator : MonoBehaviour
 		if (shot != null && actors != null){
 			shot.FixPropertiesType();
 			solver.Stop ();
-			for (int i=0;i<actors.Length;i++){
-				actors[i].CreateProxy();
-				actors[i].SetAreaOfInterest(shot.VolumesOfInterestSize[i],shot.VolumesOfInterestPosition[i]);
-			}
+			for (int i=0;i<actors.Length;i++)
+				if (actors[i] != null)
+					actors[i].SetAreaOfInterest(shot.VolumesOfInterestSize[i],shot.VolumesOfInterestPosition[i]);
 			solver.Start (bestCamera, actors, shot);
 		}
 	}
