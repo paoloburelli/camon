@@ -43,7 +43,15 @@ public static class PropertiesForces
 			v = Random.value;
 		}
 		
-		return (currentCamera.up * v + currentCamera.right * h).normalized;
+		return (currentCamera.up * v + currentCamera.right * h).normalized * subject.Scale.magnitude/5;
+	}
+
+	public static Vector3 InFrustumForce (SubjectEvaluator subject, Transform currentCamera){
+		float direction = 0;
+		if (subject.InFrustum < 1)
+			direction = 1;
+		
+		return direction * (currentCamera.position - subject.Position).normalized * (1 - subject.InFrustum) * subject.Scale.magnitude/5;
 	}
 }
 
@@ -74,11 +82,14 @@ public class ArtificialPotentialField : Solver
 			}
 
 			foreach (SubjectEvaluator s in subjects)
-				positionForce += PropertiesForces.OcclusionAvoidanceForce(s,currentCamera) * s.Scale.magnitude;
+				positionForce += PropertiesForces.OcclusionAvoidanceForce(s,currentCamera);
+
+			foreach (SubjectEvaluator s in subjects)
+				positionForce += PropertiesForces.InFrustumForce(s,currentCamera);
 			
-			setPosition(bestPosition + positionForce + Random.insideUnitSphere * (1 - Mathf.Pow (bestFitness, 2)) * CombinedSubjectsScale(subjects)/10,currentCamera,shot);
+			setPosition(bestPosition + positionForce + Random.insideUnitSphere * (1 - Mathf.Pow (bestFitness, 2)) * CombinedSubjectsScale(subjects),currentCamera,shot);
 						
-			Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow (lookAtFitness, 4)) * CombinedSubjectsScale(subjects)/10;
+			Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow (lookAtFitness, 4)) * CombinedSubjectsScale(subjects);
 
 			currentCamera.LookAt (tmpLookAt);
 			float tmpFit = shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());
@@ -145,7 +156,7 @@ public class ArtificialPotentialField : Solver
 				obstacle = false;
 
 		if (obstacle)
-			bestCamera.position += bestCamera.forward * (direction.magnitude-hitInfo.distance);
+			Solver.setPosition(bestCamera.position + bestCamera.forward * (direction.magnitude-hitInfo.distance),bestCamera,shot);
 	}
 }
 
