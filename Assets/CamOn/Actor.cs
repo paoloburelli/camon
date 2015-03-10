@@ -16,11 +16,11 @@ public class Actor : MonoBehaviour
 	const string PROXY_NAME = "[Proxy Goemetry]";
 	const string VANTAGE_ANGLE_PROXY_NAME = "[Vantage Angle Direction]";
 	const string IGNORE_TAG = "IGNORE";
-
+	
 	Transform _vantageDirectionProxy;
 	GameObject _proxy;
 	Mesh _proxyMesh;
-
+	
 	Transform vantageDirectionProxy {
 		get {
 			if (_vantageDirectionProxy == null)
@@ -28,7 +28,7 @@ public class Actor : MonoBehaviour
 			return _vantageDirectionProxy;
 		}
 	}
-
+	
 	GameObject proxy {
 		get {
 			if (_proxy == null)
@@ -36,7 +36,7 @@ public class Actor : MonoBehaviour
 			return _proxy;
 		}
 	}
-
+	
 	Mesh proxyMesh {
 		get {
 			if (_proxyMesh == null)
@@ -53,17 +53,17 @@ public class Actor : MonoBehaviour
 	Vector3 screenMin = Vector3.one;
 	Vector3 screenMax = Vector3.zero;
 	Vector3 cameraPosition;
-
+	
 	[SerializeField]
 	PrimitiveType shape;
 	[SerializeField]
 	Vector3 scale= new Vector3(.95f,.95f,.95f);
 	[SerializeField]
 	Vector3 offset=Vector3.zero;
-
+	
 	Vector3 scaleModifier = Vector3.one;
 	Vector3 offsetMofidier = Vector3.zero;
-
+	
 	/// <summary>
 	/// Sets the area of interest of an Actor.
 	/// Used by CameraOperator to qhen a shot is selected
@@ -71,12 +71,12 @@ public class Actor : MonoBehaviour
 	/// <param name="scale">Size of the are of interest.</param>
 	/// <param name="offset">Position of the area of interest.</param>
 	public void SetAreaOfInterest(Vector3 scale,Vector3 offset) {
-			this.scaleModifier = scale;
-			this.offsetMofidier = offset;
-			proxy.transform.localScale = Vector3.Scale(this.scale,this.scaleModifier);
-			proxy.transform.localPosition = this.offset+this.offsetMofidier;
+		this.scaleModifier = scale;
+		this.offsetMofidier = offset;
+		proxy.transform.localScale = Vector3.Scale(this.scale,this.scaleModifier);
+		proxy.transform.localPosition = this.offset+this.offsetMofidier;
 	}
-
+	
 	/// <summary>
 	/// Gets or sets the shape of the actor.
 	/// </summary>
@@ -92,7 +92,7 @@ public class Actor : MonoBehaviour
 			}
 		}
 	}
-
+	
 	/// <summary>
 	/// Gets or sets a value indicating whether this <see cref="SubjectEvaluator"/> is ignored.
 	/// </summary>
@@ -105,6 +105,11 @@ public class Actor : MonoBehaviour
 			transform.tag = value ? IGNORE_TAG : "Untagged";
 		}
 	}
+	
+	/// <summary>
+	/// If true the actors does not follow the transform rotation
+	/// </summary>
+	public bool IgnoreRotation = false;
 	
 	/// <summary>
 	/// Calculates angle between the current camera direction and a desired camera direction.
@@ -120,6 +125,11 @@ public class Actor : MonoBehaviour
 		return new Vector2 (h, v);
 	}
 	
+	void Update() {
+		if (IgnoreRotation)
+			proxy.transform.localRotation = Quaternion.Inverse(transform.rotation);
+	}
+	
 	///<summary>
 	///Points used to sample actor's visibility
 	///</summary>
@@ -131,7 +141,7 @@ public class Actor : MonoBehaviour
 		Right,
 		Center
 	};
-
+	
 	/// <summary>
 	/// Check if a specific sample point is occluded
 	/// </summary>
@@ -140,7 +150,7 @@ public class Actor : MonoBehaviour
 	{
 		return samplePointsVisibility [(int)c];
 	}
-
+	
 	/// <summary>
 	/// Returns the direction from which the camera should frame this subject
 	/// </summary>
@@ -150,7 +160,7 @@ public class Actor : MonoBehaviour
 			return vantageDirectionProxy.forward; 
 		}
 	}
-
+	
 	/// <summary>
 	/// Gets the orientation.
 	/// </summary>
@@ -160,7 +170,7 @@ public class Actor : MonoBehaviour
 			return proxy.transform.rotation;
 		}
 	}
-
+	
 	/// <summary>
 	/// Returns the fraction of this subject which is included in the vew frustum
 	/// </summary>
@@ -170,14 +180,14 @@ public class Actor : MonoBehaviour
 			return inFrustum;
 		}
 	}
-
+	
 	/// <summary>
 	/// Gets and sets the scale mdifier for this subject
 	/// </summary>
 	/// <value>The scale.</value>
 	public Vector3 Scale {
 		get {
-			return proxy.transform.localScale;
+			return scale;
 		}
 		set {
 			scale = value;
@@ -186,19 +196,29 @@ public class Actor : MonoBehaviour
 	}
 
 	/// <summary>
+	/// Gets the size of the volume of interest.
+	/// </summary>
+	/// <value>The size of the volume of interest.</value>
+	public Vector3 VolumeOfInterestSize {
+		get{
+			return proxy.transform.localScale;
+		}
+	}
+	
+	/// <summary>
 	/// Gets or sets the offset for ths subject.
 	/// </summary>
 	/// <value>The offset.</value>
 	public Vector3 Offset {
 		get {
-			return proxy.transform.localPosition;
+			return offset;
 		}
 		set {
 			offset = value;
 			proxy.transform.localPosition = value+offsetMofidier;
 		}
 	}
-
+	
 	/// <summary>
 	/// Returns the name of the game object associated to this subject
 	/// </summary>
@@ -208,7 +228,7 @@ public class Actor : MonoBehaviour
 			return transform.name;
 		}
 	}
-
+	
 	/// <summary>
 	/// Gets the position of this subject in world coordinates.
 	/// </summary>
@@ -216,7 +236,7 @@ public class Actor : MonoBehaviour
 	public Vector3 Position {
 		get { return proxy.transform.position; }
 	}
-
+	
 	/// <summary>
 	/// Gets the forward vector of this subject.
 	/// </summary>
@@ -224,7 +244,7 @@ public class Actor : MonoBehaviour
 	public Vector3 Forward {
 		get { return proxy.transform.forward; }
 	}
-
+	
 	/// <summary>
 	/// Gets the right vector of this subject.
 	/// </summary>
@@ -232,7 +252,7 @@ public class Actor : MonoBehaviour
 	public Vector3 Right {
 		get { return proxy.transform.right; }
 	}
-
+	
 	/// <summary>
 	/// Gets the level of visibility of this subject.
 	/// </summary>
@@ -242,7 +262,7 @@ public class Actor : MonoBehaviour
 			return inFrustum * (1 - Occlusion);
 		}
 	}
-
+	
 	/// <summary>
 	/// Returns the fraction of the subject which is hidden by other geometry
 	/// </summary>
@@ -255,7 +275,7 @@ public class Actor : MonoBehaviour
 			return occlusion;
 		}
 	}
-
+	
 	/// <summary>
 	/// Gets the size of the projection of this subject on screen.
 	/// The size is defined as the largest dimension (i.e. height or width) of the character on the screen devided by the respective screen size
@@ -264,7 +284,7 @@ public class Actor : MonoBehaviour
 	public float ProjectionSize {
 		get { return projectionSize; }
 	}
-
+	
 	/// <summary>
 	/// Gets the screen bounds.
 	/// </summary>
@@ -274,7 +294,7 @@ public class Actor : MonoBehaviour
 			return screenSpaceBounds;
 		}
 	}
-
+	
 	/// <summary>
 	/// Gets the position on screen of this ubject.
 	/// The position is defined in 2D coordinates with the lower left corner corresponding to (0,0) and the upper right to (1,1)
@@ -283,7 +303,7 @@ public class Actor : MonoBehaviour
 	public Vector3 PositionOnScreen {
 		get { return screenSpaceBounds.center; }
 	}
-
+	
 	public void CreateProxy() {
 		Transform t;
 		if (transform != null)
@@ -398,7 +418,7 @@ public class Actor : MonoBehaviour
 			cameraPosition = camera.transform.position;
 		}
 	}
-
+	
 	/// <summary>
 	/// Reevaluates a list of actors.
 	/// </summary>
@@ -411,7 +431,7 @@ public class Actor : MonoBehaviour
 				if (s != null)
 					s.Reevaluate (camera);
 	}
-
+	
 	/// <summary>
 	/// Draws debug info.
 	/// </summary>
@@ -423,9 +443,9 @@ public class Actor : MonoBehaviour
 			Transform t = proxy.transform.parent;
 			while ((t = t.parent) != null)
 				scale.Scale(t.localScale);
-
+			
 			Gizmos.DrawWireMesh(proxyMesh,Position,Orientation,scale);
-
+			
 			for (int i =0; i<SAMPLES; i++)
 			if (samplePointsVisibility [i]) {
 				Gizmos.color = Color.green;
@@ -436,7 +456,7 @@ public class Actor : MonoBehaviour
 			}
 		}
 	}
-
+	
 	/// <summary>
 	/// Creates and actor for a specifi transform
 	/// </summary>

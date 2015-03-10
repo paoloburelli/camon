@@ -43,7 +43,7 @@ public static class PropertiesForces
 			v = Random.value;
 		}
 		
-		return (currentCamera.up * v + currentCamera.right * h).normalized * subject.Scale.magnitude/5;
+		return (currentCamera.up * v + currentCamera.right * h).normalized * subject.VolumeOfInterestSize.magnitude/5;
 	}
 	
 	public static Vector3 InFrustumForce (Actor subject, Transform currentCamera){
@@ -51,7 +51,7 @@ public static class PropertiesForces
 		if (subject.InFrustum < 1)
 			direction = 1;
 		
-		return direction * (currentCamera.position - subject.Position).normalized * (1 - subject.InFrustum) * subject.Scale.magnitude/5;
+		return direction * (currentCamera.position - subject.Position).normalized * (1 - subject.InFrustum) * subject.VolumeOfInterestSize.magnitude/5;
 	}
 }
 
@@ -138,8 +138,8 @@ public class ArtificialPotentialField : Solver
 			} else if (p.PropertyType == Property.Type.RelativePosition) {
 				RelativePosition rp = (RelativePosition)p;
 				if (rp.DesiredPosition == RelativePosition.Position.InFrontOf) {
-					direction = ((subjects [rp.MainSubjectIndex].Position - subjects [rp.SecondaryActorIndex].Position) + subjects [rp.MainSubjectIndex].Right * subjects [rp.MainSubjectIndex].Scale.x);
-					direction *= 1.1f + (subjects [rp.MainSubjectIndex].Scale.magnitude / direction.magnitude);
+					direction = ((subjects [rp.MainSubjectIndex].Position - subjects [rp.SecondaryActorIndex].Position) + subjects [rp.MainSubjectIndex].Right * subjects [rp.MainSubjectIndex].VolumeOfInterestSize.x);
+					direction *= 1.1f + (subjects [rp.MainSubjectIndex].VolumeOfInterestSize.magnitude / direction.magnitude);
 					lookAtPoint = subjects [rp.SecondaryActorIndex].Position;
 					break;	
 				}

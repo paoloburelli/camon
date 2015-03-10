@@ -13,6 +13,7 @@ public class ActorEditor : Editor {
 		actor.Shape = (PrimitiveType)EditorGUILayout.EnumPopup ("Shape ", actor.Shape);
 		actor.Offset = EditorGUILayout.Vector3Field ("Offset", actor.Offset);
 		actor.Scale = EditorGUILayout.Vector3Field ("Scale", actor.Scale);
+		actor.IgnoreRotation = EditorGUILayout.Toggle("Ignore rotation",actor.IgnoreRotation);
 		EditorGUILayout.Separator();
 		EditorGUILayout.LabelField("Visibility: "+actor.Visibility);
 		EditorGUILayout.LabelField("Occlusion: "+actor.Occlusion);

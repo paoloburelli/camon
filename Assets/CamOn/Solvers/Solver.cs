@@ -141,7 +141,7 @@ public abstract class Solver
 		float radius = 0;
 		foreach (Actor s in subjects) {
 			if (s != null) {
-				float distance = (s.Position - center).magnitude + s.Scale.magnitude;
+				float distance = (s.Position - center).magnitude + s.VolumeOfInterestSize.magnitude;
 				if (distance > radius)
 					radius = distance;
 			}
@@ -160,7 +160,7 @@ public abstract class Solver
 		float scale = 0;
 		foreach (Actor s in subjects) {
 			if (s != null)
-				scale += s.Scale.magnitude;
+				scale += s.VolumeOfInterestSize.magnitude;
 		}
 		return scale;
 	}
