@@ -78,43 +78,48 @@ public class Shot : ScriptableObject
 			Properties [i] = p;
 		}
 	}
-
+	
 	/// <summary>
 	/// Return the quality of a specific camera setting with respect to the curren shot and the given subject evaluators.
 	/// The quality is calculated as a wighted sum of the properties level of satisfaction.
 	/// Visibility of each subject is also considered in the total quality.
 	/// </summary>
 	/// <returns>[0,1] The quality value; the higher the better.</returns>
-	/// <param name="subjects">A list of subject evaluators.</param>
+	/// <param name="actors">A list of actors.</param>
 	/// <param name="camera">The camera to be evaluated. If the camera is not passed as a parameter, no evaluation is performed and the last recorded quality is passed.</param>
-	public float GetQuality (Actor[] subjects, Camera camera=null)
+	public float GetQuality (Actor[] actors, Camera camera=null)
 	{
 		float value = 0;
 		float weight = 0;
 		
-		if (subjects != null){
+		if (actors != null){
 
 			if (camera != null)
-				Actor.ReevaluateAll (subjects, camera);
+				Actor.ReevaluateAll (actors, camera);
 			
 			bool eval = true;
-			foreach (Actor s in subjects)
+			foreach (Actor s in actors)
 				if (s == null)
 					eval = false;
 			
 			if (eval) {
 				foreach (Property p in Properties) {
-					value += p.Evaluate (subjects) * p.Weight;
-					weight += p.Weight;
-				}
-				for (int i=0;i<subjects.Length;i++){
-	
-					float f = (1-Mathf.Pow(1-subjects[i].Visibility,4));
-					float w =  Mathf.Lerp(PropertiesCount(i),1,f);
-
-					value += f * w;
+					//Wiced Improvement
+					float w = (1-Mathf.Pow(actors[p.MainSubjectIndex].Occlusion,10)) * p.Weight;
+					//Previous: float w = p.Weight;
+					value += p.Evaluate (actors) * w;
 					weight += w;
 				}
+				for (int i=0;i<actors.Length;i++)
+					if (actors[i] != null) {
+						//Wiced Improvement
+						float f = (1-Mathf.Pow(1-actors[i].Visibility,4));
+						float w =  Mathf.Lerp(PropertiesCount(i),1,f);
+						//Previous: float w = 1; float f = actors[i].Visibility;
+
+						value += f * w;
+						weight += w;
+					}
 			}
 		}
 		
@@ -140,8 +145,12 @@ public class Shot : ScriptableObject
 			foreach (Property.Type pt in pTypes)
 				foreach (Property p in Properties)
 					if (p.PropertyType == pt) {
-						value += p.Evaluate (actors) * p.Weight;
-						weight += p.Weight;
+						//Wiced Improvement
+						float w = (1-Mathf.Pow(actors[p.MainSubjectIndex].Occlusion,10)) * p.Weight;
+						//Previous: float w = p.Weight;
+
+						value += p.Evaluate (actors) * w;
+						weight += w;
 					}
 		
 		return float.IsNaN (value / weight) ? 1 : value / weight;
@@ -151,7 +160,7 @@ public class Shot : ScriptableObject
 	/// Returns the level of visibility of the subject given a specific camera camera.
 	/// Visibility is intended as the fraction of the subjects which is included in the frame ans is not occluded by any obstacle.
 	/// </summary>
-	/// <param name="subjects">List of subjects.</param>
+	/// <param name="actors">List of subjects.</param>
 	/// <param name="camera">The camera to be used for evaluation. If the camera is not passed as a parameter, no evaluation is performed and the last recorded visibility is passed.</param>
 	public float Visibility(Actor[] subjects, Camera camera=null) {
 
@@ -160,14 +169,15 @@ public class Shot : ScriptableObject
 
 			float visbility = 0;
 			foreach (Actor s in subjects)
-				visbility += s.Visibility / subjects.Length;
+				if (s != null)
+					visbility += s.Visibility / subjects.Length;
 			return visbility;
 	}
 
 	/// <summary>
 	/// Returns the fraction of the subjects that are included in the view frustum given a specific camera camera.
 	/// </summary>
-	/// <param name="subjects">List of subjects.</param>
+	/// <param name="actors">List of subjects.</param>
 	/// <param name="camera">The camera to be used for evaluation. If the camera is not passed as a parameter, no evaluation is performed and the last recorded fraction is passed.</param>
 	public float InFrustum(Actor[] actors, Camera camera=null) {
 
@@ -176,7 +186,8 @@ public class Shot : ScriptableObject
 
 			float visbility = 0;
 			foreach (Actor s in actors)
-				visbility += s.InFrustum / actors.Length;
+				if (s!=null)
+					visbility += s.InFrustum / actors.Length;
 			return visbility;
 	}
 

@@ -166,7 +166,8 @@ public class CameraOperator : MonoBehaviour
 	/// <param name="subjectsScale">An optional list of scale modifiers for the subjects.</param>
 	public void SelectShot(Shot shot, Transition transition, Actor [] actors){
 		this.Shot = shot;
-		this.actors = actors;
+		for (int i=0;i<Mathf.Min (actors.Length,this.actors.Length);i++)
+			this.actors[i] = actors[i];
 		this.transition = transition;
 		Start();
 	}

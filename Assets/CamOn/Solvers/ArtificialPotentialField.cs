@@ -11,8 +11,10 @@ public static class PropertiesForces
 		
 		if (subjects [0].Visibility == 0)
 			direction = 0;
-		
-		return direction * (currentCamera.position - subjects [0].Position).normalized * (1 - property.Evaluate (subjects));
+
+		//Wiced Improvement
+		return direction * (currentCamera.position - subjects [0].Position).normalized * (1 - property.Evaluate (subjects)) * (1-Mathf.Pow(subjects[property.MainSubjectIndex].Occlusion,10));
+		//Previous: return direction * (currentCamera.position - subjects [0].Position).normalized * (1 - property.Evaluate (subjects));
 	}
 	
 	public static Vector3 PositionForce (this VantageAngle property, Actor[] subjects, Transform currentCamera)
@@ -20,7 +22,10 @@ public static class PropertiesForces
 		Vector3 relativeCamPos = (currentCamera.position - subjects [0].Position);
 		Vector3 targetPosition = subjects [0].VantageDirection * relativeCamPos.magnitude;
 		Vector3 nextPos = Vector3.RotateTowards (relativeCamPos.normalized, targetPosition, 1, 1);
-		return (nextPos - relativeCamPos);
+
+		////Wiced Improvement
+		return (nextPos - relativeCamPos) * (1-Mathf.Pow(subjects[property.MainSubjectIndex].Occlusion,10));
+		//Previous: return (nextPos - relativeCamPos);
 	}
 	
 	public static Vector3 OcclusionAvoidanceForce (Actor subject, Transform currentCamera){
@@ -42,16 +47,20 @@ public static class PropertiesForces
 			h = Random.value;
 			v = Random.value;
 		}
-		
+
+		////Wiced Improvement
 		return (currentCamera.up * v + currentCamera.right * h).normalized * subject.VolumeOfInterestSize.magnitude/5;
+		//Previous: return (currentCamera.up * v + currentCamera.right * h).normalized;
 	}
 	
 	public static Vector3 InFrustumForce (Actor subject, Transform currentCamera){
 		float direction = 0;
 		if (subject.InFrustum < 1)
 			direction = 1;
-		
+
+		//Wiced Improvement
 		return direction * (currentCamera.position - subject.Position).normalized * (1 - subject.InFrustum) * subject.VolumeOfInterestSize.magnitude/5;
+		//Previous: return direction * (currentCamera.position - subject.Position).normalized * (1 - subject.InFrustum);
 	}
 }
 
@@ -65,8 +74,10 @@ public class ArtificialPotentialField : Solver
 	{
 		double maxMilliseconds = maxExecutionTime * 1000;
 		double begin = System.DateTime.Now.TimeOfDay.TotalMilliseconds;
-		
+
+		//Wiced Improvement
 		setPosition(bestPosition + SubjectsVelocity*Time.deltaTime,currentCamera,shot);
+
 		bestFitness = shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());
 		float lookAtFitness = shot.InFrustum(subjects) * .5f + shot.GetQuality (lookAtInfluencingProperties,subjects) * .5f;
 		bestPosition = currentCamera.transform.position;
@@ -90,10 +101,14 @@ public class ArtificialPotentialField : Solver
 			if (positionForce.magnitude >1)
 				positionForce.Normalize();
 
+			//Wiced Improvement
 			setPosition(bestPosition + positionForce + Random.insideUnitSphere * (1 - Mathf.Pow (bestFitness, 2)) * CombinedSubjectsScale(subjects),currentCamera,shot);
+			//Previous: setPosition(bestPosition + positionForce,currentCamera,shot);
 			
+			//Wiced Improvement
 			Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1 - Mathf.Pow (lookAtFitness, 4)) * CombinedSubjectsScale(subjects);
-			
+			//Previous: Vector3 tmpLookAt = SubjectsCenter (subjects) + Random.insideUnitSphere * (1-lookAtFitness);
+
 			currentCamera.LookAt (tmpLookAt);
 			float tmpFit = shot.GetQuality (subjects,currentCamera.GetComponent<Camera> ());
 			
@@ -118,7 +133,8 @@ public class ArtificialPotentialField : Solver
 		bestPosition = camera.position;
 		bestForward = camera.forward;
 	}
-	
+
+	//Wiced Improvement
 	protected override void initBestCamera (Transform bestCamera, Actor[] subjects, Shot shot)
 	{
 		float radius = Solver.SubjectsRadius (subjects);
