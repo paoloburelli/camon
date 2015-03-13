@@ -137,11 +137,11 @@ public class ArtificialPotentialField : Solver
 	//Wiced Improvement
 	protected override void initBestCamera (Transform bestCamera, Actor[] subjects, Shot shot)
 	{
+		Vector3 rayCastPoint = subjects[0].Position;
+
 		float radius = Solver.SubjectsRadius (subjects);
-		Vector3 center = Solver.SubjectsCenter (subjects);
-		
 		Vector3 direction = Vector3.one * radius;
-		Vector3 lookAtPoint = center;
+		Vector3 lookAtPoint = Solver.SubjectsCenter (subjects);
 		
 		
 		foreach (Property p in shot.Properties) {
@@ -150,6 +150,7 @@ public class ArtificialPotentialField : Solver
 				subjects[va.MainSubjectIndex].CalculateRelativeCameraAngle(va.DesiredHorizontalAngle,va.DesiredVerticalAngle);
 				direction = subjects[p.MainSubjectIndex].VantageDirection * radius;
 				lookAtPoint = subjects [va.MainSubjectIndex].Position;
+				rayCastPoint = subjects [va.MainSubjectIndex].Position;
 				break;
 			} else if (p.PropertyType == Property.Type.RelativePosition) {
 				RelativePosition rp = (RelativePosition)p;
@@ -157,6 +158,7 @@ public class ArtificialPotentialField : Solver
 					direction = ((subjects [rp.MainSubjectIndex].Position - subjects [rp.SecondaryActorIndex].Position) + subjects [rp.MainSubjectIndex].Right * subjects [rp.MainSubjectIndex].VolumeOfInterestSize.x);
 					direction *= 1.1f + (subjects [rp.MainSubjectIndex].VolumeOfInterestSize.magnitude / direction.magnitude);
 					lookAtPoint = subjects [rp.SecondaryActorIndex].Position;
+					rayCastPoint = subjects [rp.MainSubjectIndex].Position;
 					break;	
 				}
 			}
@@ -166,17 +168,20 @@ public class ArtificialPotentialField : Solver
 		setPosition(lookAtPoint + direction,bestCamera,shot);
 		//bestCamera.position = lookAtPoint + direction;
 		bestCamera.LookAt (lookAtPoint);
-		
+
+		float rayDistance = (bestCamera.position-rayCastPoint).magnitude;
+		Vector3 rayDirection = (bestCamera.position-rayCastPoint).normalized;
+
 		RaycastHit hitInfo;
-		Physics.Raycast (lookAtPoint,-bestCamera.forward, out hitInfo,direction.magnitude);
+		Physics.Raycast (rayCastPoint,rayDirection, out hitInfo,rayDistance);
 		
-		bool obstacle = hitInfo.distance < direction.magnitude;
+		bool obstacle = hitInfo.distance < rayDistance;
 		foreach (Actor a in subjects)
 			if (a != null && hitInfo.collider == a.GetComponent<Collider>())
 				obstacle = false;
 		
 		if (obstacle)
-			Solver.setPosition(bestCamera.position + bestCamera.forward * (direction.magnitude-hitInfo.distance),bestCamera,shot);
+			Solver.setPosition(bestCamera.position - rayDirection * (rayDistance-hitInfo.distance),bestCamera,shot);
 	}
 }
 
