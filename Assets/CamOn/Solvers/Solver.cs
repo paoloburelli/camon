@@ -99,12 +99,15 @@ public abstract class Solver
 	/// <param name="subjects">subjects in the shot</param>
 	/// <param name="shot">shot to be generated</param>
 	public virtual void Start(Transform bestCamera, Actor[] subjects, Shot shot){
-		if (bestCamera == null)
-			throw new MissingReferenceException ("camera not initilised");
-		
+		if (bestCamera == null || subjects == null || shot == null)
+			return;
+
+		foreach (Actor a in subjects)
+			if (a ==null)
+				return;
+
 		lastCenter = SubjectsCenter(subjects);
 		subjectsVelocity = Vector3.zero;
-		
 		initBestCamera (bestCamera, subjects, shot);
 		running = true;
 	}
