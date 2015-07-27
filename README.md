@@ -10,6 +10,6 @@ CamOn is a Unity library that allows to easily setup and control the camera in 3
 ### Demos
 * [CamOn non-interactive demo](http://paoloburelli.github.io/camon/)
  
-### Scientific Papers
+### Technical Publications
 * [Wiced 2015](http://www.paoloburelli.com/publications/burelli2015wiced.pdf)
 * [CIG 2010](http://www.paoloburelli.com/publications/burelli2010cig.pdf) (Old)
