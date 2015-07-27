@@ -1,4 +1,11 @@
 # CamOn
-Felixible camera control script for Unity 3D
+Felixible camera control script for Unity 3D.
 
-Check http://paoloburelli.github.io/camon/ for a demo showing the ability of CamOn to generate cinematographic shots in dynamic scenes
+CamOn is a Unity library that allows to easily setup and control the camera in 3D environment. It is designed to simplify the camera placement process in cut-scenes and to allow more cinematographic visualisations during gameplay.
+
+### Video Tutorials
+* [Creating actors](https://vimeo.com/134608246)
+* [Selecting shots](https://vimeo.com/134607086)
+
+### Demos
+* [CamOn non-interactive demo](http://paoloburelli.github.io/camon/)
