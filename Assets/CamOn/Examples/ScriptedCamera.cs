@@ -6,6 +6,8 @@ public class ScriptedCamera : MonoBehaviour {
 	public Transform actor;
 	Actor ethan;
 
+
+
 	// Use this for initialization
 	void Start () {
 		//Create an actor attached to a transform
@@ -19,15 +21,15 @@ public class ScriptedCamera : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (Time.frameCount == 100)
+		if (Time.frameCount % 400 == 100)
 			//Select a long shot with a smooth transition (i.e. the camera smoothly mooves from its current position to the new one)
 			CameraOperator.OnMainCamera.SelectShot(Resources.Load<Shot>("OneActor-LongShot"), CameraOperator.Transition.Smooth, ethan);
 
-		if (Time.frameCount == 200)
+		if (Time.frameCount % 400 == 200)
 			//Select a left side shot with a cut
 			CameraOperator.OnMainCamera.SelectShot(Resources.Load<Shot>("OneActor-LeftSide"), CameraOperator.Transition.Cut, ethan);
 
-		if (Time.frameCount == 300)
+		if (Time.frameCount % 400 == 300)
 			//Finish with a smooth transition to a close-up
 			CameraOperator.OnMainCamera.SelectShot(Resources.Load<Shot>("OneActor-CloseUp"), CameraOperator.Transition.Smooth, ethan);
 	}
