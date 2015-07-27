@@ -1,7 +1,7 @@
 # CamOn
 CamOn is a Unity library that allows to easily setup and control the camera in 3D environment. It is designed to simplify the camera placement process in cut-scenes and to allow more cinematographic visualisations during gameplay.
 
-With CamOn, you can define the behaviour of the camera in terms of composition and animation instead of manually place the camera in the 3D space. For instance, you can tell the camera to perform a close up of a character or a long shot and than smootly change to an over the shoulder shot of two character dialguing.
+With CamOn, you can define the behaviour of the camera in terms of composition and animation instead of manually place the camera in the 3D space. For instance, you can tell the camera to perform a close up of a character or a long shot and than smoothly change to an over the shoulder shot of two character dialoguing.
 
 CamOn will automatically animate the camera in real-time to generate and maintain the requested shot while the characters and the rest of the game changes dynamically.
 
