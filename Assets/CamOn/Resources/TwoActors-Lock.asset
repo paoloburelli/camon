@@ -32,9 +32,10 @@ MonoBehaviour:
     - .5
     subjectReferences: 01000000
     weight: .5
-  - propertyType: 3
+  - propertyType: 1
     desiredValues:
-    - 4
-    subjectReferences: 0000000001000000
-    weight: 1
+    - 180
+    - 10
+    subjectReferences: 00000000
+    weight: .5
   numberOfActors: 2

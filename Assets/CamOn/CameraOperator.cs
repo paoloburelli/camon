@@ -161,13 +161,24 @@ public class CameraOperator : MonoBehaviour
 	/// </summary>
 	/// <param name="shot">Shot.</param>
 	/// <param name="transition">The type fo transition.</param>
-	/// <param name="subjectsTransform">A list of the transforms of the subjects of this shot.</param>
-	/// <param name="subjectsOffset">An optional list of offset modifiers for the subjects.</param>
-	/// <param name="subjectsScale">An optional list of scale modifiers for the subjects.</param>
+	/// <param name="actors">An array of actors included in the shot.</param>
 	public void SelectShot(Shot shot, Transition transition, Actor [] actors){
 		this.Shot = shot;
 		for (int i=0;i<Mathf.Min (actors.Length,this.actors.Length);i++)
 			this.actors[i] = actors[i];
+		this.transition = transition;
+		Start();
+	}
+
+	/// <summary>
+	/// Selects a new shot with one actor and initiates a transition.
+	/// </summary>
+	/// <param name="shot">Shot.</param>
+	/// <param name="transition">The type fo transition.</param>
+	/// <param name="actor">The actor included in the shot.</param>
+	public void SelectShot(Shot shot, Transition transition, Actor actor){
+		this.Shot = shot;
+		this.actors[0] = actor;
 		this.transition = transition;
 		Start();
 	}

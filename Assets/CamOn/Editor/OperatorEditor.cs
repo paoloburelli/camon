@@ -19,9 +19,15 @@ public class OperatorEditor : Editor
 			if (controller.Shot != prevShot)
 				EditorUtility.SetDirty (controller.Shot);
 
+			bool actorsChanged = false;
 			for (int i=0;i<controller.Actors.Length;i++){
+				Actor prev = controller.Actors[i];
 				controller.Actors[i] = (Actor)EditorGUILayout.ObjectField("Actor "+i,controller.Actors[i],typeof(Actor),true);
+				actorsChanged = prev != controller.Actors[i];
 			}
+
+			if (actorsChanged && Application.isPlaying)
+				controller.SelectShot(controller.Shot,CameraOperator.Transition.Smooth,controller.Actors);
 			
 
 			controller.MovementResponsiveness = EditorGUILayout.Slider("Movement Responsiveness",controller.MovementResponsiveness,0,1);
