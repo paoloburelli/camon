@@ -438,12 +438,12 @@ public class Actor : MonoBehaviour
 	void OnDrawGizmos ()
 	{
 		if (proxy != null) {
-			Gizmos.color = Color.white;
+			Gizmos.color = Color.yellow;
 			Vector3 scale = proxy.transform.localScale;
-			Transform t = proxy.transform.parent;
-			while ((t = t.parent) != null)
-				scale.Scale(t.localScale);
-			
+			Transform t = transform;
+			do scale.Scale(t.localScale);
+			while ((t = t.parent) != null);
+				
 			Gizmos.DrawWireMesh(proxyMesh,Position,Orientation,scale);
 			
 			for (int i =0; i<SAMPLES; i++)
