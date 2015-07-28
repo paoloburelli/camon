@@ -8,6 +8,7 @@ CamOn will automatically animate the camera in real-time to generate and maintai
 You can download the latest version of CamOn [here](https://github.com/paoloburelli/camon/releases/download/1.9/CamOn-1.9.unitypackage) and, further in this page, you can find some resources and documentation to get started with CamOn.
 
 ### Video Tutorials
+* [Installation and quick start](https://vimeo.com/134700380)
 * [Creating actors](https://vimeo.com/134608246)
 * [Selecting shots](https://vimeo.com/134607086)
 
