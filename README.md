@@ -10,6 +10,7 @@ For more details on CamOn's structure and implementation you can check the [Wiki
 
 ### Tutorials
 * [Installation and quick start](https://github.com/paoloburelli/camon/wiki#installation-and-quick-start)
+* [Using CamOn from C-Sharp](https://github.com/paoloburelli/camon/wiki#using-camon-from-c-sharp)
 
 ### Video Tutorials
 * [Installation and quick start](https://vimeo.com/134700380)
