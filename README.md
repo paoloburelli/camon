@@ -6,6 +6,10 @@ With CamOn, you can define the behaviour of the camera in terms of composition a
 CamOn will automatically animate the camera in real-time to generate and maintain the requested shot while the characters and the rest of the game changes dynamically.
 
 You can download the latest version of CamOn [here](https://github.com/paoloburelli/camon/releases/download/1.9/CamOn-1.9.unitypackage) and, further in this page, you can find some resources and documentation to get started with CamOn.
+For more details on CamOn's structure and implementation you can check the [Wiki](https://github.com/paoloburelli/camon/wiki).
+
+### Tutorials
+* [Installation and quick start](https://github.com/paoloburelli/camon/wiki#installation-and-quick-start)
 
 ### Video Tutorials
 * [Installation and quick start](https://vimeo.com/134700380)
