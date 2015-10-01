@@ -1,6 +1,10 @@
 using System;
 using UnityEngine;
 
+
+/// <summary>
+/// This property can be used to define the relative position of two objects on the screen.
+/// </summary>
 [Serializable]
 public class RelativePosition : Property
 {

@@ -1,6 +1,9 @@
 using System;
 using UnityEngine;
 
+/// <summary>
+/// This property can be used to define at which angle relative to an actor should the camera be placed.
+/// </summary>
 [Serializable]
 public class VantageAngle : Property
 {
