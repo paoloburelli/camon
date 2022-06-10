@@ -23,3 +23,6 @@ For more details on CamOn's structure and implementation you can check the [Wiki
 ### Technical Publications
 * [Wiced 2015](http://www.paoloburelli.com/publications/burelli2015wiced.pdf)
 * [CIG 2010](http://www.paoloburelli.com/publications/burelli2010cig.pdf) (Old)
+
+
+# [N.B. This project has not been actively developed for more than a decade, it's probably not compatible with recent version of unity, but the code is a good example of single-thread implementation of the algorithms presented in the papers]
